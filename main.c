@@ -288,7 +288,7 @@ void drawFoliage(struct model *models, struct v3f camerapos, struct v3f cameraro
         alpha = (GLubyte) (255 - ((dist - VIEW_DISTANCE_HALF) / (float) VIEW_DISTANCE_HALF) * 255);
       else
         alpha = 0;
-      drawModel(models[0], mv3f(-xpos, temp.height, -zpos), mv3f(0, x1 % 359, 0), 2, alpha);
+      drawModel(models[x1 % 4], mv3f(-xpos, temp.height, -zpos), mv3f(0, x1 % 359, 0), 2, alpha);
     }
     if (x_grid >= TERRAIN_GRID_SIZE - 1) {
       z_grid++;
