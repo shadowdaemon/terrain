@@ -42,14 +42,10 @@ float algorithmicTerrainHeight(float x, float z)
 }
 
 
-float readTerrainHeight(int x, int y) {
-  return algorithmicTerrainHeight(x, y);
-}
-
-
-char calculateTerrainType(float height)
+char calculateTerrainType(float height, float sample)
 {
   char type = T_TYPE_DIRT;
+  float diff = fabs(height - sample);
 
   if (height <= TERRAIN_WATER_LEVEL)
     type = T_TYPE_WATER;
@@ -57,6 +53,8 @@ char calculateTerrainType(float height)
     type = T_TYPE_WATER_EDGE;
   else if (height < 500)
     type = T_TYPE_GRASS1;
+  else if (diff > TERRAIN_SQUARE_SIZE / 5.0f)
+    type = T_TYPE_DIRT;
   else if (height < 1250)
     type = T_TYPE_GRASS2;
   else if (height < 2500)
@@ -67,6 +65,23 @@ char calculateTerrainType(float height)
     type = T_TYPE_ROCK;
 
   return type;
+}
+
+
+float readTerrainHeight(int x, int y) {
+  return algorithmicTerrainHeight(x, y);
+}
+
+
+struct terrain readTerrain(float x, float z)
+{
+  struct terrain temp;
+  float h = algorithmicTerrainHeight(x + TERRAIN_SQUARE_SIZE / 3.0f, z + TERRAIN_SQUARE_SIZE / 3.0f);
+
+  temp.height = algorithmicTerrainHeight(x, z);
+  temp.type = calculateTerrainType(temp.height, h);
+
+  return temp;
 }
 
 
@@ -92,17 +107,6 @@ void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
 
 void selectPosition(void)
 {}
-
-
-struct terrain readTerrain(float x, float z)
-{
-  struct terrain temp;
-
-  temp.height = algorithmicTerrainHeight(x, z);
-  temp.type = calculateTerrainType(temp.height);
-
-  return temp;
-}
 
 
 void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *swapb, int *squaresize)
