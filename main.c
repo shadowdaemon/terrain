@@ -72,13 +72,13 @@ int startGraphics(GLuint *textures)
 
 void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squaresize)
 {
-  float fogstart;
-  float fogend;
+  static float fogstart = 10;
+  static float fogend = 20;
 
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
   glClearColor(clear[0], clear[1], clear[2], clear[3]);
-  fogstart = squaresize * TERRAIN_GRID_SIZE * 0.5f;
-  fogend = squaresize * TERRAIN_GRID_SIZE * 0.6f;
+  fogstart -= (fogstart - squaresize * TERRAIN_GRID_SIZE * 0.4f) * 0.1f;
+  fogend -= (fogend - squaresize * TERRAIN_GRID_SIZE * 0.6f) * 0.1f;
   glFogfv(GL_FOG_COLOR, clear);
   glFogf(GL_FOG_START, fogstart);
   glFogf(GL_FOG_END, fogend < 35000.f ? fogend : 35000.f);
