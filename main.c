@@ -259,21 +259,18 @@ void keyboardInput(char *direction, int *key)
 }
 
 
-void drawFoliage(struct model *models, struct v3f camerapos, struct v3f camerarot, struct v2f sector, int squaresize)
+void drawFoliage(struct model *models, struct v3f camerapos, struct v3f camerarot, struct v2f sector)
 {
-  int x_shift, z_shift, x_grid, z_grid, x1, z1, cull;
+  int x_grid, z_grid, x1, z1, cull;
   float x, z, xpos = 0.0f, zpos = 0.0f, dist;
   struct terrain temp;
   GLubyte alpha;
 
-  squaresize = TERRAIN_SQUARE_SIZE;
-  x = (int) (sector.x / -squaresize);
-  z = (int) (sector.y / -squaresize);
+  x = (int) (sector.x / -TERRAIN_SQUARE_SIZE);
+  z = (int) (sector.y / -TERRAIN_SQUARE_SIZE);
   for (x_grid = 0, z_grid = 0; x_grid < TERRAIN_GRID_SIZE && z_grid < TERRAIN_GRID_SIZE; x_grid++) {
-    x_shift = squaresize;// + fabs(TERRAIN_GRID_SIZE_HALF - x_grid) * 3;
-    z_shift = squaresize;// + fabs(TERRAIN_GRID_SIZE_HALF - z_grid) * 3;
-    xpos = (-TERRAIN_GRID_SIZE_HALF + x_grid) * x_shift + x * squaresize;
-    zpos = (-TERRAIN_GRID_SIZE_HALF + z_grid) * z_shift + z * squaresize;
+    xpos = (-TERRAIN_GRID_SIZE_HALF + x_grid + x) * TERRAIN_SQUARE_SIZE;
+    zpos = (-TERRAIN_GRID_SIZE_HALF + z_grid + z) * TERRAIN_SQUARE_SIZE;
     x1 = (int) xpos % 97;
     z1 = (int) zpos % 53;
     xpos += z1;
@@ -326,7 +323,7 @@ void render(struct model *models, GLuint *textures, int *swapb, struct v3f camer
   glEnableClientState(GL_NORMAL_ARRAY);
   //glEnableClientState(GL_TEXTURE_COORD_ARRAY); /* this does not currently work */
   glBindTexture(GL_TEXTURE_2D, textures[1]);
-  drawFoliage(models, camerapos, camerarot, *sector, *squaresize);
+  drawFoliage(models, camerapos, camerarot, *sector);
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
   //glDepthFunc(GL_ALWAYS);
