@@ -1,0 +1,6 @@
+data
+terrain
+testing
+*.o
+*.i
+*.s
