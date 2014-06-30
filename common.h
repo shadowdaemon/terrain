@@ -70,15 +70,6 @@ struct model {
   GLuint *tex_indices;
   GLfloat (*tex_coords)[2];
 };
-/*struct model {
-  GLenum type;
-  GLuint num_indices;
-  GLfloat verts[5000][3];
-  GLfloat norms[5000][3];
-  GLuint indices[5000];
-  GLuint tex_indices[5000];
-  GLfloat tex_coords[5000][2];
-};*/
 
 float algorithmicTerrainHeight(float x, float z);
 struct terrain readTerrain(float x, float y);

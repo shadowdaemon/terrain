@@ -78,7 +78,7 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squa
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
   glClearColor(clear[0], clear[1], clear[2], clear[3]);
   fogstart -= (fogstart - squaresize * TERRAIN_GRID_SIZE * 0.4f) * 0.1f;
-  fogend -= (fogend - squaresize * TERRAIN_GRID_SIZE * 0.6f) * 0.1f;
+  fogend -= (fogend - squaresize * TERRAIN_GRID_SIZE * 1.2f) * 0.1f;
   glFogfv(GL_FOG_COLOR, clear);
   glFogf(GL_FOG_START, fogstart);
   glFogf(GL_FOG_END, fogend < 35000.f ? fogend : 35000.f);
@@ -283,14 +283,15 @@ void drawFoliage(struct model *models, struct v3f camerapos, struct v3f cameraro
     cull -= 360;
     temp = readTerrain(xpos, zpos);
     dist = distance2d(camerapos, mv3f(-xpos, 0.0f, -zpos));
-    if (temp.height > TERRAIN_WATER_LEVEL + 50 && temp.height < 2750 && (cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) && dist < VIEW_DISTANCE && ((x1 * x1 + z1 * z1) % 117 < 12) && temp.type != T_TYPE_DIRT) {
+    x1 = x1 * x1 + z1 * z1;
+    if (temp.height > TERRAIN_WATER_LEVEL + 50 && temp.height < 2750 && (cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) && dist < VIEW_DISTANCE && (x1 % 117 < 3) && temp.type != T_TYPE_DIRT) {
       if (dist < VIEW_DISTANCE_HALF)
         alpha = 255;
       else if (dist < VIEW_DISTANCE)
         alpha = (GLubyte) (255 - ((dist - VIEW_DISTANCE_HALF) / (float) VIEW_DISTANCE_HALF) * 255);
       else
         alpha = 0;
-      drawModel(models[0], mv3f(-xpos, temp.height, -zpos), mv3f(0, 0, 0), 2, alpha);
+      drawModel(models[0], mv3f(-xpos, temp.height, -zpos), mv3f(0, x1 % 359, 0), 2, alpha);
     }
     if (x_grid >= TERRAIN_GRID_SIZE - 1) {
       z_grid++;
