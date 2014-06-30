@@ -9,7 +9,7 @@
 #define TERRAIN_SQUARE_SIZE                 100
 #define TERRAIN_CENTRE_DISTANCE             (TERRAIN_SQUARE_SIZE*TERRAIN_GRID_SIZE*0.4f)
 #define TERRAIN_STEP_SIZE                   8
-#define TERRAIN_WATER_LEVEL                 -500
+#define TERRAIN_WATER_LEVEL                 0
 #define T_TYPE_WATER                        1
 #define T_TYPE_CRATER                       2
 #define T_TYPE_GRASS1                       3
@@ -55,6 +55,12 @@ struct v3f {
   float z;
 };
 
+struct terrain
+{
+	float height;
+	char type;
+};
+
 struct model {
   GLenum type;
   GLuint num_indices;
@@ -75,7 +81,8 @@ struct model {
 };*/
 
 float algorithmicTerrainHeight(float x, float z);
-float readTerrainHeight(int x, int y);
+struct terrain readTerrain(float x, float y);
+float readTerrainHeight(float x, float y);
 void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int *swapb, int squaresize);
 void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *swapb, int *squaresize);
 void loadFromOBJFile(char *name, struct model *model);

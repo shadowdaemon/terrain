@@ -261,8 +261,9 @@ void keyboardInput(char *direction, int *key)
 
 void drawFoliage(struct model *models, struct v3f camerapos, struct v3f camerarot, struct v2f sector, int squaresize)
 {
-  int x_shift, z_shift, x_grid, z_grid, cull;
-  float x, z, xpos = 0.0f, zpos = 0.0f, height, dist;
+  int x_shift, z_shift, x_grid, z_grid, x1, z1, cull;
+  float x, z, xpos = 0.0f, zpos = 0.0f, dist;
+  struct terrain temp;
   GLubyte alpha;
 
   squaresize = TERRAIN_SQUARE_SIZE;
@@ -273,19 +274,23 @@ void drawFoliage(struct model *models, struct v3f camerapos, struct v3f cameraro
     z_shift = squaresize;// + fabs(TERRAIN_GRID_SIZE_HALF - z_grid) * 3;
     xpos = (-TERRAIN_GRID_SIZE_HALF + x_grid) * x_shift + x * squaresize;
     zpos = (-TERRAIN_GRID_SIZE_HALF + z_grid) * z_shift + z * squaresize;
+    x1 = (int) xpos % 97;
+    z1 = (int) zpos % 53;
+    xpos += z1;
+    zpos += x1;
     cull = fabs((int) (camerarot.y - vectorstodegree2d(camerapos, mv3f(-xpos, 0, -zpos))));
     while (cull >= 360)
     cull -= 360;
-    height = readTerrainHeight(xpos, zpos);
+    temp = readTerrain(xpos, zpos);
     dist = distance2d(camerapos, mv3f(-xpos, 0.0f, -zpos));
-    if (height > TERRAIN_WATER_LEVEL + 30 && height < 6400 && (cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) && dist < VIEW_DISTANCE && ((int) (xpos + zpos) % 7 == 0)) {
+    if (temp.height > TERRAIN_WATER_LEVEL + 50 && temp.height < 2750 && (cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) && dist < VIEW_DISTANCE && ((x1 * x1 + z1 * z1) % 117 < 12) && temp.type != T_TYPE_DIRT) {
       if (dist < VIEW_DISTANCE_HALF)
         alpha = 255;
       else if (dist < VIEW_DISTANCE)
         alpha = (GLubyte) (255 - ((dist - VIEW_DISTANCE_HALF) / (float) VIEW_DISTANCE_HALF) * 255);
       else
         alpha = 0;
-      drawModel(models[0], mv3f(-xpos, height, -zpos), mv3f(0, 0, 0), 2, alpha);
+      drawModel(models[0], mv3f(-xpos, temp.height, -zpos), mv3f(0, 0, 0), 2, alpha);
     }
     if (x_grid >= TERRAIN_GRID_SIZE - 1) {
       z_grid++;

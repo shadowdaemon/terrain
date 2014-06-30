@@ -2,13 +2,6 @@
 #include "maths.h"
 
 
-struct terrain
-{
-	float height;
-	char type;
-};
-
-
 float algorithmicTerrainHeight(float x, float z)
 {
   float height, x1, z1, x2, z2, a1, a2, h1, h2, g1, g2;
@@ -55,11 +48,11 @@ char calculateTerrainType(float height, float sample)
     type = T_TYPE_GRASS1;
   else if (diff > TERRAIN_SQUARE_SIZE / 5.0f)
     type = T_TYPE_DIRT;
-  else if (height < 1250)
+  else if (height < 1250 || (diff < TERRAIN_SQUARE_SIZE / 9.0f && height < 2500))
     type = T_TYPE_GRASS2;
   else if (height < 2500)
     type = T_TYPE_GRASS3;
-  else if (height < 4000)
+  else if (height < 3000)
     type = T_TYPE_DIRT;
   else
     type = T_TYPE_ROCK;
@@ -68,7 +61,7 @@ char calculateTerrainType(float height, float sample)
 }
 
 
-float readTerrainHeight(int x, int y) {
+float readTerrainHeight(float x, float y) {
   return algorithmicTerrainHeight(x, y);
 }
 
@@ -236,7 +229,7 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
     case T_TYPE_ROCK:
       SEcolorR[x_grid][z_grid] = 91;
       SEcolorG[x_grid][z_grid] = 96;
-      SEcolorB[x_grid][z_grid] = 54;
+      SEcolorB[x_grid][z_grid] = 78;
       break;
     case T_TYPE_DIRT:
       SEcolorR[x_grid][z_grid] = 101;
@@ -283,7 +276,7 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
     case T_TYPE_ROCK:
       NEcolorR[x_grid][z_grid] = 91;
       NEcolorG[x_grid][z_grid] = 96;
-      NEcolorB[x_grid][z_grid] = 54;
+      NEcolorB[x_grid][z_grid] = 78;
       break;
     case T_TYPE_DIRT:
       NEcolorR[x_grid][z_grid] = 93;
