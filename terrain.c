@@ -176,15 +176,15 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   glPushMatrix();
   glScalef(0.01f, 0.01f, 0.01f);
   for (x_grid = 0, z_grid = 0; x_grid < TERRAIN_GRID_SIZE && z_grid < TERRAIN_GRID_SIZE; x_grid++) {
-    x_shift = *squaresize + fabs(TERRAIN_GRID_SIZE_HALF - x_grid) * 3;
+    x_shift = *squaresize + fabs(TERRAIN_GRID_SIZE_HALF - x_grid) * 8;
     //x_shift = *squaresize;
-    z_shift = *squaresize + fabs(TERRAIN_GRID_SIZE_HALF - z_grid) * 3;
+    z_shift = *squaresize + fabs(TERRAIN_GRID_SIZE_HALF - z_grid) * 8;
     //z_shift = *squaresize;
     xpos = (-TERRAIN_GRID_SIZE_HALF + x_grid) * x_shift + x * *squaresize;
     zpos = (-TERRAIN_GRID_SIZE_HALF + z_grid) * z_shift + z * *squaresize;
-    x_shift = *squaresize * 0.5f + fabs(TERRAIN_GRID_SIZE_HALF - x_grid) * 3;
+    x_shift = *squaresize * 0.5f + fabs(TERRAIN_GRID_SIZE_HALF - x_grid) * 8;
     //x_shift = *squaresize * 0.5f;
-    z_shift = *squaresize * 0.5f + fabs(TERRAIN_GRID_SIZE_HALF - z_grid) * 3;
+    z_shift = *squaresize * 0.5f + fabs(TERRAIN_GRID_SIZE_HALF - z_grid) * 8;
     //z_shift = *squaresize * 0.5f;
     NEx[x_grid][z_grid] = (int) (xpos + x_shift);
     NEz[x_grid][z_grid] = (int) (zpos - z_shift);

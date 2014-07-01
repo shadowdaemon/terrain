@@ -43,7 +43,7 @@ int startGraphics(GLuint *textures)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   glMatrixMode(GL_PROJECTION);
-  glFrustum(-0.027f, 0.027f, -0.020f, 0.020f, 0.04f, 36000.0f);
+  glFrustum(-0.027f, 0.027f, -0.020f, 0.020f, 0.04f, 50000.0f);
   glMatrixMode(GL_MODELVIEW);
   glViewport(0, 0, 1366, 768);
   /*glSelectBuffer(SIM_SELECT_BUFFER_SIZE, select_buf);
@@ -78,10 +78,10 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squa
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
   glClearColor(clear[0], clear[1], clear[2], clear[3]);
   fogstart -= (fogstart - squaresize * TERRAIN_GRID_SIZE * 0.4f) * 0.1f;
-  fogend -= (fogend - squaresize * TERRAIN_GRID_SIZE * 1.2f) * 0.1f;
+  fogend -= (fogend - squaresize * TERRAIN_GRID_SIZE * 0.9f) * 0.1f;
   glFogfv(GL_FOG_COLOR, clear);
-  glFogf(GL_FOG_START, fogstart);
-  glFogf(GL_FOG_END, fogend < 35000.f ? fogend : 35000.f);
+  glFogf(GL_FOG_START, fogstart < 35000.0f ? fogstart : 35000.0f);
+  glFogf(GL_FOG_END, fogend < 40000.f ? fogend : 40000.f);
 }
 
 
@@ -311,6 +311,7 @@ void render(struct model *models, GLuint *textures, int *swapb, struct v3f camer
   glMaterialfv(GL_FRONT, GL_SPECULAR, materialColor);
   glMateriali(GL_FRONT, GL_SHININESS, 37);
   glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
   glEnable(GL_FOG);
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_LIGHTING);
@@ -326,6 +327,23 @@ void render(struct model *models, GLuint *textures, int *swapb, struct v3f camer
   drawFoliage(models, camerapos, camerarot, *sector);
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
+
+  glPushMatrix();
+  glDisable(GL_FOG);
+  glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
+  glRotatef((GLfloat) (-camerarot.y), 0.0f, 1.0f, 0.0f);
+  glDisable(GL_TEXTURE_2D);
+  glDisable(GL_LIGHTING);
+  glBegin(GL_QUADS);
+  glColor3ub(122, 122, 255);
+  glVertex3f(20000.0f, 5000.0f, 20000.0f);
+  glVertex3f(-20000.0f, 5000.0f, 20000.0f);
+  glColor3fv(clear);
+  glVertex3f(-20000.0f, 5000.0f, -20000.0f);
+  glVertex3f(20000.0f, 5000.0f, -20000.0f);
+  glEnd();
+  glPopMatrix();
+
   //glDepthFunc(GL_ALWAYS);
   //glDisable(GL_LIGHTING);
   //glDisable(GL_FOG);
@@ -333,7 +351,6 @@ void render(struct model *models, GLuint *textures, int *swapb, struct v3f camer
   //glBindTexture(GL_TEXTURE_2D, textures[4]);
   //engine.menus[engine.menu].drawMenu();
   //}
-  glDepthFunc(GL_LESS);
   if (*swapb)
     glfwSwapBuffers();
   *swapb = 1;
@@ -398,7 +415,7 @@ int main(int argc, char *argv[])
       keyboardInput(&direction, &key);
       mouseLook(&camerarot);
       render(models, textures, &swapb, camerapos, camerarot, &sector, camheight, &squaresize);
-      movement(&camerapos, camerarot, direction, 50.0f);
+      movement(&camerapos, camerarot, direction, 100.0f);
       updateCamera(camerarot);
       glTranslatef(camerapos.x, camerapos.y, camerapos.z);
     }
