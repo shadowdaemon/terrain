@@ -70,22 +70,21 @@ int startGraphics(GLuint *textures)
 }
 
 
-void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squaresize)
+void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squaresize, float *fogend)
 {
   static float fogstart = 10;
-  static float fogend = 20;
 
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
   glClearColor(clear[0], clear[1], clear[2], clear[3]);
   fogstart -= (fogstart - squaresize * TERRAIN_GRID_SIZE * 0.4f) * 0.1f;
-  fogend -= (fogend - squaresize * TERRAIN_GRID_SIZE * 0.5f - 7500.0f) * 0.1f;
+  *fogend -= (*fogend - squaresize * TERRAIN_GRID_SIZE * 0.5f - 7500.0f) * 0.1f;
   glFogfv(GL_FOG_COLOR, clear);
   glFogf(GL_FOG_START, fogstart < 35000.0f ? fogstart : 35000.0f);
-  glFogf(GL_FOG_END, fogend < 40000.f ? fogend : 40000.f);
+  glFogf(GL_FOG_END, *fogend < 40000.f ? *fogend : 40000.f);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   // <clb_> pushing near plane farther helps much more
-  glFrustum(-0.027f, 0.027f, -0.020f, 0.020f, 0.04f, fogend * 1.5f);
+  glFrustum(-0.027f, 0.027f, -0.020f, 0.020f, 0.04f, *fogend * 1.1f);
   glMatrixMode(GL_MODELVIEW);
 }
 
@@ -303,7 +302,7 @@ void drawFoliage(struct model *models, struct v3f camerapos, struct v3f cameraro
 }
 
 
-void skyPlane(struct v3f camerapos, struct v3f camerarot, GLfloat *clear)
+void skyPlane(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, float fogend)
 {
   glPushMatrix();
   glDisable(GL_DEPTH_TEST);
@@ -317,14 +316,16 @@ void skyPlane(struct v3f camerapos, struct v3f camerarot, GLfloat *clear)
   glVertex3f(20000.0f, 3000.0f, 20000.0f);
   glVertex3f(-20000.0f, 3000.0f, 20000.0f);
   glColor3fv(clear);
-  glVertex3f(-20000.0f, 3000.0f, -20000.0f);
-  glVertex3f(20000.0f, 3000.0f, -20000.0f);
+  //glVertex3f(-20000.0f, 3000.0f, -20000.0f);
+  //glVertex3f(20000.0f, 3000.0f, -20000.0f);
+  glVertex3f(-20000.0f, 3000.0f, -fogend);
+  glVertex3f(20000.0f, 3000.0f, -fogend);
   glEnd();
   glPopMatrix();
 }
 
 
-void render(struct model *models, GLuint *textures, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *squaresize)
+void render(struct model *models, GLuint *textures, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *squaresize, float *fogend)
 {
   GLfloat materialColor[4];
   GLfloat clear[4]   = {0.5f, 0.5f, 0.5f, 1.0f};
@@ -337,13 +338,13 @@ void render(struct model *models, GLuint *textures, int *swapb, struct v3f camer
   glMaterialfv(GL_FRONT, GL_SPECULAR, materialColor);
   glMateriali(GL_FRONT, GL_SHININESS, 37);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  skyPlane(camerapos, camerarot, clear);
+  skyPlane(camerapos, camerarot, clear, *fogend);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
   glEnable(GL_FOG);
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_LIGHTING);
-  updateFogLights(clear, ambient, camheight, *squaresize);
+  updateFogLights(clear, ambient, camheight, *squaresize, fogend);
   glEnable(GL_NORMALIZE);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
   drawTerrain(camerapos, camerarot, sector, camheight, swapb, squaresize);
@@ -405,8 +406,8 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
   ground += -readTerrainHeight(-camerapos->x - TERRAIN_SQUARE_SIZE, -camerapos->z + TERRAIN_SQUARE_SIZE);
   ground += -readTerrainHeight(-camerapos->x - TERRAIN_SQUARE_SIZE, -camerapos->z - TERRAIN_SQUARE_SIZE);
   ground = -TERRAIN_SQUARE_SIZE * 0.7f + ground / 5.0f;
-  //camerapos->y = camerapos->y > ground ? ground : camerapos->y;
-  camerapos->y = ground;
+  camerapos->y = camerapos->y > ground ? ground : camerapos->y;
+  //camerapos->y = ground;
 }
 
 
@@ -415,7 +416,7 @@ int main(int argc, char *argv[])
   GLuint textures[5];
   int swapb = 1, key = 0, squaresize = 0;
   char direction;
-  float camheight = 0.0f;
+  float camheight = 0.0f, fogend = 20.0f;
   struct v2f sector    = {0.0f, 0.0f};
   struct v3f camerarot = {0.0f, 0.0f, 0.0f};
   struct v3f camerapos = {0.0f, 0.0f, 0.0f};
@@ -430,7 +431,7 @@ int main(int argc, char *argv[])
       camheight = cameraHeight(camerapos);
       keyboardInput(&direction, &key);
       mouseLook(&camerarot);
-      render(models, textures, &swapb, camerapos, camerarot, &sector, camheight, &squaresize);
+      render(models, textures, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend);
       movement(&camerapos, camerarot, direction, 100.0f);
       updateCamera(camerarot);
       glTranslatef(camerapos.x, camerapos.y, camerapos.z);
