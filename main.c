@@ -78,7 +78,7 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squa
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
   glClearColor(clear[0], clear[1], clear[2], clear[3]);
   fogstart -= (fogstart - squaresize * TERRAIN_GRID_SIZE * 0.4f) * 0.1f;
-  fogend -= (fogend - squaresize * TERRAIN_GRID_SIZE * 0.9f) * 0.1f;
+  fogend -= (fogend - squaresize * TERRAIN_GRID_SIZE * 0.5f - 7500.0f) * 0.1f;
   glFogfv(GL_FOG_COLOR, clear);
   glFogf(GL_FOG_START, fogstart < 35000.0f ? fogstart : 35000.0f);
   glFogf(GL_FOG_END, fogend < 40000.f ? fogend : 40000.f);
@@ -336,11 +336,11 @@ void render(struct model *models, GLuint *textures, int *swapb, struct v3f camer
   glDisable(GL_LIGHTING);
   glBegin(GL_QUADS);
   glColor3ub(122, 122, 255);
-  glVertex3f(20000.0f, 5000.0f, 20000.0f);
-  glVertex3f(-20000.0f, 5000.0f, 20000.0f);
+  glVertex3f(20000.0f, 3000.0f, 20000.0f);
+  glVertex3f(-20000.0f, 3000.0f, 20000.0f);
   glColor3fv(clear);
-  glVertex3f(-20000.0f, 5000.0f, -20000.0f);
-  glVertex3f(20000.0f, 5000.0f, -20000.0f);
+  glVertex3f(-20000.0f, 3000.0f, -20000.0f);
+  glVertex3f(20000.0f, 3000.0f, -20000.0f);
   glEnd();
   glPopMatrix();
 
