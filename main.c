@@ -14,7 +14,7 @@ int startGraphics(GLuint *textures)
   float lightdiff[] = {0.8f, 0.8f, 0.8f, 1.0f};
 
   glfwInit();
-  check = glfwOpenWindow(1366, 768, 24, 24, 24, 8, 8, 8, GLFW_FULLSCREEN);
+  check = glfwOpenWindow(1366, 768, 24, 24, 24, 8, 32, 8, GLFW_FULLSCREEN);
   glfwSetWindowTitle("Fractal Worlds");
   glEnable(GL_DEPTH_TEST);
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
@@ -82,6 +82,11 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squa
   glFogfv(GL_FOG_COLOR, clear);
   glFogf(GL_FOG_START, fogstart < 35000.0f ? fogstart : 35000.0f);
   glFogf(GL_FOG_END, fogend < 40000.f ? fogend : 40000.f);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  // <clb_> pushing near plane farther helps much more
+  glFrustum(-0.027f, 0.027f, -0.020f, 0.020f, 0.04f, fogend * 1.5f);
+  glMatrixMode(GL_MODELVIEW);
 }
 
 
