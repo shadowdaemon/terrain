@@ -288,7 +288,7 @@ void drawFoliage(struct model *models, struct v3f camerapos, struct v3f cameraro
         alpha = (GLubyte) (255 - ((dist - VIEW_DISTANCE_HALF) / (float) VIEW_DISTANCE_HALF) * 255);
       else
         alpha = 0;
-      drawModel(models[x1 % 4], mv3f(-xpos, temp.height, -zpos), mv3f(0, x1 % 359, 0), 2, alpha);
+      drawModel(models[x1 % 4], mv3f(-xpos, temp.height, -zpos), mv3f(0, x1 % 359, 0), 5, alpha);
     }
     if (x_grid >= TERRAIN_GRID_SIZE - 1) {
       z_grid++;
@@ -394,8 +394,14 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
     break;
   default: break;
   }
-  ground = -(TERRAIN_SQUARE_SIZE * 0.3f) - readTerrainHeight(-camerapos->x, -camerapos->z);
-  camerapos->y = camerapos->y > ground ? ground : camerapos->y;
+  ground = -readTerrainHeight(-camerapos->x, -camerapos->z);
+  ground += -readTerrainHeight(-camerapos->x + TERRAIN_SQUARE_SIZE_HALF, -camerapos->z + TERRAIN_SQUARE_SIZE_HALF);
+  ground += -readTerrainHeight(-camerapos->x + TERRAIN_SQUARE_SIZE_HALF, -camerapos->z - TERRAIN_SQUARE_SIZE_HALF);
+  ground += -readTerrainHeight(-camerapos->x - TERRAIN_SQUARE_SIZE_HALF, -camerapos->z + TERRAIN_SQUARE_SIZE_HALF);
+  ground += -readTerrainHeight(-camerapos->x - TERRAIN_SQUARE_SIZE_HALF, -camerapos->z - TERRAIN_SQUARE_SIZE_HALF);
+  ground = -TERRAIN_SQUARE_SIZE * 0.7f + ground / 5.0f;
+  //camerapos->y = camerapos->y > ground ? ground : camerapos->y;
+  camerapos->y = ground;
 }
 
 
