@@ -298,37 +298,10 @@ void drawFoliage(struct model *models, struct v3f camerapos, struct v3f cameraro
 }
 
 
-void render(struct model *models, GLuint *textures, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *squaresize)
+void skyPlane(struct v3f camerapos, struct v3f camerarot, GLfloat *clear)
 {
-  GLfloat materialColor[4];
-  GLfloat clear[4]   = {0.5f, 0.5f, 0.5f, 1.0f};
-  GLfloat ambient[4] = {0.45f, 0.45f, 0.45f, 1.0f};
-
-  materialColor[3] = 1.0f;
-  materialColor[0] = materialColor[1] = materialColor[2] = 0.8f;
-  glMaterialfv(GL_FRONT, GL_DIFFUSE, materialColor);
-  glMaterialfv(GL_FRONT, GL_AMBIENT, materialColor);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, materialColor);
-  glMateriali(GL_FRONT, GL_SHININESS, 37);
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LESS);
-  glEnable(GL_FOG);
-  glEnable(GL_TEXTURE_2D);
-  glEnable(GL_LIGHTING);
-  updateFogLights(clear, ambient, camheight, *squaresize);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  glEnable(GL_NORMALIZE);
-  glBindTexture(GL_TEXTURE_2D, textures[0]);
-  drawTerrain(camerapos, camerarot, sector, camheight, swapb, squaresize);
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glEnableClientState(GL_NORMAL_ARRAY);
-  //glEnableClientState(GL_TEXTURE_COORD_ARRAY); /* this does not currently work */
-  glBindTexture(GL_TEXTURE_2D, textures[1]);
-  drawFoliage(models, camerapos, camerarot, *sector);
-  glDisableClientState(GL_VERTEX_ARRAY);
-  glDisableClientState(GL_NORMAL_ARRAY);
-
   glPushMatrix();
+  glDisable(GL_DEPTH_TEST);
   glDisable(GL_FOG);
   glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
   glRotatef((GLfloat) (-camerarot.y), 0.0f, 1.0f, 0.0f);
@@ -343,7 +316,39 @@ void render(struct model *models, GLuint *textures, int *swapb, struct v3f camer
   glVertex3f(20000.0f, 3000.0f, -20000.0f);
   glEnd();
   glPopMatrix();
+}
 
+
+void render(struct model *models, GLuint *textures, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *squaresize)
+{
+  GLfloat materialColor[4];
+  GLfloat clear[4]   = {0.5f, 0.5f, 0.5f, 1.0f};
+  GLfloat ambient[4] = {0.45f, 0.45f, 0.45f, 1.0f};
+
+  materialColor[3] = 1.0f;
+  materialColor[0] = materialColor[1] = materialColor[2] = 0.8f;
+  glMaterialfv(GL_FRONT, GL_DIFFUSE, materialColor);
+  glMaterialfv(GL_FRONT, GL_AMBIENT, materialColor);
+  glMaterialfv(GL_FRONT, GL_SPECULAR, materialColor);
+  glMateriali(GL_FRONT, GL_SHININESS, 37);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  skyPlane(camerapos, camerarot, clear);
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
+  glEnable(GL_FOG);
+  glEnable(GL_TEXTURE_2D);
+  glEnable(GL_LIGHTING);
+  updateFogLights(clear, ambient, camheight, *squaresize);
+  glEnable(GL_NORMALIZE);
+  glBindTexture(GL_TEXTURE_2D, textures[0]);
+  drawTerrain(camerapos, camerarot, sector, camheight, swapb, squaresize);
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_NORMAL_ARRAY);
+  //glEnableClientState(GL_TEXTURE_COORD_ARRAY); /* this does not currently work */
+  glBindTexture(GL_TEXTURE_2D, textures[1]);
+  drawFoliage(models, camerapos, camerarot, *sector);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_NORMAL_ARRAY);
   //glDepthFunc(GL_ALWAYS);
   //glDisable(GL_LIGHTING);
   //glDisable(GL_FOG);
