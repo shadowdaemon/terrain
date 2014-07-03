@@ -5,9 +5,9 @@
 #define VIEW_DISTANCE                       5000
 #define VIEW_DISTANCE_HALF                  2500
 #define TERRAIN_GRID_SIZE                   80
-#define TERRAIN_GRID_SIZE_HALF              (TERRAIN_GRID_SIZE/2)
+#define TERRAIN_GRID_SIZE_HALF              40
 #define TERRAIN_SQUARE_SIZE                 100
-#define TERRAIN_SQUARE_SIZE_HALF            (TERRAIN_SQUARE_SIZE/2)
+#define TERRAIN_SQUARE_SIZE_HALF            50
 #define TERRAIN_CENTRE_DISTANCE             (TERRAIN_SQUARE_SIZE*TERRAIN_GRID_SIZE*0.2f)
 #define TERRAIN_STEP_SIZE                   4
 #define TERRAIN_WATER_LEVEL                 0
