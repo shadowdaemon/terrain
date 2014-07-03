@@ -370,7 +370,8 @@ void render(struct model *models, GLuint *textures, int *swapb, struct v3f camer
 
 void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float speed)
 {
-  float ground;
+  float ground, temp;
+
   switch (direction) {
   case INPUT_UP:
     degreestovector3d(camerapos, camerarot, mv3f(0.0f, 0.0f, 0.0f), speed);
