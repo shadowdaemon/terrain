@@ -401,10 +401,14 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
   default: break;
   }
   ground = -readTerrainHeight(-camerapos->x, -camerapos->z);
-  ground = ground < -readTerrainHeight(-camerapos->x + TERRAIN_SQUARE_SIZE, -camerapos->z + TERRAIN_SQUARE_SIZE) ? ground : -readTerrainHeight(-camerapos->x + TERRAIN_SQUARE_SIZE, -camerapos->z + TERRAIN_SQUARE_SIZE);
-  ground = ground < -readTerrainHeight(-camerapos->x + TERRAIN_SQUARE_SIZE, -camerapos->z - TERRAIN_SQUARE_SIZE) ? ground : -readTerrainHeight(-camerapos->x + TERRAIN_SQUARE_SIZE, -camerapos->z - TERRAIN_SQUARE_SIZE);
-  ground = ground < -readTerrainHeight(-camerapos->x - TERRAIN_SQUARE_SIZE, -camerapos->z + TERRAIN_SQUARE_SIZE) ? ground : -readTerrainHeight(-camerapos->x - TERRAIN_SQUARE_SIZE, -camerapos->z + TERRAIN_SQUARE_SIZE);
-  ground = ground < -readTerrainHeight(-camerapos->x - TERRAIN_SQUARE_SIZE, -camerapos->z - TERRAIN_SQUARE_SIZE) ? ground : -readTerrainHeight(-camerapos->x - TERRAIN_SQUARE_SIZE, -camerapos->z - TERRAIN_SQUARE_SIZE);
+  temp = -readTerrainHeight(-camerapos->x + TERRAIN_SQUARE_SIZE, -camerapos->z + TERRAIN_SQUARE_SIZE);
+  ground = ground < temp ? ground : temp;
+  temp = -readTerrainHeight(-camerapos->x + TERRAIN_SQUARE_SIZE, -camerapos->z - TERRAIN_SQUARE_SIZE);
+  ground = ground < temp ? ground : temp;
+  temp = -readTerrainHeight(-camerapos->x - TERRAIN_SQUARE_SIZE, -camerapos->z + TERRAIN_SQUARE_SIZE);
+  ground = ground < temp ? ground : temp;
+  temp = -readTerrainHeight(-camerapos->x - TERRAIN_SQUARE_SIZE, -camerapos->z - TERRAIN_SQUARE_SIZE);
+  ground = ground < temp ? ground : temp;
   //camerapos->y = camerapos->y > ground ? ground : camerapos->y;
   camerapos->y = -TERRAIN_SQUARE_SIZE * 0.7f + ground;
 }
