@@ -379,11 +379,11 @@ void skyPlane(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, float 
   glDisable(GL_LIGHTING);
   glBegin(GL_QUADS);
   glColor3ub(122, 122, 255);
-  glVertex3f(20000.0f, 3000.0f, 20000.0f);
-  glVertex3f(-20000.0f, 3000.0f, 20000.0f);
+  glVertex3f(35000.0f, 3000.0f, 35000.0f);
+  glVertex3f(-35000.0f, 3000.0f, 35000.0f);
   glColor3fv(clear);
-  glVertex3f(-20000.0f, 3000.0f, -fogend);
-  glVertex3f(20000.0f, 3000.0f, -fogend);
+  glVertex3f(-35000.0f, 3000.0f, -fogend);
+  glVertex3f(35000.0f, 3000.0f, -fogend);
   glEnd();
   glPopMatrix();
 }
@@ -503,7 +503,7 @@ int main(int argc, char *argv[])
       keyboardInput(window, &direction);
       mouseLook(window, &camerarot);
       render(window, models, textures, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend);
-      movement(&camerapos, camerarot, direction, 50.0f);
+      movement(&camerapos, camerarot, direction, 100.0f);
       updateCamera(camerarot);
       glTranslatef(camerapos.x, camerapos.y, camerapos.z);
     }
