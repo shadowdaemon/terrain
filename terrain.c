@@ -162,12 +162,12 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
       break;
     }
     else if (camheight < alt * TERRAIN_SQUARE_SIZE * 25) {
-      *squaresize = (int) (TERRAIN_SQUARE_SIZE + TERRAIN_SQUARE_SIZE * ((alt * 2) - 3) * 0.5f);
+      *squaresize = (int) (TERRAIN_SQUARE_SIZE + TERRAIN_SQUARE_SIZE * ((alt * 2) - 3) / 2);
       break;
     }
     else {
       *squaresize = (int) (TERRAIN_SQUARE_SIZE + TERRAIN_SQUARE_SIZE
-                          * ((alt * 2) - 3) * 0.5f);
+                          * ((alt * 2) - 3) / 2);
     }
   }
   if (alt2 != alt) {
@@ -191,14 +191,14 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
     //zshift = *squaresize;
     xpos = (-TERRAIN_GRID_SIZE_HALF + xgrid) * xshift + x * *squaresize;
     zpos = (-TERRAIN_GRID_SIZE_HALF + zgrid) * zshift + z * *squaresize;
-    xshift = *squaresize * 0.5f + x2 * 8;
+    xshift = *squaresize / 2 + x2 * 8;
     //xshift = *squaresize * 0.5f;
-    zshift = *squaresize * 0.5f + z2 * 8;
+    zshift = *squaresize / 2 + z2 * 8;
     //zshift = *squaresize * 0.5f;
     cull = fabs((int) (camerarot.y - vectorstodegree2d(camerapos, mv3f(-xpos, 0, -zpos))));
     while (cull >= 360)
       cull -= 360;
-    if (cull <= 85 || cull >= 275 || camerarot.x > 27.0f || distance2d(camerapos, mv3f(-xpos, 0.0f, -zpos)) < *squaresize) {
+    if (cull <= 85 || cull >= 275 || camerarot.x > 27.0f || distance2d(camerapos, mv3f(-xpos, 0.0f, -zpos)) < *squaresize * 1.5f) {
       NEx[xgrid][zgrid] = (int) (xpos + xshift);
       NEz[xgrid][zgrid] = (int) (zpos - zshift);
       temp1 = readTerrain (NEx[xgrid][zgrid], NEz[xgrid][zgrid]); // color read here
