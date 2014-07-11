@@ -27,7 +27,7 @@ float algorithmicTerrainHeight(float x, float z)
   x1 = 0.0223f * x;
   z1 = 0.0712f * z;
   h1 = (int) (x1*x1+z1*z1) % 20000;
-  height += fabs(h1 - 10000) - 6000;
+  height += fabs(h1 - 10000) - 7000;
   if (height < TERRAIN_WATER_LEVEL - 100)
     height = TERRAIN_WATER_LEVEL;
   else if (height < TERRAIN_WATER_LEVEL + 30)

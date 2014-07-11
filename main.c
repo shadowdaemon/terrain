@@ -175,8 +175,8 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squa
 
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
   glClearColor(clear[0], clear[1], clear[2], clear[3]);
-  fogstart -= (fogstart - squaresize * TERRAIN_GRID_SIZE * 0.4f) * 0.1f;
-  *fogend -= (*fogend - squaresize * TERRAIN_GRID_SIZE * 1.1f - 7500.0f) * 0.1f;
+  fogstart -= (fogstart - squaresize * TERRAIN_GRID_SIZE * 0.35f) * 0.1f;
+  *fogend -= (*fogend - squaresize * TERRAIN_GRID_SIZE * 0.45f) * 0.1f;
   glFogfv(GL_FOG_COLOR, clear);
   glFogf(GL_FOG_START, fogstart < 35000.0f ? fogstart : 35000.0f);
   glFogf(GL_FOG_END, *fogend < 40000.f ? *fogend : 40000.f);

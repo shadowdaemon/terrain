@@ -4,10 +4,10 @@
 #define PIx180                 180.0f*PI
 #define VIEW_DISTANCE                       5000
 #define VIEW_DISTANCE_HALF                  2500
-#define TERRAIN_GRID_SIZE                   100
-#define TERRAIN_GRID_SIZE_HALF              50
-#define TERRAIN_SQUARE_SIZE                 100
-#define TERRAIN_SQUARE_SIZE_HALF            50
+#define TERRAIN_GRID_SIZE                   120
+#define TERRAIN_GRID_SIZE_HALF              60
+#define TERRAIN_SQUARE_SIZE                 160
+#define TERRAIN_SQUARE_SIZE_HALF            80
 #define TERRAIN_CENTRE_DISTANCE             (TERRAIN_SQUARE_SIZE*TERRAIN_GRID_SIZE*0.2f)
 #define TERRAIN_STEP_SIZE                   4
 #define TERRAIN_WATER_LEVEL                 0
