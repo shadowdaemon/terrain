@@ -1,11 +1,11 @@
-#include <GL/glfw.h>
+#include <GLFW/glfw3.h>
 
 #define PI                     3.14159265358979323846f
 #define PIx180                 180.0f*PI
 #define VIEW_DISTANCE                       5000
 #define VIEW_DISTANCE_HALF                  2500
-#define TERRAIN_GRID_SIZE                   80
-#define TERRAIN_GRID_SIZE_HALF              40
+#define TERRAIN_GRID_SIZE                   100
+#define TERRAIN_GRID_SIZE_HALF              50
 #define TERRAIN_SQUARE_SIZE                 100
 #define TERRAIN_SQUARE_SIZE_HALF            50
 #define TERRAIN_CENTRE_DISTANCE             (TERRAIN_SQUARE_SIZE*TERRAIN_GRID_SIZE*0.2f)
@@ -44,6 +44,10 @@ struct v2i {
 struct v2f {
   float x;
   float y;
+};
+struct v2d {
+  double x;
+  double y;
 };
 struct v3i {
   int x;

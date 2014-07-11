@@ -1,21 +1,82 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <FreeImage.h>
 #include "maths.h"
 
 
-int startGraphics(GLuint *textures)
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+
+static void error_callback(int error, const char* description)
 {
-  int check = 0;
+  printf("GLFW: %s\n", description);
+}
+
+
+void loadTexture2D(const char *file)
+{
+  FIBITMAP *img = FreeImage_Load(FreeImage_GetFileType(file, 0), file, 0);
+  img = FreeImage_ConvertTo32Bits(img);
+  GLsizei width = FreeImage_GetWidth(img);
+  GLsizei height = FreeImage_GetHeight(img);
+  GLubyte *bits = (GLubyte*) FreeImage_GetBits(img);
+  int i;
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
+  for (i = 1; i < 10; i++){
+    width /= 2;
+    height /= 2;
+    bits = (GLubyte*) FreeImage_GetBits(FreeImage_Rescale(img, width, height, FILTER_BICUBIC));
+    glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
+    if (width == 1 || height == 1)
+      break;
+  }
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i);
+  FreeImage_Unload(img);
+}
+
+
+GLFWwindow *startGraphics(GLFWwindow *window, GLuint *textures)
+{
   int lightpos[]  = {1, 0, 500, 0};
+  int width, height;
   // float lightdir[]  = {0.0f, -1.0f, 0.0f};
   float lightspec[] = {0.5f, 0.5f, 0.5f, 1.0f};
   float lightamb[]  = {0.1f, 0.1f, 0.1f, 1.0f};
   float lightdiff[] = {0.8f, 0.8f, 0.8f, 1.0f};
+  GLuint prog1, fragShader1, vertShader1;
+  GLsizei logSize;
+  GLchar log[499];
 
-  glfwInit();
-  check = glfwOpenWindow(1366, 768, 24, 24, 24, 8, 32, 8, GLFW_FULLSCREEN);
-  glfwSetWindowTitle("Fractal Worlds");
+  glfwSetErrorCallback(error_callback);
+  if (glfwInit() == GL_FALSE)
+    return NULL;
+  glfwWindowHint(GLFW_RED_BITS, 8);
+  glfwWindowHint(GLFW_GREEN_BITS, 8);
+  glfwWindowHint(GLFW_BLUE_BITS, 8);
+  glfwWindowHint(GLFW_ALPHA_BITS, 8);
+  glfwWindowHint(GLFW_DEPTH_BITS, 32);
+  glfwWindowHint(GLFW_ACCUM_RED_BITS, 8);
+  glfwWindowHint(GLFW_ACCUM_GREEN_BITS, 8);
+  glfwWindowHint(GLFW_ACCUM_BLUE_BITS, 8);
+  glfwWindowHint(GLFW_ACCUM_ALPHA_BITS, 8);
+  glfwWindowHint(GLFW_STENCIL_BITS, 8);
+  glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+  //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+  //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+  width = 1366;
+  height = 768;
+  window = glfwCreateWindow(width, height, "test", glfwGetPrimaryMonitor(), NULL);
+  if (window == NULL)
+    return NULL;
+  glfwMakeContextCurrent(window);
+  glfwSetKeyCallback(window, key_callback);
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+  glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GL_TRUE);
+  glfwSwapInterval(1);
   glEnable(GL_DEPTH_TEST);
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
   glClearDepth(1.0f);
@@ -37,25 +98,30 @@ int startGraphics(GLuint *textures)
   glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
   //glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
   glShadeModel(GL_SMOOTH);
-  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   glMatrixMode(GL_PROJECTION);
-  glFrustum(-0.027f, 0.027f, -0.020f, 0.020f, 0.04f, 50000.0f);
+  glFrustum(-0.54f, 0.54f, -0.4f, 0.4f, 0.8f, 50000.0f);
   glMatrixMode(GL_MODELVIEW);
-  glViewport(0, 0, 1366, 768);
+  glfwGetFramebufferSize(window, &width, &height);
+  glViewport(0, 0, width, height);
   /*glSelectBuffer(SIM_SELECT_BUFFER_SIZE, select_buf);
   glInitNames();
   glPushName(0);*/
+
+  glEnable(GL_TEXTURE_2D);
+  FreeImage_Initialise(GL_FALSE);
   glGenTextures(5, textures);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
-  glfwLoadTexture2D("data/textures/terrain.tga", GLFW_BUILD_MIPMAPS_BIT);
+  loadTexture2D("data/textures/terrain.tga");
   glBindTexture(GL_TEXTURE_2D, textures[1]);
-  glfwLoadTexture2D("data/textures/foliage.tga", GLFW_BUILD_MIPMAPS_BIT);
-  glBindTexture(GL_TEXTURE_2D, textures[4]);
-  glfwLoadTexture2D("data/textures/font_alpha.tga", GLFW_BUILD_MIPMAPS_BIT);
+  loadTexture2D("data/textures/foliage.tga");
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
   glEnable(GL_LIGHT0);
   glLightiv(GL_LIGHT0, GL_POSITION, lightpos);
   //glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 77.0f);
@@ -66,7 +132,40 @@ int startGraphics(GLuint *textures)
   glLightfv(GL_LIGHT0, GL_AMBIENT, lightamb);
   glLightfv(GL_LIGHT0, GL_DIFFUSE, lightdiff);
 
-  return check;
+  //printf("%s\n", glGetString(GL_VERSION));
+  //printf("%s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+  /*
+  #include "shaders.a"
+  prog1 = glCreateProgramARB();
+  fragShader1 = glCreateShaderARB(GL_FRAGMENT_SHADER);
+  glShaderSourceARB(fragShader1, 1, fragShaderSource1, NULL);
+  glCompileShaderARB(fragShader1);
+  glGetShaderInfoLogARB(fragShader1, 500, &logSize, log);
+  if (logSize)
+    printf("%s\n", log);
+  glAttachShaderARB(prog1, fragShader1);
+  vertShader1 = glCreateShaderARB(GL_VERTEX_SHADER);
+  glShaderSourceARB(vertShader1, 1, vertShaderSource1, NULL);
+  glCompileShaderARB(vertShader1);
+  glGetShaderInfoLogARB(vertShader1, 500, &logSize, log);
+  if (logSize)
+    printf("%s\n", log);
+  //glAttachShaderARB(prog1, vertShader1);
+  glLinkProgramARB(prog1);
+  glGetAttribLocationARB(prog1, "Position");
+  glGetProgramInfoLogARB(prog1, 500, &logSize, log);
+  if (logSize)
+    printf("%s\n", log);
+  const GLfloat mat[] = {1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
+  glUniformMatrix4fvARB(glGetUniformLocationARB(prog1, "ProjMat"), 1, GL_TRUE, mat);
+  GLint param;
+  glGetProgramivARB(prog1, GL_LINK_STATUS, &param);
+  if (param)
+    glUseProgramARB(prog1);
+  */
+
+  return window;
 }
 
 
@@ -77,14 +176,13 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squa
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
   glClearColor(clear[0], clear[1], clear[2], clear[3]);
   fogstart -= (fogstart - squaresize * TERRAIN_GRID_SIZE * 0.4f) * 0.1f;
-  *fogend -= (*fogend - squaresize * TERRAIN_GRID_SIZE * 0.5f - 7500.0f) * 0.1f;
+  *fogend -= (*fogend - squaresize * TERRAIN_GRID_SIZE * 1.1f - 7500.0f) * 0.1f;
   glFogfv(GL_FOG_COLOR, clear);
   glFogf(GL_FOG_START, fogstart < 35000.0f ? fogstart : 35000.0f);
   glFogf(GL_FOG_END, *fogend < 40000.f ? *fogend : 40000.f);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  // <clb_> pushing near plane farther helps much more
-  glFrustum(-0.027f, 0.027f, -0.020f, 0.020f, 0.04f, *fogend * 1.1f);
+  glFrustum(-0.54f, 0.54f, -0.4f, 0.4f, 0.8f, *fogend * 1.1f);
   glMatrixMode(GL_MODELVIEW);
 }
 
@@ -170,16 +268,16 @@ float cameraHeight(struct v3f camerapos)
 }
 
 
-void mouseLook(struct v3f *cameraRot)
+void mouseLook(GLFWwindow *window, struct v3f *cameraRot)
 {
   const float mouse_sensitivity = 0.1f;
-  struct v2i mouse_pos;
+  struct v2d mouse_pos;
 
-  glfwGetMousePos (&mouse_pos.x, &mouse_pos.y);
+  glfwGetCursorPos (window, &mouse_pos.x, &mouse_pos.y);
   if (cameraRot->x > 90.0f)
-    glfwSetMousePos (mouse_pos.x, (int) (90 / mouse_sensitivity));
+    glfwSetCursorPos (window, mouse_pos.x, (int) (90 / mouse_sensitivity));
   if (cameraRot->x < -90.0f)
-    glfwSetMousePos (mouse_pos.x, (int) (-90 / mouse_sensitivity));
+    glfwSetCursorPos (window, mouse_pos.x, (int) (-90 / mouse_sensitivity));
   while (cameraRot->y >= 360.0f)
     cameraRot->y -= 360.0f;
   while (cameraRot->y < 0.0f)
@@ -190,57 +288,24 @@ void mouseLook(struct v3f *cameraRot)
 }
 
 
-void keyboardInput(char *direction, int *key)
+static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
-  static char *skey = (char *) "KEY_NONE";
+  if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    glfwSetWindowShouldClose(window, GL_TRUE);
+}
+
+
+void keyboardInput(GLFWwindow *window, char *direction)
+{
   char x = 0, z = 0;
 
-  glfwPollEvents();
-  *key = KEY_NONE;
-  if (glfwGetKey(GLFW_KEY_ESC))
-    skey = (char *) "GLFW_KEY_ESC";
-  else if (glfwGetKey(GLFW_KEY_ESC) == GLFW_RELEASE && 0 == strcmp(skey, "GLFW_KEY_ESC")) {
-    *key = GLFW_KEY_ESC;
-    skey = (char *) "KEY_NONE";
-    //engine.userEvent = TRUE;
-  }
-  if (glfwGetKey(GLFW_KEY_SPACE))
-    skey = (char *) "GLFW_KEY_SPACE";
-  else if (glfwGetKey(GLFW_KEY_SPACE) == GLFW_RELEASE && 0 == strcmp(skey, "GLFW_KEY_SPACE")) {
-    *key = GLFW_KEY_SPACE;
-    skey = (char *) "KEY_NONE";
-  }
-  if (glfwGetKey(GLFW_KEY_LCTRL))
-    skey = (char *) "GLFW_KEY_LCTRL";
-  else if (glfwGetKey(GLFW_KEY_LCTRL) == GLFW_RELEASE && 0 == strcmp(skey, "GLFW_KEY_LCTRL")) {
-    *key = GLFW_KEY_LCTRL;
-    skey = (char *) "KEY_NONE";
-  }
-  if (glfwGetKey(GLFW_KEY_F1))
-    skey = (char *) "GLFW_KEY_F1";
-  else if (glfwGetKey(GLFW_KEY_ESC) == GLFW_RELEASE && 0 == strcmp(skey, "GLFW_KEY_F1")) {
-    *key = GLFW_KEY_F1;
-    skey = (char *) "KEY_NONE";
-  }
-  if (glfwGetKey(GLFW_KEY_F2))
-    skey = (char *) "GLFW_KEY_F2";
-  else if (glfwGetKey(GLFW_KEY_ESC) == GLFW_RELEASE && 0 == strcmp(skey, "GLFW_KEY_F2")) {
-    *key = GLFW_KEY_F2;
-    skey = (char *) "KEY_NONE";
-  }
-  if (glfwGetKey(GLFW_KEY_F3))
-    skey = (char *) "GLFW_KEY_F3";
-  else if (glfwGetKey(GLFW_KEY_ESC) == GLFW_RELEASE && 0 == strcmp(skey, "GLFW_KEY_F3")) {
-    *key = GLFW_KEY_F3;
-    skey = (char *) "KEY_NONE";
-  }
-  if (glfwGetKey(GLFW_KEY_UP) || glfwGetKey('W'))
+  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS || glfwGetKey(window, 'W') == GLFW_PRESS)
     z++;
-  if (glfwGetKey(GLFW_KEY_DOWN) || glfwGetKey('S'))
+  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS || glfwGetKey(window, 'S') == GLFW_PRESS)
     z--;
-  if (glfwGetKey(GLFW_KEY_RIGHT) || glfwGetKey('D'))
+  if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS || glfwGetKey(window, 'D') == GLFW_PRESS)
     x++;
-  if (glfwGetKey(GLFW_KEY_LEFT) || glfwGetKey('A'))
+  if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS || glfwGetKey(window, 'A') == GLFW_PRESS)
     x--;
   if (x == 0 && z == 0)
     *direction = INPUT_NONE;
@@ -265,16 +330,17 @@ void keyboardInput(char *direction, int *key)
 
 void drawFoliage(struct model *models, struct v3f camerapos, struct v3f camerarot, struct v2f sector)
 {
-  int x_grid, z_grid, x1, z1, cull;
+  int xgrid, zgrid, x1, z1, cull;
+  const int squaresize = TERRAIN_SQUARE_SIZE * 5;
   float x, z, xpos = 0.0f, zpos = 0.0f, dist;
   struct terrain temp;
   GLubyte alpha;
 
-  x = (int) (sector.x / -TERRAIN_SQUARE_SIZE);
-  z = (int) (sector.y / -TERRAIN_SQUARE_SIZE);
-  for (x_grid = 0, z_grid = 0; x_grid < TERRAIN_GRID_SIZE && z_grid < TERRAIN_GRID_SIZE; x_grid++) {
-    xpos = (-TERRAIN_GRID_SIZE_HALF + x_grid + x) * TERRAIN_SQUARE_SIZE;
-    zpos = (-TERRAIN_GRID_SIZE_HALF + z_grid + z) * TERRAIN_SQUARE_SIZE;
+  x = (int) (sector.x / -squaresize);
+  z = (int) (sector.y / -squaresize);
+  for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
+    xpos = (-TERRAIN_GRID_SIZE_HALF + xgrid + x) * squaresize;
+    zpos = (-TERRAIN_GRID_SIZE_HALF + zgrid + z) * squaresize;
     x1 = (int) xpos % 97;
     z1 = (int) zpos % 53;
     xpos += z1;
@@ -285,7 +351,7 @@ void drawFoliage(struct model *models, struct v3f camerapos, struct v3f cameraro
     temp = readTerrain(xpos, zpos);
     dist = distance2d(camerapos, mv3f(-xpos, 0.0f, -zpos));
     x1 = x1 * x1 + z1 * z1;
-    if (temp.height > TERRAIN_WATER_LEVEL + 50 && temp.height < 2750 && (cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) && dist < VIEW_DISTANCE && (x1 % 117 < 3) && temp.type != T_TYPE_DIRT) {
+    if (temp.height > TERRAIN_WATER_LEVEL + 50 && temp.height < 3750 && (cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) && dist < VIEW_DISTANCE && (x1 % 117 < 50) && temp.type != T_TYPE_DIRT) {
       if (dist < VIEW_DISTANCE_HALF)
         alpha = 255;
       else if (dist < VIEW_DISTANCE)
@@ -294,9 +360,9 @@ void drawFoliage(struct model *models, struct v3f camerapos, struct v3f cameraro
         alpha = 0;
       drawModel(models[x1 % 4], mv3f(-xpos, temp.height, -zpos), mv3f(0, x1 % 359, 0), 5, alpha);
     }
-    if (x_grid >= TERRAIN_GRID_SIZE - 1) {
-      z_grid++;
-      x_grid = -1;
+    if (xgrid >= TERRAIN_GRID_SIZE - 1) {
+      zgrid++;
+      xgrid = -1;
     }
   }
 }
@@ -316,8 +382,6 @@ void skyPlane(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, float 
   glVertex3f(20000.0f, 3000.0f, 20000.0f);
   glVertex3f(-20000.0f, 3000.0f, 20000.0f);
   glColor3fv(clear);
-  //glVertex3f(-20000.0f, 3000.0f, -20000.0f);
-  //glVertex3f(20000.0f, 3000.0f, -20000.0f);
   glVertex3f(-20000.0f, 3000.0f, -fogend);
   glVertex3f(20000.0f, 3000.0f, -fogend);
   glEnd();
@@ -325,7 +389,7 @@ void skyPlane(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, float 
 }
 
 
-void render(struct model *models, GLuint *textures, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *squaresize, float *fogend)
+void render(GLFWwindow *window, struct model *models, GLuint *textures, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *squaresize, float *fogend)
 {
   GLfloat materialColor[4];
   GLfloat clear[4]   = {0.5f, 0.5f, 0.5f, 1.0f};
@@ -344,8 +408,8 @@ void render(struct model *models, GLuint *textures, int *swapb, struct v3f camer
   glEnable(GL_FOG);
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_LIGHTING);
-  updateFogLights(clear, ambient, camheight, *squaresize, fogend);
   glEnable(GL_NORMALIZE);
+  updateFogLights(clear, ambient, camheight, *squaresize, fogend);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
   drawTerrain(camerapos, camerarot, sector, camheight, swapb, squaresize);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -363,8 +427,9 @@ void render(struct model *models, GLuint *textures, int *swapb, struct v3f camer
   //engine.menus[engine.menu].drawMenu();
   //}
   if (*swapb)
-    glfwSwapBuffers();
+    glfwSwapBuffers(window);
   *swapb = 1;
+  glfwPollEvents();
 }
 
 
@@ -410,15 +475,17 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
   ground = ground < temp ? ground : temp;
   temp = -readTerrainHeight(-camerapos->x - TERRAIN_SQUARE_SIZE, -camerapos->z - TERRAIN_SQUARE_SIZE);
   ground = ground < temp ? ground : temp;
-  //camerapos->y = camerapos->y > ground ? ground : camerapos->y;
-  camerapos->y = -TERRAIN_SQUARE_SIZE * 0.7f + ground;
+  ground += -TERRAIN_SQUARE_SIZE * 0.3f;
+  camerapos->y = camerapos->y > ground ? ground : camerapos->y;
+  //camerapos->y = ground;
 }
 
 
 int main(int argc, char *argv[])
 {
   GLuint textures[5];
-  int swapb = 1, key = 0, squaresize = 0;
+  GLFWwindow *window = NULL;
+  int swapb = 1, squaresize = 0;
   char direction;
   float camheight = 0.0f, fogend = 20.0f;
   struct v2f sector    = {0.0f, 0.0f};
@@ -426,22 +493,25 @@ int main(int argc, char *argv[])
   struct v3f camerapos = {0.0f, 0.0f, 0.0f};
   struct model *models = malloc(sizeof(struct model) * 5);
 
-  if (startGraphics(textures)) {
+  if ((window = startGraphics(window, textures)) != NULL) {
     loadFromOBJFile("data/models/tree1.obj", &models[0]);
     loadFromOBJFile("data/models/tree2.obj", &models[1]);
     loadFromOBJFile("data/models/tree3.obj", &models[2]);
     loadFromOBJFile("data/models/tree4.obj", &models[3]);
-    while (key != GLFW_KEY_ESC) {
+    while (!glfwWindowShouldClose(window)) {
       camheight = cameraHeight(camerapos);
-      keyboardInput(&direction, &key);
-      mouseLook(&camerarot);
-      render(models, textures, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend);
-      movement(&camerapos, camerarot, direction, 100.0f);
+      keyboardInput(window, &direction);
+      mouseLook(window, &camerarot);
+      render(window, models, textures, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend);
+      movement(&camerapos, camerarot, direction, 50.0f);
       updateCamera(camerarot);
       glTranslatef(camerapos.x, camerapos.y, camerapos.z);
     }
+    free(models);
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    return EXIT_SUCCESS;
   }
-  free(models);
-
-  return 0;
+  else
+    return EXIT_FAILURE;
 }

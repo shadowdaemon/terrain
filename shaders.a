@@ -1,0 +1,240 @@
+#ifdef GL_ARB_shading_language_100
+
+PFNGLCREATEPROGRAMPROC _CreateProgramARB;
+PFNGLCREATESHADERPROC _CreateShaderARB;
+PFNGLSHADERSOURCEPROC _ShaderSourceARB;
+PFNGLGETSHADERSOURCEPROC _GetShaderSourceARB;
+PFNGLCOMPILESHADERPROC _CompileShaderARB;
+PFNGLGETSHADERINFOLOGPROC _GetShaderInfoLogARB;
+PFNGLGETPROGRAMINFOLOGPROC _GetProgramInfoLogARB;
+PFNGLGETPROGRAMIVPROC _GetProgramivARB;
+PFNGLATTACHSHADERPROC _AttachShaderARB;
+PFNGLLINKPROGRAMPROC _LinkProgramARB;
+PFNGLUSEPROGRAMPROC _UseProgramARB;
+PFNGLUNIFORMMATRIX4FVPROC _UniformMatrix4fvARB;
+PFNGLGETUNIFORMLOCATIONPROC _GetUniformLocationARB;
+PFNGLGETATTRIBLOCATIONPROC _GetAttribLocationARB;
+PFNGLBINDATTRIBLOCATIONPROC _BindAttribLocationARB;
+#define glCreateProgramARB _CreateProgramARB
+#define glCreateShaderARB _CreateShaderARB
+#define glShaderSourceARB _ShaderSourceARB
+#define glGetShaderSourceARB _GetShaderSourceARB
+#define glCompileShaderARB _CompileShaderARB
+#define glGetShaderInfoLogARB _GetShaderInfoLogARB
+#define glGetProgramInfoLogARB _GetProgramInfoLogARB
+#define glGetProgramivARB _GetProgramivARB
+#define glAttachShaderARB _AttachShaderARB
+#define glLinkProgramARB _LinkProgramARB
+#define glUseProgramARB _UseProgramARB
+#define glUniformMatrix4fvARB _UniformMatrix4fvARB
+#define glGetUniformLocationARB _GetUniformLocationARB
+#define glGetAttribLocationARB _GetAttribLocationARB
+#define glBindAttribLocationARB _BindAttribLocationARB
+
+if (glfwExtensionSupported("GL_ARB_shading_language_100")){
+  glCreateProgramARB = (PFNGLCREATEPROGRAMPROC) glfwGetProcAddress("glCreateProgram");
+  glCreateShaderARB = (PFNGLCREATESHADERPROC) glfwGetProcAddress("glCreateShader");
+  glShaderSourceARB = (PFNGLSHADERSOURCEPROC) glfwGetProcAddress("glShaderSource");
+  glGetShaderSourceARB = (PFNGLGETSHADERSOURCEPROC) glfwGetProcAddress("glGetShaderSource");
+  glCompileShaderARB = (PFNGLCOMPILESHADERPROC) glfwGetProcAddress("glCompileShader");
+  glGetShaderInfoLogARB = (PFNGLGETSHADERINFOLOGPROC) glfwGetProcAddress("glGetShaderInfoLog");
+  glGetProgramInfoLogARB = (PFNGLGETPROGRAMINFOLOGPROC) glfwGetProcAddress("glGetProgramInfoLog");
+  glGetProgramivARB = (PFNGLGETPROGRAMIVPROC) glfwGetProcAddress("glGetProgramiv");
+  glAttachShaderARB = (PFNGLATTACHSHADERPROC) glfwGetProcAddress("glAttachShader");
+  glLinkProgramARB = (PFNGLLINKPROGRAMPROC) glfwGetProcAddress("glLinkProgram");
+  glUseProgramARB = (PFNGLUSEPROGRAMPROC) glfwGetProcAddress("glUseProgram");
+  glUniformMatrix4fvARB = (PFNGLUNIFORMMATRIX4FVPROC) glfwGetProcAddress("glUniformMatrix4fv");
+  glGetUniformLocationARB = (PFNGLGETUNIFORMLOCATIONPROC) glfwGetProcAddress("glGetUniformLocation");
+  glGetAttribLocationARB = (PFNGLGETATTRIBLOCATIONPROC) glfwGetProcAddress("glGetAttribLocation");
+  glBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONPROC) glfwGetProcAddress("glBindAttribLocation");
+}
+
+#endif
+
+//const GLchar *fragShaderSource1[] = {"#version 120\nuniform sampler2D DiffuseSampler; varying vec2 texCoord; varying vec2 oneTexel; void main(){vec4 c = texture2D(DiffuseSampler, texCoord); vec4 u = texture2D(DiffuseSampler, texCoord + vec2(0.0, -oneTexel.y)); vec4 d = texture2D(DiffuseSampler, texCoord + vec2(0.0, oneTexel.y)); vec4 l = texture2D(DiffuseSampler, texCoord + vec2(-oneTexel.x, 0.0)); vec4 r = texture2D(DiffuseSampler, texCoord + vec2(oneTexel.x, 0.0)); vec4 nc = normalize(c); vec4 nu = normalize(u); vec4 nd = normalize(d); vec4 nl = normalize(l); vec4 nr = normalize(r); float du = dot(nc, nu); float dd = dot(nc, nd); float dl = dot(nc, nl); float dr = dot(nc, nr); float i = 64.0; float f = 1.0; f += (du * i) - (dd * i); f += (dr * i) - (dl * i); vec4 color = c * clamp(f, 0.5, 2); gl_FragColor = vec4(color.rgb, c.a);}"};
+
+//const GLchar *vertShaderSource1[] = {"#version 120\nattribute vec4 Position; uniform mat4 ProjMat; uniform vec2 InSize; varying vec2 texCoord; varying vec2 oneTexel; void main(){vec4 outPos = ProjMat * vec4(Position.xy, 0.0, 1.0); gl_Position = vec4(outPos.xy, 0.2, 1.0); oneTexel = 1.0 / InSize; texCoord = outPos.xy * 0.5 + 0.5;}"};
+
+const GLchar *vertShaderSource1[] = {"        \
+#version 120                      \n\
+void main(){                      \n\
+  gl_Position = ftransform();     \n\
+  length(vec3(0, 500, 0))-100.0f;   \n\
+}                                 \n\
+"};
+
+const GLchar *fragShaderSource2[] = {"        \
+#version 120                      \n\
+void main(){                      \n\
+  gl_FragColor = gl_Color;        \n\
+}                                 \n\
+"};
+
+
+const GLchar *fragShaderSource1[] = {"        \
+#version 120                                  \n\
+uniform sampler2D tex0;                       \n\
+uniform float mouse_x_offset; // 0.5          \n\
+varying vec4 Vertex_UV;                       \n\
+varying vec4 FragColor;                       \n\
+uniform float edge_thres; // 0.2;             \n\
+uniform float edge_thres2; // 5.0;            \n\
+#define HueLevCount 6                         \n\
+#define SatLevCount 7                         \n\
+#define ValLevCount 4                         \n\
+float[HueLevCount] HueLevels = float[] (0.0,140.0,160.0,240.0,240.0,360.0);  \n\
+float[SatLevCount] SatLevels = float[] (0.0,0.15,0.3,0.45,0.6,0.8,1.0);      \n\
+float[ValLevCount] ValLevels = float[] (0.0,0.3,0.6,1.0);                    \n\
+vec3 RGBtoHSV( float r, float g, float b)     \n\
+{                                             \n\
+   float minv, maxv, delta;                   \n\
+   vec3 res;                                  \n\
+   minv = min(min(r, g), b);                  \n\
+   maxv = max(max(r, g), b);                  \n\
+   res.z = maxv;            // v              \n\
+   delta = maxv - minv;                       \n\
+   if( maxv != 0.0 )                          \n\
+      res.y = delta / maxv; // s              \n\
+   else {                                     \n\
+      // r = g = b = 0// s = 0, v is undefined\n\
+      res.y = 0.0;                            \n\
+      res.x = -1.0;                           \n\
+      return res;                             \n\
+   }                                          \n\
+   if( r == maxv )                            \n\
+      res.x = ( g - b ) / delta; // between yellow & magenta     \n\
+   else if( g == maxv )                                          \n\
+      res.x = 2.0 + ( b - r ) / delta;  // between cyan & yellow \n\
+   else                                                          \n\
+      res.x = 4.0 + ( r - g ) / delta; // between magenta & cyan \n\
+   res.x = res.x * 60.0;            // degrees                   \n\
+   if( res.x < 0.0 )\n\
+      res.x = res.x + 360.0;\n\
+   return res;\n\
+}\n\
+vec3 HSVtoRGB(float h, float s, float v ) \n\
+{\n\
+   int i;\n\
+   float f, p, q, t;\n\
+   vec3 res;\n\
+   if( s == 0.0 ) \n\
+   {\n\
+      // achromatic (grey)\n\
+      res.x = v;\n\
+      res.y = v;\n\
+      res.z = v;\n\
+      return res;\n\
+   }\n\
+   h /= 60.0;         // sector 0 to 5\n\
+   i = int(floor( h ));\n\
+   f = h - float(i);         // factorial part of h\n\
+   p = v * ( 1.0 - s );\n\
+   q = v * ( 1.0 - s * f );\n\
+   t = v * ( 1.0 - s * ( 1.0 - f ) );\n\
+if (i == 0){\n\
+         res.x = v;\n\
+         res.y = t;\n\
+         res.z = p;}\n\
+else if (i == 1){\n\
+         res.x = q;\n\
+         res.y = v;\n\
+         res.z = p;}\n\
+else if (i == 2){\n\
+         res.x = p;\n\
+         res.y = v;\n\
+         res.z = t;}\n\
+else if (i == 3){\n\
+         res.x = p;\n\
+         res.y = q;\n\
+         res.z = v;}\n\
+else if (i == 4){\n\
+         res.x = t;\n\
+         res.y = p;\n\
+         res.z = v;}\n\
+else if (i == 5){\n\
+         res.x = v;\n\
+         res.y = p;\n\
+         res.z = q;}\n\
+   return res;\n\
+}\n\
+float nearestLevel(float col, int mode) \n\
+{\n\
+   int levCount;\n\
+   if (mode==0) levCount = HueLevCount;\n\
+   if (mode==1) levCount = SatLevCount;\n\
+   if (mode==2) levCount = ValLevCount;\n\
+   for (int i =0; i<levCount-1; i++ ) {\n\
+     if (mode==0) {\n\
+        if (col >= HueLevels[i] && col <= HueLevels[i+1]) {\n\
+          return HueLevels[i+1];\n\
+        }\n\
+     }\n\
+     if (mode==1) {\n\
+        if (col >= SatLevels[i] && col <= SatLevels[i+1]) {\n\
+          return SatLevels[i+1];\n\
+        }\n\
+     }\n\
+     if (mode==2) {\n\
+        if (col >= ValLevels[i] && col <= ValLevels[i+1]) {\n\
+          return ValLevels[i+1];\n\
+        }\n\
+     }\n\
+   }\n\
+}\n\
+// averaged pixel intensity from 3 color channels\n\
+float avg_intensity(vec4 pix) \n\
+{\n\
+ return (pix.r + pix.g + pix.b)/3.;\n\
+}\n\
+vec4 get_pixel(vec2 coords, float dx, float dy) \n\
+{\n\
+ return vec4(1, 1, 1, 1); //texture(tex0,coords + vec2(dx, dy));\n\
+}\n\
+// returns pixel color\n\
+float IsEdge(in vec2 coords)\n\
+{\n\
+  float dxtex = 1.0 /float(1);//(textureSize(tex0,0)) ;\n\
+  float dytex = 1.0 /float(1);//(textureSize(tex0,0));\n\
+  float pix[9];\n\
+  int k = -1;\n\
+  float delta;\n\
+  // read neighboring pixel intensities\n\
+  for (int i=-1; i<2; i++) {\n\
+   for(int j=-1; j<2; j++) {\n\
+    k++;\n\
+    pix[k] = avg_intensity(get_pixel(coords,float(i)*dxtex,\n\
+                                          float(j)*dytex));\n\
+   }\n\
+  }\n\
+  // average color differences around neighboring pixels\n\
+  delta = (abs(pix[1]-pix[7])+\n\
+          abs(pix[5]-pix[3]) +\n\
+          abs(pix[0]-pix[8])+\n\
+          abs(pix[2]-pix[6])\n\
+           )/4.;\n\
+  //return clamp(5.5*delta,0.0,1.0);\n\
+  return clamp(edge_thres2*delta,0.0,1.0);\n\
+}\n\
+void main()\n\
+{\n\
+  vec2 uv = Vertex_UV.xy;\n\
+  vec4 tc = vec4(1.0, 0.0, 0.0, 1.0);\n\
+  if (uv.x > (mouse_x_offset+0.002))\n\
+  {\n\
+    vec3 colorOrg = vec3(1.0, 1.0, 1.0); //texture(tex0, uv).rgb;\n\
+    vec3 vHSV =  RGBtoHSV(colorOrg.r,colorOrg.g,colorOrg.b);\n\
+    vHSV.x = nearestLevel(vHSV.x, 0);\n\
+    vHSV.y = nearestLevel(vHSV.y, 1);\n\
+    vHSV.z = nearestLevel(vHSV.z, 2);\n\
+    float edg = IsEdge(uv);\n\
+    vec3 vRGB = (edg >= edge_thres)? vec3(0.0,0.0,0.0):HSVtoRGB(vHSV.x,vHSV.y,vHSV.z);\n\
+    tc = vec4(vRGB.x,vRGB.y,vRGB.z, 1);  \n\
+  }\n\
+  else if (uv.x < (mouse_x_offset-0.002))\n\
+  {\n\
+    //tc = vec4(1.0, 1.0, 1.0, 1.0);                  \n\
+    tc = texture(tex0, uv);\n\
+  }\n\
+  gl_FragColor = tc;\n\
+}\n\
+"};

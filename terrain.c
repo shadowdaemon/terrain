@@ -1,4 +1,4 @@
-#include <GL/glfw.h>
+#include <GLFW/glfw3.h>
 #include "maths.h"
 
 
@@ -18,7 +18,7 @@ float algorithmicTerrainHeight(float x, float z)
   z *= 0.5f;
   g1 = sinf(x / 100) * 250;
   g2 = sinf(z / 100) * 70;
-  height = (float) (fabs(a1) - fabs(a2) - fabs(h1) - fabs(h2) - fabs(g1) - fabs(g2));
+  height = (float) (fabs(a1) - fabs(a2) - fabs(h1) - fabs(h2));// - fabs(g1) - fabs(g2));
   x1 *= 2.3f;
   z1 *= 2.1f;
   height += (float) ((height - 100.0f) * (height - 140.0f) * 0.0002f * sinf(x1 - z1));
@@ -84,11 +84,12 @@ struct terrain readTerrain(float x, float z)
 
 void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int *swapb, int squaresize)
 {
-  float rot;
+  //float rot;
   struct v3f center;
 
-  rot = camerarot.x < 75.0f ? camerarot.x : 75.0f;
-  center = degreestovector2d (camerapos, camerarot.y, 0.0f, TERRAIN_CENTRE_DISTANCE * cosf (rot / PIx180));
+  //rot = camerarot.x < 75.0f ? camerarot.x : 75.0f;
+  //center = degreestovector2d (camerapos, camerarot.y, 0.0f, TERRAIN_CENTRE_DISTANCE * cosf (rot / PIx180));
+  center = camerapos;
   if (center.x > (sector->x + TERRAIN_STEP_SIZE * squaresize) ||
        center.x < (sector->x - TERRAIN_STEP_SIZE * squaresize)) {
     sector->x = center.x;
@@ -110,7 +111,7 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
 {
   struct terrain temp1, temp2;
   struct v3f temp3f;
-  int x_shift, z_shift, x_grid, z_grid, x2, z2, alt;
+  int xshift, zshift, xgrid, zgrid, x2, z2, alt, cull;
   static int alt2 = 0;
   float x, z, xpos = 0.0f, zpos = 0.0f;
   float v1[3], v2[3], v3[3];
@@ -172,259 +173,268 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   if (alt2 != alt) {
     alt2 = alt;
     *swapb = 0;
-  }
+    }
   // *squaresize = TERRAIN_SQUARE_SIZE;
   x = (int) (sector->x / -(*squaresize));
   z = (int) (sector->y / -(*squaresize));
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
   glScalef(0.01f, 0.01f, 0.01f);
-  for (x_grid = 0, z_grid = 0; x_grid < TERRAIN_GRID_SIZE && z_grid < TERRAIN_GRID_SIZE; x_grid++) {
-    x_shift = *squaresize + fabs(TERRAIN_GRID_SIZE_HALF - x_grid) * 8;
-    //x_shift = *squaresize;
-    z_shift = *squaresize + fabs(TERRAIN_GRID_SIZE_HALF - z_grid) * 8;
-    //z_shift = *squaresize;
-    xpos = (-TERRAIN_GRID_SIZE_HALF + x_grid) * x_shift + x * *squaresize;
-    zpos = (-TERRAIN_GRID_SIZE_HALF + z_grid) * z_shift + z * *squaresize;
-    x_shift = *squaresize * 0.5f + fabs(TERRAIN_GRID_SIZE_HALF - x_grid) * 8;
-    //x_shift = *squaresize * 0.5f;
-    z_shift = *squaresize * 0.5f + fabs(TERRAIN_GRID_SIZE_HALF - z_grid) * 8;
-    //z_shift = *squaresize * 0.5f;
-    NEx[x_grid][z_grid] = (int) (xpos + x_shift);
-    NEz[x_grid][z_grid] = (int) (zpos - z_shift);
-    temp1 = readTerrain (NEx[x_grid][z_grid], NEz[x_grid][z_grid]); // color read here
-    NEy[x_grid][z_grid] = (int) temp1.height;
-    NWx[x_grid][z_grid] = (int) (xpos - x_shift);
-    NWz[x_grid][z_grid] = (int) (zpos - z_shift);
-    NWy[x_grid][z_grid] = (int) (readTerrainHeight (NWx[x_grid][z_grid], NWz[x_grid][z_grid]));
-    SEx[x_grid][z_grid] = (int) (xpos + x_shift);
-    SEz[x_grid][z_grid] = (int) (zpos + z_shift);
-    temp2 = readTerrain (SEx[x_grid][z_grid], SEz[x_grid][z_grid]); // color read here too..
-    SEy[x_grid][z_grid] = (int) temp2.height;
-    SWx[x_grid][z_grid] = (int) (xpos - x_shift);
-    SWz[x_grid][z_grid] = (int) (zpos + z_shift);
-    SWy[x_grid][z_grid] = (int) (readTerrainHeight (SWx[x_grid][z_grid], SWz[x_grid][z_grid]));
-    switch (temp2.type) {
-    case T_TYPE_WATER:
-      SEcolorR[x_grid][z_grid] = 30;
-      SEcolorG[x_grid][z_grid] = 97;
-      SEcolorB[x_grid][z_grid] = 157;
-      break;
-    case T_TYPE_WATER_EDGE:
-      SEcolorR[x_grid][z_grid] = 50;
-      SEcolorG[x_grid][z_grid] = 97;
-      SEcolorB[x_grid][z_grid] = 75;
-      break;
-    case T_TYPE_GRASS1:
-      SEcolorR[x_grid][z_grid] = 30;
-      SEcolorG[x_grid][z_grid] = 98;
-      SEcolorB[x_grid][z_grid] = 5;
-      break;
-    case T_TYPE_GRASS2:
-      SEcolorR[x_grid][z_grid] = 55;
-      SEcolorG[x_grid][z_grid] = 105;
-      SEcolorB[x_grid][z_grid] = 5;
-      break;
-    case T_TYPE_GRASS3:
-      SEcolorR[x_grid][z_grid] = 48;
-      SEcolorG[x_grid][z_grid] = 90;
-      SEcolorB[x_grid][z_grid] = 42;
-      break;
-    case T_TYPE_ROCK:
-      SEcolorR[x_grid][z_grid] = 91;
-      SEcolorG[x_grid][z_grid] = 96;
-      SEcolorB[x_grid][z_grid] = 78;
-      break;
-    case T_TYPE_DIRT:
-      SEcolorR[x_grid][z_grid] = 101;
-      SEcolorG[x_grid][z_grid] = 98;
-      SEcolorB[x_grid][z_grid] = 53;
-      break;
-    case T_TYPE_CRATER:
-      SEcolorR[x_grid][z_grid] = 53;
-      SEcolorG[x_grid][z_grid] = 56;
-      SEcolorB[x_grid][z_grid] = 33;
-      break;
-    default:
-      SEcolorR[x_grid][z_grid] = 83;
-      SEcolorG[x_grid][z_grid] = 122;
-      SEcolorB[x_grid][z_grid] = 45;
-      break;
-    }
-    switch (temp1.type) {
-    case T_TYPE_WATER:
-      NEcolorR[x_grid][z_grid] = 30;
-      NEcolorG[x_grid][z_grid] = 97;
-      NEcolorB[x_grid][z_grid] = 157;
-      break;
-    case T_TYPE_WATER_EDGE:
-      NEcolorR[x_grid][z_grid] = 50;
-      NEcolorG[x_grid][z_grid] = 97;
-      NEcolorB[x_grid][z_grid] = 75;
-      break;
-    case T_TYPE_GRASS1:
-      NEcolorR[x_grid][z_grid] = 30;
-      NEcolorG[x_grid][z_grid] = 98;
-      NEcolorB[x_grid][z_grid] = 5;
-      break;
-    case T_TYPE_GRASS2:
-      NEcolorR[x_grid][z_grid] = 55;
-      NEcolorG[x_grid][z_grid] = 105;
-      NEcolorB[x_grid][z_grid] = 5;
-      break;
-    case T_TYPE_GRASS3:
-      NEcolorR[x_grid][z_grid] = 48;
-      NEcolorG[x_grid][z_grid] = 90;
-      NEcolorB[x_grid][z_grid] = 42;
-      break;
-    case T_TYPE_ROCK:
-      NEcolorR[x_grid][z_grid] = 91;
-      NEcolorG[x_grid][z_grid] = 96;
-      NEcolorB[x_grid][z_grid] = 78;
-      break;
-    case T_TYPE_DIRT:
-      NEcolorR[x_grid][z_grid] = 93;
-      NEcolorG[x_grid][z_grid] = 101;
-      NEcolorB[x_grid][z_grid] = 53;
-      break;
-    case T_TYPE_CRATER:
-      NEcolorR[x_grid][z_grid] = 53;
-      NEcolorG[x_grid][z_grid] = 56;
-      NEcolorB[x_grid][z_grid] = 33;
-      break;
-    default:
-      NEcolorR[x_grid][z_grid] = 83;
-      NEcolorG[x_grid][z_grid] = 122;
-      NEcolorB[x_grid][z_grid] = 45;
-      break;
-    }
-    //  calcnormal for top segment
-    v1[0] = (GLfloat) SEx[x_grid][z_grid];
-    v1[1] = (GLfloat) SEy[x_grid][z_grid];
-    v1[2] = (GLfloat) SEz[x_grid][z_grid];  //  se vertex
-    v2[0] = (GLfloat) NEx[x_grid][z_grid];
-    v2[1] = (GLfloat) NEy[x_grid][z_grid];
-    v2[2] = (GLfloat) NEz[x_grid][z_grid];  //  ne vertex
-    v3[0] = (GLfloat) NWx[x_grid][z_grid];
-    v3[1] = (GLfloat) NWy[x_grid][z_grid];
-    v3[2] = (GLfloat) NWz[x_grid][z_grid];  //  nw vertex
-    temp3f = calcNormal(v1, v2, v3);  //  ccw - SE, NE, NW
-    Nnormx[x_grid][z_grid] = temp3f.x;
-    Nnormy[x_grid][z_grid] = temp3f.y;
-    Nnormz[x_grid][z_grid] = temp3f.z;
-    //  calcnormal for bottom segment
-    //  se in array already...
-    v2[0] = (GLfloat) SWx[x_grid][z_grid];
-    v2[1] = (GLfloat) SWy[x_grid][z_grid];
-    v2[2] = (GLfloat) SWz[x_grid][z_grid];  //  sw vertex
-    //  nw in array already...
-    temp3f = calcNormal(v1, v3, v2);  //  ccw - SE, NW, SW  //  swapped order
-    Snormx[x_grid][z_grid] = temp3f.x;
-    Snormy[x_grid][z_grid] = temp3f.y;
-    Snormz[x_grid][z_grid] = temp3f.z;
-    //  calcnormal for NW vertex
-    x2 = (x_grid - 1);
-    z2 = (z_grid - 1);
-    NWnormx[x_grid][z_grid] = (Nnormx[x_grid][z_grid] + Snormx[x_grid][z2]
+  for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
+    x2 = fabs(TERRAIN_GRID_SIZE_HALF - xgrid);// - 20;
+    x2 = x2 < 0 ? 0 : x2;
+    xshift = *squaresize + x2 * 8;
+    //xshift = *squaresize;
+    z2 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid);// - 20;
+    z2 = z2 < 0 ? 0 : z2;
+    zshift = *squaresize + z2 * 8;
+    //zshift = *squaresize;
+    xpos = (-TERRAIN_GRID_SIZE_HALF + xgrid) * xshift + x * *squaresize;
+    zpos = (-TERRAIN_GRID_SIZE_HALF + zgrid) * zshift + z * *squaresize;
+    xshift = *squaresize * 0.5f + x2 * 8;
+    //xshift = *squaresize * 0.5f;
+    zshift = *squaresize * 0.5f + z2 * 8;
+    //zshift = *squaresize * 0.5f;
+    cull = fabs((int) (camerarot.y - vectorstodegree2d(camerapos, mv3f(-xpos, 0, -zpos))));
+    while (cull >= 360)
+      cull -= 360;
+    if (cull <= 85 || cull >= 275 || camerarot.x > 27.0f || distance2d(camerapos, mv3f(-xpos, 0.0f, -zpos)) < *squaresize) {
+      NEx[xgrid][zgrid] = (int) (xpos + xshift);
+      NEz[xgrid][zgrid] = (int) (zpos - zshift);
+      temp1 = readTerrain (NEx[xgrid][zgrid], NEz[xgrid][zgrid]); // color read here
+      NEy[xgrid][zgrid] = (int) temp1.height;
+      NWx[xgrid][zgrid] = (int) (xpos - xshift);
+      NWz[xgrid][zgrid] = (int) (zpos - zshift);
+      NWy[xgrid][zgrid] = (int) (readTerrainHeight (NWx[xgrid][zgrid], NWz[xgrid][zgrid]));
+      SEx[xgrid][zgrid] = (int) (xpos + xshift);
+      SEz[xgrid][zgrid] = (int) (zpos + zshift);
+      temp2 = readTerrain (SEx[xgrid][zgrid], SEz[xgrid][zgrid]); // color read here too..
+      SEy[xgrid][zgrid] = (int) temp2.height;
+      SWx[xgrid][zgrid] = (int) (xpos - xshift);
+      SWz[xgrid][zgrid] = (int) (zpos + zshift);
+      SWy[xgrid][zgrid] = (int) (readTerrainHeight (SWx[xgrid][zgrid], SWz[xgrid][zgrid]));
+      switch (temp2.type) {
+      case T_TYPE_WATER:
+        SEcolorR[xgrid][zgrid] = 30;
+        SEcolorG[xgrid][zgrid] = 97;
+        SEcolorB[xgrid][zgrid] = 157;
+        break;
+      case T_TYPE_WATER_EDGE:
+        SEcolorR[xgrid][zgrid] = 50;
+        SEcolorG[xgrid][zgrid] = 97;
+        SEcolorB[xgrid][zgrid] = 75;
+        break;
+      case T_TYPE_GRASS1:
+        SEcolorR[xgrid][zgrid] = 30;
+        SEcolorG[xgrid][zgrid] = 98;
+        SEcolorB[xgrid][zgrid] = 5;
+        break;
+      case T_TYPE_GRASS2:
+        SEcolorR[xgrid][zgrid] = 55;
+        SEcolorG[xgrid][zgrid] = 105;
+        SEcolorB[xgrid][zgrid] = 5;
+        break;
+      case T_TYPE_GRASS3:
+        SEcolorR[xgrid][zgrid] = 48;
+        SEcolorG[xgrid][zgrid] = 90;
+        SEcolorB[xgrid][zgrid] = 42;
+        break;
+      case T_TYPE_ROCK:
+        SEcolorR[xgrid][zgrid] = 91;
+        SEcolorG[xgrid][zgrid] = 96;
+        SEcolorB[xgrid][zgrid] = 78;
+        break;
+      case T_TYPE_DIRT:
+        SEcolorR[xgrid][zgrid] = 101;
+        SEcolorG[xgrid][zgrid] = 98;
+        SEcolorB[xgrid][zgrid] = 53;
+        break;
+      case T_TYPE_CRATER:
+        SEcolorR[xgrid][zgrid] = 53;
+        SEcolorG[xgrid][zgrid] = 56;
+        SEcolorB[xgrid][zgrid] = 33;
+        break;
+      default:
+        SEcolorR[xgrid][zgrid] = 83;
+        SEcolorG[xgrid][zgrid] = 122;
+        SEcolorB[xgrid][zgrid] = 45;
+        break;
+      }
+      switch (temp1.type) {
+      case T_TYPE_WATER:
+        NEcolorR[xgrid][zgrid] = 30;
+        NEcolorG[xgrid][zgrid] = 97;
+        NEcolorB[xgrid][zgrid] = 157;
+        break;
+      case T_TYPE_WATER_EDGE:
+        NEcolorR[xgrid][zgrid] = 50;
+        NEcolorG[xgrid][zgrid] = 97;
+        NEcolorB[xgrid][zgrid] = 75;
+        break;
+      case T_TYPE_GRASS1:
+        NEcolorR[xgrid][zgrid] = 30;
+        NEcolorG[xgrid][zgrid] = 98;
+        NEcolorB[xgrid][zgrid] = 5;
+        break;
+      case T_TYPE_GRASS2:
+        NEcolorR[xgrid][zgrid] = 55;
+        NEcolorG[xgrid][zgrid] = 105;
+        NEcolorB[xgrid][zgrid] = 5;
+        break;
+      case T_TYPE_GRASS3:
+        NEcolorR[xgrid][zgrid] = 48;
+        NEcolorG[xgrid][zgrid] = 90;
+        NEcolorB[xgrid][zgrid] = 42;
+        break;
+      case T_TYPE_ROCK:
+        NEcolorR[xgrid][zgrid] = 91;
+        NEcolorG[xgrid][zgrid] = 96;
+        NEcolorB[xgrid][zgrid] = 78;
+        break;
+      case T_TYPE_DIRT:
+        NEcolorR[xgrid][zgrid] = 93;
+        NEcolorG[xgrid][zgrid] = 101;
+        NEcolorB[xgrid][zgrid] = 53;
+        break;
+      case T_TYPE_CRATER:
+        NEcolorR[xgrid][zgrid] = 53;
+        NEcolorG[xgrid][zgrid] = 56;
+        NEcolorB[xgrid][zgrid] = 33;
+        break;
+      default:
+        NEcolorR[xgrid][zgrid] = 83;
+        NEcolorG[xgrid][zgrid] = 122;
+        NEcolorB[xgrid][zgrid] = 45;
+        break;
+      }
+      //  calcnormal for top segment
+      v1[0] = (GLfloat) SEx[xgrid][zgrid];
+      v1[1] = (GLfloat) SEy[xgrid][zgrid];
+      v1[2] = (GLfloat) SEz[xgrid][zgrid];  //  se vertex
+      v2[0] = (GLfloat) NEx[xgrid][zgrid];
+      v2[1] = (GLfloat) NEy[xgrid][zgrid];
+      v2[2] = (GLfloat) NEz[xgrid][zgrid];  //  ne vertex
+      v3[0] = (GLfloat) NWx[xgrid][zgrid];
+      v3[1] = (GLfloat) NWy[xgrid][zgrid];
+      v3[2] = (GLfloat) NWz[xgrid][zgrid];  //  nw vertex
+      temp3f = calcNormal(v1, v2, v3);  //  ccw - SE, NE, NW
+      Nnormx[xgrid][zgrid] = temp3f.x;
+      Nnormy[xgrid][zgrid] = temp3f.y;
+      Nnormz[xgrid][zgrid] = temp3f.z;
+      //  calcnormal for bottom segment
+      //  se in array already...
+      v2[0] = (GLfloat) SWx[xgrid][zgrid];
+      v2[1] = (GLfloat) SWy[xgrid][zgrid];
+      v2[2] = (GLfloat) SWz[xgrid][zgrid];  //  sw vertex
+      //  nw in array already...
+      temp3f = calcNormal(v1, v3, v2);  //  ccw - SE, NW, SW  //  swapped order
+      Snormx[xgrid][zgrid] = temp3f.x;
+      Snormy[xgrid][zgrid] = temp3f.y;
+      Snormz[xgrid][zgrid] = temp3f.z;
+      //  calcnormal for NW vertex
+      x2 = xgrid - 1;
+      z2 = zgrid - 1;
+      NWnormx[xgrid][zgrid] = (Nnormx[xgrid][zgrid] + Snormx[xgrid][z2]
                                + Nnormx[x2][z2] + Snormx[x2][z2]
-                               + Nnormx[x2][z_grid] + Snormx[x_grid][z_grid]) / 6;
-    NWnormy[x_grid][z_grid] = (Nnormy[x_grid][z_grid] + Snormy[x_grid][z2]
+                               + Nnormx[x2][zgrid] + Snormx[xgrid][zgrid]) / 6;
+      NWnormy[xgrid][zgrid] = (Nnormy[xgrid][zgrid] + Snormy[xgrid][z2]
                                + Nnormy[x2][z2] + Snormy[x2][z2]
-                               + Nnormy[x2][z_grid] + Snormy[x_grid][z_grid]) / 6;
-    NWnormz[x_grid][z_grid] = (Nnormz[x_grid][z_grid] + Snormz[x_grid][z2]
+                               + Nnormy[x2][zgrid] + Snormy[xgrid][zgrid]) / 6;
+      NWnormz[xgrid][zgrid] = (Nnormz[xgrid][zgrid] + Snormz[xgrid][z2]
                                + Nnormz[x2][z2] + Snormz[x2][z2]
-                               + Nnormz[x2][z_grid] + Snormz[x_grid][z_grid]) / 6;
-    //  calcnormal for SE vertex
-    x2 = (x_grid + 1);
-    z2 = (z_grid + 1);
-    SEnormx[x_grid][z_grid] = (Nnormx[x_grid][z_grid] + Snormx[x_grid][z_grid]
-                               + Nnormx[x_grid][z2] + Snormx[x2][z2]
-                               + Nnormx[x2][z2] + Snormx[x2][z_grid]) / 6;
-    SEnormy[x_grid][z_grid] = (Nnormy[x_grid][z_grid] + Snormy[x_grid][z_grid]
-                               + Nnormy[x_grid][z2] + Snormy[x2][z2]
-                               + Nnormy[x2][z2] + Snormy[x2][z_grid]) / 6;
-    SEnormz[x_grid][z_grid] = (Nnormz[x_grid][z_grid] + Snormz[x_grid][z_grid]
-                               + Nnormz[x_grid][z2] + Snormz[x2][z2]
-                               + Nnormz[x2][z2] + Snormz[x2][z_grid]) / 6;
-    //  calcnormal for SW vertex
-    x2 = (x_grid - 1);
-    z2 = (z_grid + 1);
-    SWnormx[x_grid][z_grid] = (Snormx[x_grid][z_grid] + Nnormx[x2][z_grid]
-                               + Snormx[x2][z_grid] + Nnormx[x2][z2]
-                               + Snormx[x_grid][z2] + Nnormx[x_grid][z2]) / 6;
-    SWnormy[x_grid][z_grid] = (Snormy[x_grid][z_grid] + Nnormy[x2][z_grid]
-                               + Snormy[x2][z_grid] + Nnormy[x2][z2]
-                               + Snormy[x_grid][z2] + Nnormy[x_grid][z2]) / 6;
-    SWnormz[x_grid][z_grid] = (Snormz[x_grid][z_grid] + Nnormz[x2][z_grid]
-                               + Snormz[x2][z_grid] + Nnormz[x2][z2]
-                               + Snormz[x_grid][z2] + Nnormz[x_grid][z2]) / 6;
-    //  calcnormal for NE vertex
-    x2 = (x_grid + 1);
-    z2 = (z_grid - 1);
-    NEnormx[x_grid][z_grid] = (Nnormx[x_grid][z_grid] + Snormx[x2][z_grid]
-                               + Nnormx[x2][z_grid] + Snormx[x2][z2]
-                               + Nnormx[x_grid][z2] + Snormx[x_grid][z2]) / 6;
-    NEnormy[x_grid][z_grid] = (Nnormy[x_grid][z_grid] + Snormy[x2][z_grid]
-                               + Nnormy[x2][z_grid] + Snormy[x2][z2]
-                               + Nnormy[x_grid][z2] + Snormy[x_grid][z2]) / 6;
-    NEnormz[x_grid][z_grid] = (Nnormz[x_grid][z_grid] + Snormz[x2][z_grid]
-                               + Nnormz[x2][z_grid] + Snormz[x2][z2]
-                               + Nnormz[x_grid][z2] + Snormz[x_grid][z2]) / 6;
-    if (*swapb) {
-      if (readTerrainHeight(xpos, zpos) > TERRAIN_WATER_LEVEL) {
-        if (glfwGetKey(GLFW_KEY_F10)) {
-          glLineWidth(1.0f);
-          glBegin(GL_LINE_STRIP); //test
-        }
-        else
+                               + Nnormz[x2][zgrid] + Snormz[xgrid][zgrid]) / 6;
+      //  calcnormal for SE vertex
+      x2 = xgrid + 1;
+      z2 = zgrid + 1;
+      SEnormx[xgrid][zgrid] = (Nnormx[xgrid][zgrid] + Snormx[xgrid][zgrid]
+                               + Nnormx[xgrid][z2] + Snormx[x2][z2]
+                               + Nnormx[x2][z2] + Snormx[x2][zgrid]) / 6;
+      SEnormy[xgrid][zgrid] = (Nnormy[xgrid][zgrid] + Snormy[xgrid][zgrid]
+                               + Nnormy[xgrid][z2] + Snormy[x2][z2]
+                               + Nnormy[x2][z2] + Snormy[x2][zgrid]) / 6;
+      SEnormz[xgrid][zgrid] = (Nnormz[xgrid][zgrid] + Snormz[xgrid][zgrid]
+                               + Nnormz[xgrid][z2] + Snormz[x2][z2]
+                               + Nnormz[x2][z2] + Snormz[x2][zgrid]) / 6;
+      //  calcnormal for SW vertex
+      x2 = xgrid - 1;
+      z2 = zgrid + 1;
+      SWnormx[xgrid][zgrid] = (Snormx[xgrid][zgrid] + Nnormx[x2][zgrid]
+                               + Snormx[x2][zgrid] + Nnormx[x2][z2]
+                               + Snormx[xgrid][z2] + Nnormx[xgrid][z2]) / 6;
+      SWnormy[xgrid][zgrid] = (Snormy[xgrid][zgrid] + Nnormy[x2][zgrid]
+                               + Snormy[x2][zgrid] + Nnormy[x2][z2]
+                               + Snormy[xgrid][z2] + Nnormy[xgrid][z2]) / 6;
+      SWnormz[xgrid][zgrid] = (Snormz[xgrid][zgrid] + Nnormz[x2][zgrid]
+                               + Snormz[x2][zgrid] + Nnormz[x2][z2]
+                               + Snormz[xgrid][z2] + Nnormz[xgrid][z2]) / 6;
+      //  calcnormal for NE vertex
+      x2 = xgrid + 1;
+      z2 = zgrid - 1;
+      NEnormx[xgrid][zgrid] = (Nnormx[xgrid][zgrid] + Snormx[x2][zgrid]
+                               + Nnormx[x2][zgrid] + Snormx[x2][z2]
+                               + Nnormx[xgrid][z2] + Snormx[xgrid][z2]) / 6;
+      NEnormy[xgrid][zgrid] = (Nnormy[xgrid][zgrid] + Snormy[x2][zgrid]
+                               + Nnormy[x2][zgrid] + Snormy[x2][z2]
+                               + Nnormy[xgrid][z2] + Snormy[xgrid][z2]) / 6;
+      NEnormz[xgrid][zgrid] = (Nnormz[xgrid][zgrid] + Snormz[x2][zgrid]
+                               + Nnormz[x2][zgrid] + Snormz[x2][z2]
+                               + Nnormz[xgrid][z2] + Snormz[xgrid][z2]) / 6;
+      if (*swapb) {
+        if (readTerrainHeight(xpos, zpos) > TERRAIN_WATER_LEVEL) {
+          /*if (glfwGetKey(GLFW_KEY_F10)) {
+            glLineWidth(1.0f);
+            glBegin(GL_LINE_STRIP); //test
+            }
+            else*/
           glBegin(GL_TRIANGLE_STRIP);
-        glColor3ub(SEcolorR[x_grid-1][z_grid], SEcolorG[x_grid-1][z_grid], SEcolorB[x_grid-1][z_grid]);
-        glNormal3f(SWnormx[x_grid][z_grid], SWnormy[x_grid][z_grid], SWnormz[x_grid][z_grid]);
-        glTexCoord2i((SWx[x_grid][z_grid]), (SWz[x_grid][z_grid]));
-        glVertex3i(SWx[x_grid][z_grid], SWy[x_grid][z_grid], SWz[x_grid][z_grid]);
-        glColor3ub(SEcolorR[x_grid][z_grid], SEcolorG[x_grid][z_grid], SEcolorB[x_grid][z_grid]);
-        glNormal3f(SEnormx[x_grid][z_grid], SEnormy[x_grid][z_grid], SEnormz[x_grid][z_grid]);
-        glTexCoord2i((SEx[x_grid][z_grid]), (SEz[x_grid][z_grid]));
-        glVertex3i(SEx[x_grid][z_grid], SEy[x_grid][z_grid], SEz[x_grid][z_grid]);
-        glColor3ub(NEcolorR[x_grid-1][z_grid], NEcolorG[x_grid-1][z_grid], NEcolorB[x_grid-1][z_grid]);
-        glNormal3f(NWnormx[x_grid][z_grid], NWnormy[x_grid][z_grid], NWnormz[x_grid][z_grid]);
-        glTexCoord2i((NWx[x_grid][z_grid]), (NWz[x_grid][z_grid]));
-        glVertex3i(NWx[x_grid][z_grid], NWy[x_grid][z_grid], NWz[x_grid][z_grid]);
-        glColor3ub(NEcolorR[x_grid][z_grid], NEcolorG[x_grid][z_grid], NEcolorB[x_grid][z_grid]);
-        glNormal3f(NEnormx[x_grid][z_grid], NEnormy[x_grid][z_grid], NEnormz[x_grid][z_grid]);
-        glTexCoord2i((NEx[x_grid][z_grid]), (NEz[x_grid][z_grid]));
-        glVertex3i(NEx[x_grid][z_grid], NEy[x_grid][z_grid], NEz[x_grid][z_grid]);
-        glEnd();
-      }
-      else {
-        if (glfwGetKey(GLFW_KEY_F10)) {
-          glLineWidth(1.0f);
-          glBegin(GL_LINE_STRIP); //test
+          glColor3ub(SEcolorR[xgrid-1][zgrid], SEcolorG[xgrid-1][zgrid], SEcolorB[xgrid-1][zgrid]);
+          glNormal3f(SWnormx[xgrid][zgrid], SWnormy[xgrid][zgrid], SWnormz[xgrid][zgrid]);
+          glTexCoord2i((SWx[xgrid][zgrid]), (SWz[xgrid][zgrid]));
+          glVertex3i(SWx[xgrid][zgrid], SWy[xgrid][zgrid], SWz[xgrid][zgrid]);
+          glColor3ub(SEcolorR[xgrid][zgrid], SEcolorG[xgrid][zgrid], SEcolorB[xgrid][zgrid]);
+          glNormal3f(SEnormx[xgrid][zgrid], SEnormy[xgrid][zgrid], SEnormz[xgrid][zgrid]);
+          glTexCoord2i((SEx[xgrid][zgrid]), (SEz[xgrid][zgrid]));
+          glVertex3i(SEx[xgrid][zgrid], SEy[xgrid][zgrid], SEz[xgrid][zgrid]);
+          glColor3ub(NEcolorR[xgrid-1][zgrid], NEcolorG[xgrid-1][zgrid], NEcolorB[xgrid-1][zgrid]);
+          glNormal3f(NWnormx[xgrid][zgrid], NWnormy[xgrid][zgrid], NWnormz[xgrid][zgrid]);
+          glTexCoord2i((NWx[xgrid][zgrid]), (NWz[xgrid][zgrid]));
+          glVertex3i(NWx[xgrid][zgrid], NWy[xgrid][zgrid], NWz[xgrid][zgrid]);
+          glColor3ub(NEcolorR[xgrid][zgrid], NEcolorG[xgrid][zgrid], NEcolorB[xgrid][zgrid]);
+          glNormal3f(NEnormx[xgrid][zgrid], NEnormy[xgrid][zgrid], NEnormz[xgrid][zgrid]);
+          glTexCoord2i((NEx[xgrid][zgrid]), (NEz[xgrid][zgrid]));
+          glVertex3i(NEx[xgrid][zgrid], NEy[xgrid][zgrid], NEz[xgrid][zgrid]);
+          glEnd();
         }
-        else
+        else {
+          /*if (glfwGetKey(GLFW_KEY_F10)) {
+            glLineWidth(1.0f);
+            glBegin(GL_LINE_STRIP); //test
+            }
+            else*/
           glBegin(GL_QUADS);
-        glColor3ub(NEcolorR[x_grid-1][z_grid], NEcolorG[x_grid-1][z_grid], NEcolorB[x_grid-1][z_grid]);
-        glNormal3f(NWnormx[x_grid][z_grid], NWnormy[x_grid][z_grid], NWnormz[x_grid][z_grid]);
-        glTexCoord2i((NWx[x_grid][z_grid]), (NWz[x_grid][z_grid]));
-        glVertex3i(NWx[x_grid][z_grid], NWy[x_grid][z_grid], NWz[x_grid][z_grid]);
-        glColor3ub(SEcolorR[x_grid-1][z_grid], SEcolorG[x_grid-1][z_grid], SEcolorB[x_grid-1][z_grid]);
-        glNormal3f(SWnormx[x_grid][z_grid], SWnormy[x_grid][z_grid], SWnormz[x_grid][z_grid]);
-        glTexCoord2i((SWx[x_grid][z_grid]), (SWz[x_grid][z_grid]));
-        glVertex3i(SWx[x_grid][z_grid], SWy[x_grid][z_grid], SWz[x_grid][z_grid]);
-        glColor3ub(SEcolorR[x_grid][z_grid], SEcolorG[x_grid][z_grid], SEcolorB[x_grid][z_grid]);
-        glNormal3f(SEnormx[x_grid][z_grid], SEnormy[x_grid][z_grid], SEnormz[x_grid][z_grid]);
-        glTexCoord2i((SEx[x_grid][z_grid]), (SEz[x_grid][z_grid]));
-        glVertex3i(SEx[x_grid][z_grid], SEy[x_grid][z_grid], SEz[x_grid][z_grid]);
-        glColor3ub(NEcolorR[x_grid][z_grid], NEcolorG[x_grid][z_grid], NEcolorB[x_grid][z_grid]);
-        glNormal3f(NEnormx[x_grid][z_grid], NEnormy[x_grid][z_grid], NEnormz[x_grid][z_grid]);
-        glTexCoord2i((NEx[x_grid][z_grid]), (NEz[x_grid][z_grid]));
-        glVertex3i(NEx[x_grid][z_grid], NEy[x_grid][z_grid], NEz[x_grid][z_grid]);
-        glEnd();
+          glColor3ub(NEcolorR[xgrid-1][zgrid], NEcolorG[xgrid-1][zgrid], NEcolorB[xgrid-1][zgrid]);
+          glNormal3f(NWnormx[xgrid][zgrid], NWnormy[xgrid][zgrid], NWnormz[xgrid][zgrid]);
+          glTexCoord2i((NWx[xgrid][zgrid]), (NWz[xgrid][zgrid]));
+          glVertex3i(NWx[xgrid][zgrid], NWy[xgrid][zgrid], NWz[xgrid][zgrid]);
+          glColor3ub(SEcolorR[xgrid-1][zgrid], SEcolorG[xgrid-1][zgrid], SEcolorB[xgrid-1][zgrid]);
+          glNormal3f(SWnormx[xgrid][zgrid], SWnormy[xgrid][zgrid], SWnormz[xgrid][zgrid]);
+          glTexCoord2i((SWx[xgrid][zgrid]), (SWz[xgrid][zgrid]));
+          glVertex3i(SWx[xgrid][zgrid], SWy[xgrid][zgrid], SWz[xgrid][zgrid]);
+          glColor3ub(SEcolorR[xgrid][zgrid], SEcolorG[xgrid][zgrid], SEcolorB[xgrid][zgrid]);
+          glNormal3f(SEnormx[xgrid][zgrid], SEnormy[xgrid][zgrid], SEnormz[xgrid][zgrid]);
+          glTexCoord2i((SEx[xgrid][zgrid]), (SEz[xgrid][zgrid]));
+          glVertex3i(SEx[xgrid][zgrid], SEy[xgrid][zgrid], SEz[xgrid][zgrid]);
+          glColor3ub(NEcolorR[xgrid][zgrid], NEcolorG[xgrid][zgrid], NEcolorB[xgrid][zgrid]);
+          glNormal3f(NEnormx[xgrid][zgrid], NEnormy[xgrid][zgrid], NEnormz[xgrid][zgrid]);
+          glTexCoord2i((NEx[xgrid][zgrid]), (NEz[xgrid][zgrid]));
+          glVertex3i(NEx[xgrid][zgrid], NEy[xgrid][zgrid], NEz[xgrid][zgrid]);
+          glEnd();
+        }
       }
     }
-    if (x_grid >= TERRAIN_GRID_SIZE - 1) {
-      z_grid++;
-      x_grid = -1;
+    if (xgrid >= TERRAIN_GRID_SIZE - 1) {
+      zgrid++;
+      xgrid = -1;
     }
   }
   glPopMatrix();
