@@ -4,30 +4,28 @@
 
 float algorithmicTerrainHeight(float x, float z)
 {
-  float height, x1, z1, x2, z2, a1, a2, h1, h2, g1, g2;
+  float height, x1, z1, a1, a2, h1, h2, g1, g2;
 
   x1 = 0.00011f * sqrt(x*x+z*z);
   z1 = 0.00017f * z;
   a1 = sinf(x1) * 5300;
   a2 = sinf(z1) * 1700;
-  x2 = x * 0.087f;
-  z2 = z * 0.114f;
-  h1 = sinf(x2 / 100) * 670;
-  h2 = sinf(z2 / 100) * 630;
-  x *= 0.1f;
-  z *= 0.5f;
-  g1 = sinf(x / 100) * 250;
-  g2 = sinf(z / 100) * 70;
-  height = (float) (fabs(a1) - fabs(a2) - fabs(h1) - fabs(h2));// - fabs(g1) - fabs(g2));
-  x1 *= 2.3f;
-  z1 *= 2.1f;
+  h1 = sinf(x * 0.00087f) * 670;
+  h2 = sinf(z * 0.00114f) * 630;
+  x *= 0.0051f;
+  z *= 0.0043f;
+  g1 = sinf(x) * 50;
+  g2 = sinf(z) * 70;
+  height = (float) (fabs(a1) - fabs(a2) - fabs(h1) - fabs(h2) - fabs(g1) - fabs(g2));
+  /*x1 *= 2.317f;
+  z1 *= 2.127f;
   height += (float) ((height - 100.0f) * (height - 140.0f) * 0.0002f * sinf(x1 - z1));
-  x1 *= 0.4f;
-  z1 *= 1.3f;
-  height -= (float) ((height + 20.0f) * (height - 50.0f) * 0.0002f) * (1 - sinf(x1 + z1));
+  x1 *= 0.47f;
+  z1 *= 1.37f;
+  height -= (float) ((height + 20.0f) * (height - 50.0f) * 0.0002f) * (1 - sinf(x1 + z1));*/
   height += (450 - height) * 0.5f;
-  x1 = 0.00123f * x;
-  z1 = 0.00071f * z;
+  x1 = 0.0223f * x;
+  z1 = 0.0712f * z;
   h1 = (int) (x1*x1+z1*z1) % 20000;
   height += fabs(h1 - 10000) - 6000;
   if (height < TERRAIN_WATER_LEVEL - 100)
@@ -192,9 +190,9 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
     xpos = (-TERRAIN_GRID_SIZE_HALF + xgrid) * xshift + x * *squaresize;
     zpos = (-TERRAIN_GRID_SIZE_HALF + zgrid) * zshift + z * *squaresize;
     xshift = *squaresize / 2 + x2 * 8;
-    //xshift = *squaresize * 0.5f;
+    //xshift = *squaresize / 2;
     zshift = *squaresize / 2 + z2 * 8;
-    //zshift = *squaresize * 0.5f;
+    //zshift = *squaresize / 2;
     cull = fabs((int) (camerarot.y - vectorstodegree2d(camerapos, mv3f(-xpos, 0, -zpos))));
     while (cull >= 360)
       cull -= 360;
