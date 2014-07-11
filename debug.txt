@@ -1,0 +1,1 @@
+INTEL_DEBUG=tex MESA_DEBUG=true LIBGL_DEBUG=verbose
