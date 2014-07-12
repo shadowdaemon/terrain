@@ -21,15 +21,18 @@ float algorithmicTerrainHeight(float x, float z)
   height = (float) (fabs(a1) - fabs(a2) - fabs(h1) - fabs(h2) - fabs(g1) - fabs(g2));
   x1 *= 2.317f;
   z1 *= 2.127f;
-  height += (float) ((height - 100.0f) * (height - 140.0f) * 0.0002f * sinf(x1 - z1));
+  if (height > TERRAIN_WATER_LEVEL)
+    height += (float) ((height - 100.0f) * (height - 140.0f) * 0.0002f * sinf(x1 - z1));
   x1 *= 0.47f;
   z1 *= 1.37f;
-  height -= (float) ((height + 20.0f) * (height - 50.0f) * 0.0002f) * (1 - sinf(x1 + z1));
-  height += (450 - height) * 0.5f;
+  if (height > TERRAIN_WATER_LEVEL)
+    height -= (float) ((height + 20.0f) * (height - 50.0f) * 0.0002f) * (1 - sinf(x1 + z1));
+  if (height > TERRAIN_WATER_LEVEL)
+    height += (450 - height) * 0.5f;
   x1 = 0.0223f * x;
   z1 = 0.0712f * z;
   h1 = (int) (x1*x1+z1*z1) % 20000;
-  height += fabs(h1 - 10000) - 7000;
+  height += fabs(h1 - 10000) - 9000;
 
   return height;
 }
@@ -149,6 +152,7 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   float SWnormy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
   float SWnormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
 
+  glMateriali(GL_FRONT, GL_SHININESS, 97);
   moveTerrain(camerapos, camerarot, sector, swapb, *squaresize);
   //selectPosition();
 
