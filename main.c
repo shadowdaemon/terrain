@@ -375,7 +375,7 @@ void drawFoliage(struct model *models, struct v3f camerapos, struct v3f cameraro
 }
 
 
-void skyPlane(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, float fogend)
+void renderSky(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, float fogend)
 {
   glPushMatrix();
   glDisable(GL_DEPTH_TEST);
@@ -396,6 +396,40 @@ void skyPlane(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, float 
 }
 
 
+void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize)
+{
+  int xshift, zshift, xgrid, zgrid, size = *squaresize * 2;
+  float xpos, zpos;
+
+  glDisable(GL_CULL_FACE);
+  glDisable(GL_TEXTURE_2D);
+  glPushMatrix();
+  glTranslatef(-camerapos.x, 0.0f, -camerapos.z);
+  glRotatef((GLfloat) (-camerarot.y), 0.0f, 1.0f, 0.0f);
+  glBegin(GL_QUADS);
+  glColor4ub(32, 112, 255, 170);
+  glNormal3i(0, 1, 0);
+  for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE_HALF && zgrid < TERRAIN_GRID_SIZE_HALF; xgrid++) {
+    xshift = zshift = size;
+    xpos = (-TERRAIN_GRID_SIZE_QUARTER + xgrid) * xshift;
+    zpos = (-TERRAIN_GRID_SIZE_QUARTER + zgrid) * zshift;
+    xshift = zshift = size / 2;
+    glVertex3f(xpos + xshift, TERRAIN_WATER_LEVEL, zpos + zshift);
+    glVertex3f(xpos - xshift, TERRAIN_WATER_LEVEL, zpos + zshift);
+    glVertex3f(xpos - xshift, TERRAIN_WATER_LEVEL, zpos - zshift);
+    glVertex3f(xpos + xshift, TERRAIN_WATER_LEVEL, zpos - zshift);
+    if (xgrid >= TERRAIN_GRID_SIZE_HALF - 1) {
+      zgrid++;
+      xgrid = -1;
+    }
+  }
+  glEnd();
+  glPopMatrix();
+  glEnable(GL_TEXTURE_2D);
+  glEnable(GL_CULL_FACE);
+}
+
+
 void render(GLFWwindow *window, struct model *models, GLuint *textures, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *squaresize, float *fogend)
 {
   GLfloat materialColor[4];
@@ -409,7 +443,7 @@ void render(GLFWwindow *window, struct model *models, GLuint *textures, int *swa
   glMaterialfv(GL_FRONT, GL_SPECULAR, materialColor);
   glMateriali(GL_FRONT, GL_SHININESS, 37);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  skyPlane(camerapos, camerarot, clear, *fogend);
+  renderSky(camerapos, camerarot, clear, *fogend);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
   glEnable(GL_FOG);
@@ -419,6 +453,7 @@ void render(GLFWwindow *window, struct model *models, GLuint *textures, int *swa
   updateFogLights(clear, ambient, camheight, *squaresize, fogend);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
   drawTerrain(camerapos, camerarot, sector, camheight, swapb, squaresize);
+  renderWater(camerapos, camerarot, squaresize);
   glEnableClientState(GL_VERTEX_ARRAY);
   glEnableClientState(GL_NORMAL_ARRAY);
   //glEnableClientState(GL_TEXTURE_COORD_ARRAY); /* this does not currently work */
