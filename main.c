@@ -5,12 +5,18 @@
 #include "maths.h"
 
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+static void keyInputGLFW(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 
-static void error_callback(int error, const char* description)
+static void errorGLFW(int error, const char* err)
 {
-  printf("GLFW: %s\n", description);
+  printf("GLFW: %s\n", err);
+}
+
+
+static void errorFreeImage(FREE_IMAGE_FORMAT fif, const char *err)
+{
+  printf("FreeImage: %s\n", err);
 }
 
 
@@ -48,7 +54,7 @@ GLFWwindow *startGraphics(GLFWwindow *window, GLuint *textures)
   GLsizei logSize;
   GLchar log[499];
 
-  glfwSetErrorCallback(error_callback);
+  glfwSetErrorCallback(errorGLFW);
   if (glfwInit() == GL_FALSE)
     return NULL;
   glfwWindowHint(GLFW_RED_BITS, 8);
@@ -72,7 +78,7 @@ GLFWwindow *startGraphics(GLFWwindow *window, GLuint *textures)
   if (window == NULL)
     return NULL;
   glfwMakeContextCurrent(window);
-  glfwSetKeyCallback(window, key_callback);
+  glfwSetKeyCallback(window, keyInputGLFW);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
   glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GL_TRUE);
@@ -107,8 +113,9 @@ GLFWwindow *startGraphics(GLFWwindow *window, GLuint *textures)
   glInitNames();
   glPushName(0);*/
 
-  glEnable(GL_TEXTURE_2D);
   FreeImage_Initialise(GL_FALSE);
+  FreeImage_SetOutputMessage(errorFreeImage);
+  glEnable(GL_TEXTURE_2D);
   glGenTextures(5, textures);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
   loadTexture2D("data/textures/terrain.tga");
@@ -288,7 +295,7 @@ void mouseLook(GLFWwindow *window, struct v3f *cameraRot)
 }
 
 
-static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+static void keyInputGLFW(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
   if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     glfwSetWindowShouldClose(window, GL_TRUE);
