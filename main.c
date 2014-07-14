@@ -5,6 +5,48 @@
 #include "maths.h"
 
 
+#define glActiveTexureARB _ActiveTexureARB
+#define glCreateProgramARB _CreateProgramARB
+#define glCreateShaderARB _CreateShaderARB
+#define glShaderSourceARB _ShaderSourceARB
+#define glGetShaderSourceARB _GetShaderSourceARB
+#define glCompileShaderARB _CompileShaderARB
+#define glGetShaderInfoLogARB _GetShaderInfoLogARB
+#define glGetProgramInfoLogARB _GetProgramInfoLogARB
+#define glGetProgramivARB _GetProgramivARB
+#define glAttachShaderARB _AttachShaderARB
+#define glLinkProgramARB _LinkProgramARB
+#define glUseProgramARB _UseProgramARB
+#define glUniform1iARB _Uniform1iARB
+#define glUniform1fARB _Uniform1fARB
+#define glUniform2fvARB _Uniform2fvARB
+#define glUniformMatrix4fvARB _UniformMatrix4fvARB
+#define glGetUniformLocationARB _GetUniformLocationARB
+#define glGetAttribLocationARB _GetAttribLocationARB
+#define glBindAttribLocationARB _BindAttribLocationARB
+#define glVertexAttrib3fvARB _VertexAttrib3fvARB
+PFNGLACTIVETEXTUREARBPROC _ActiveTexureARB;
+PFNGLCREATEPROGRAMPROC _CreateProgramARB;
+PFNGLCREATESHADERPROC _CreateShaderARB;
+PFNGLSHADERSOURCEARBPROC _ShaderSourceARB;
+PFNGLGETSHADERSOURCEARBPROC _GetShaderSourceARB;
+PFNGLCOMPILESHADERARBPROC _CompileShaderARB;
+PFNGLGETSHADERINFOLOGPROC _GetShaderInfoLogARB;
+PFNGLGETPROGRAMINFOLOGPROC _GetProgramInfoLogARB;
+PFNGLGETPROGRAMIVARBPROC _GetProgramivARB;
+PFNGLATTACHSHADERPROC _AttachShaderARB;
+PFNGLLINKPROGRAMARBPROC _LinkProgramARB;
+PFNGLUSEPROGRAMPROC _UseProgramARB;
+PFNGLUNIFORM1IARBPROC _Uniform1iARB;
+PFNGLUNIFORM1FARBPROC _Uniform1fARB;
+PFNGLUNIFORM2FVARBPROC _Uniform2fvARB;
+PFNGLUNIFORMMATRIX4FVARBPROC _UniformMatrix4fvARB;
+PFNGLGETUNIFORMLOCATIONARBPROC _GetUniformLocationARB;
+PFNGLGETATTRIBLOCATIONARBPROC _GetAttribLocationARB;
+PFNGLBINDATTRIBLOCATIONARBPROC _BindAttribLocationARB;
+PFNGLVERTEXATTRIB3FVARBPROC _VertexAttrib3fvARB;
+
+
 static void keyInputGLFW(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 
@@ -42,7 +84,34 @@ void loadTexture2D(const char *file)
 }
 
 
-GLFWwindow *startGraphics(GLFWwindow *window, GLuint *textures)
+long fileLength(const char *file)
+{
+  FILE *fp = NULL;
+  long len = 0;
+
+  if ((fp = fopen(file, "r"))) {
+    fseek(fp, 0, SEEK_END);
+    len = ftell(fp);
+    fclose(fp);
+    return len;
+  }
+  return len;
+}
+
+
+void loadGLSL(GLchar *src, long len, const char *file)
+{
+  FILE *fp = NULL;
+
+  if ((fp = fopen(file, "r"))) {
+    fread(src, 1, len, fp);
+    src[len++] = '\0';
+    fclose(fp);
+  }
+}
+
+
+GLFWwindow *startGraphics(GLFWwindow *window, GLuint *textures, GLuint *shaders)
 {
   int lightpos[]  = {1, 0, 500, 0};
   int width, height;
@@ -50,9 +119,11 @@ GLFWwindow *startGraphics(GLFWwindow *window, GLuint *textures)
   float lightspec[] = {0.5f, 0.5f, 0.5f, 1.0f};
   float lightamb[]  = {0.1f, 0.1f, 0.1f, 1.0f};
   float lightdiff[] = {0.8f, 0.8f, 0.8f, 1.0f};
-  GLuint prog1, fragShader1, vertShader1;
+  GLuint fragShader, vertShader;
+  GLchar *fragSrc = NULL, *vertSrc = NULL;
+  long filelen;
   GLsizei logSize;
-  GLchar log[499];
+  GLchar log[5000];
 
   glfwSetErrorCallback(errorGLFW);
   if (glfwInit() == GL_FALSE)
@@ -68,10 +139,7 @@ GLFWwindow *startGraphics(GLFWwindow *window, GLuint *textures)
   glfwWindowHint(GLFW_ACCUM_ALPHA_BITS, 8);
   glfwWindowHint(GLFW_STENCIL_BITS, 8);
   glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-  //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
-  //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   width = 1366;
   height = 768;
   window = glfwCreateWindow(width, height, "test", glfwGetPrimaryMonitor(), NULL);
@@ -102,16 +170,12 @@ GLFWwindow *startGraphics(GLFWwindow *window, GLuint *textures)
   glCullFace(GL_BACK);
   glEnable(GL_COLOR_MATERIAL);
   glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-  //glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
   glShadeModel(GL_SMOOTH);
   glMatrixMode(GL_PROJECTION);
   glFrustum(-0.54f, 0.54f, -0.4f, 0.4f, 0.8f, 50000.0f);
   glMatrixMode(GL_MODELVIEW);
   glfwGetFramebufferSize(window, &width, &height);
   glViewport(0, 0, width, height);
-  /*glSelectBuffer(SIM_SELECT_BUFFER_SIZE, select_buf);
-  glInitNames();
-  glPushName(0);*/
 
   FreeImage_Initialise(GL_FALSE);
   FreeImage_SetOutputMessage(errorFreeImage);
@@ -139,38 +203,59 @@ GLFWwindow *startGraphics(GLFWwindow *window, GLuint *textures)
   glLightfv(GL_LIGHT0, GL_AMBIENT, lightamb);
   glLightfv(GL_LIGHT0, GL_DIFFUSE, lightdiff);
 
-  //printf("%s\n", glGetString(GL_VERSION));
-  //printf("%s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+  printf("%s\n", glGetString(GL_VERSION));
+  printf("%s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-  /*
-  #include "shaders.a"
-  prog1 = glCreateProgramARB();
-  fragShader1 = glCreateShaderARB(GL_FRAGMENT_SHADER);
-  glShaderSourceARB(fragShader1, 1, fragShaderSource1, NULL);
-  glCompileShaderARB(fragShader1);
-  glGetShaderInfoLogARB(fragShader1, 500, &logSize, log);
+  glActiveTexureARB = (PFNGLACTIVETEXTUREARBPROC) glfwGetProcAddress("glActiveTexureARB");
+  glCreateProgramARB = (PFNGLCREATEPROGRAMPROC) glfwGetProcAddress("glCreateProgram");
+  glCreateShaderARB = (PFNGLCREATESHADERPROC) glfwGetProcAddress("glCreateShader");
+  glShaderSourceARB = (PFNGLSHADERSOURCEARBPROC) glfwGetProcAddress("glShaderSourceARB");
+  glGetShaderSourceARB = (PFNGLGETSHADERSOURCEARBPROC) glfwGetProcAddress("glGetShaderSourceARB");
+  glCompileShaderARB = (PFNGLCOMPILESHADERARBPROC) glfwGetProcAddress("glCompileShaderARB");
+  glGetShaderInfoLogARB = (PFNGLGETSHADERINFOLOGPROC) glfwGetProcAddress("glGetShaderInfoLog");
+  glGetProgramInfoLogARB = (PFNGLGETPROGRAMINFOLOGPROC) glfwGetProcAddress("glGetProgramInfoLog");
+  glGetProgramivARB = (PFNGLGETPROGRAMIVARBPROC) glfwGetProcAddress("glGetProgramivARB");
+  glAttachShaderARB = (PFNGLATTACHSHADERPROC) glfwGetProcAddress("glAttachShader");
+  glLinkProgramARB = (PFNGLLINKPROGRAMARBPROC) glfwGetProcAddress("glLinkProgramARB");
+  glUseProgramARB = (PFNGLUSEPROGRAMPROC) glfwGetProcAddress("glUseProgram");
+  glUniform1iARB = (PFNGLUNIFORM1IARBPROC) glfwGetProcAddress("glUniform1iARB");
+  glUniform1fARB = (PFNGLUNIFORM1FARBPROC) glfwGetProcAddress("glUniform1fARB");
+  glUniform2fvARB = (PFNGLUNIFORM3FVARBPROC) glfwGetProcAddress("glUniform1fARB");
+  glUniformMatrix4fvARB = (PFNGLUNIFORMMATRIX4FVARBPROC) glfwGetProcAddress("glUniformMatrix4fvARB");
+  glGetUniformLocationARB = (PFNGLGETUNIFORMLOCATIONARBPROC) glfwGetProcAddress("glGetUniformLocationARB");
+  glGetAttribLocationARB = (PFNGLGETATTRIBLOCATIONARBPROC) glfwGetProcAddress("glGetAttribLocationARB");
+  glBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC) glfwGetProcAddress("glBindAttribLocationARB");
+  glVertexAttrib3fvARB = (PFNGLVERTEXATTRIB3FVARBPROC) glfwGetProcAddress("glVertexAttrib3fvARB");
+
+  shaders[0] = glCreateProgramARB();
+  vertShader = glCreateShaderARB(GL_VERTEX_SHADER);
+  filelen = fileLength("data/shaders/1.vsh");
+  vertSrc = (GLchar *) malloc(sizeof(GLchar) * filelen);
+  loadGLSL(vertSrc, filelen, "data/shaders/1.vsh");
+  printf("%s\n", vertSrc);
+  glShaderSourceARB(vertShader, 1, (const GLchar **) &vertSrc, NULL);
+  free(vertSrc);
+  glCompileShaderARB(vertShader);
+  glGetShaderInfoLogARB(vertShader, 500, &logSize, log);
+  if (logSize)
+    printf("GLSL vertex: %s\n", log);
+  glAttachShaderARB(shaders[0], vertShader);
+  fragShader = glCreateShaderARB(GL_FRAGMENT_SHADER);
+  filelen = fileLength("data/shaders/2.fsh");
+  fragSrc = (GLchar *) malloc(sizeof(GLchar) * filelen);
+  loadGLSL(fragSrc, filelen, "data/shaders/2.fsh");
+  printf("%s\n", fragSrc);
+  glShaderSourceARB(fragShader, 1, (const GLchar **) &fragSrc, NULL);
+  free(fragSrc);
+  glCompileShaderARB(fragShader);
+  glGetShaderInfoLogARB(fragShader, 500, &logSize, log);
+  if (logSize)
+    printf("GLSL fragment: %s\n", log);
+  glAttachShaderARB(shaders[0], fragShader);
+  glLinkProgramARB(shaders[0]);
+  glGetProgramInfoLogARB(shaders[0], 500, &logSize, log);
   if (logSize)
     printf("%s\n", log);
-  glAttachShaderARB(prog1, fragShader1);
-  vertShader1 = glCreateShaderARB(GL_VERTEX_SHADER);
-  glShaderSourceARB(vertShader1, 1, vertShaderSource1, NULL);
-  glCompileShaderARB(vertShader1);
-  glGetShaderInfoLogARB(vertShader1, 500, &logSize, log);
-  if (logSize)
-    printf("%s\n", log);
-  //glAttachShaderARB(prog1, vertShader1);
-  glLinkProgramARB(prog1);
-  glGetAttribLocationARB(prog1, "Position");
-  glGetProgramInfoLogARB(prog1, 500, &logSize, log);
-  if (logSize)
-    printf("%s\n", log);
-  const GLfloat mat[] = {1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
-  glUniformMatrix4fvARB(glGetUniformLocationARB(prog1, "ProjMat"), 1, GL_TRUE, mat);
-  GLint param;
-  glGetProgramivARB(prog1, GL_LINK_STATUS, &param);
-  if (param)
-    glUseProgramARB(prog1);
-  */
 
   return window;
 }
@@ -343,6 +428,7 @@ void drawFoliage(struct model *models, struct v3f camerapos, struct v3f cameraro
   struct terrain temp;
   GLubyte alpha;
 
+  glMateriali(GL_FRONT, GL_SHININESS, 37);
   x = (int) (sector.x / -squaresize);
   z = (int) (sector.y / -squaresize);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
@@ -401,6 +487,7 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   int xshift, zshift, xgrid, zgrid, size = *squaresize * 2;
   float xpos, zpos;
 
+  glMateriali(GL_FRONT, GL_SHININESS, 17);
   glDisable(GL_CULL_FACE);
   glDisable(GL_TEXTURE_2D);
   glPushMatrix();
@@ -408,7 +495,7 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   glRotatef((GLfloat) (-camerarot.y), 0.0f, 1.0f, 0.0f);
   glBegin(GL_QUADS);
   glColor4ub(32, 112, 255, 170);
-  glNormal3i(0, 1, 0);
+  glNormal3i(0, -1, 0);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE_HALF && zgrid < TERRAIN_GRID_SIZE_HALF; xgrid++) {
     xshift = zshift = size;
     xpos = (-TERRAIN_GRID_SIZE_QUARTER + xgrid) * xshift;
@@ -430,7 +517,7 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize)
 }
 
 
-void render(GLFWwindow *window, struct model *models, GLuint *textures, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *squaresize, float *fogend)
+void render(GLFWwindow *window, struct model *models, GLuint *textures, GLuint *shaders, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *squaresize, float *fogend)
 {
   GLfloat materialColor[4];
   GLfloat clear[4]   = {0.5f, 0.5f, 0.5f, 1.0f};
@@ -441,8 +528,8 @@ void render(GLFWwindow *window, struct model *models, GLuint *textures, int *swa
   glMaterialfv(GL_FRONT, GL_DIFFUSE, materialColor);
   glMaterialfv(GL_FRONT, GL_AMBIENT, materialColor);
   glMaterialfv(GL_FRONT, GL_SPECULAR, materialColor);
-  glMateriali(GL_FRONT, GL_SHININESS, 37);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  glUseProgramARB(0);
   renderSky(camerapos, camerarot, clear, *fogend);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
@@ -451,7 +538,10 @@ void render(GLFWwindow *window, struct model *models, GLuint *textures, int *swa
   glEnable(GL_LIGHTING);
   glEnable(GL_NORMALIZE);
   updateFogLights(clear, ambient, camheight, *squaresize, fogend);
+  glUseProgramARB(shaders[0]);
+  glActiveTextureARB(GL_TEXTURE1_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
+  glUniform1iARB(glGetUniformLocationARB(shaders[0], "scene"), 0);
   drawTerrain(camerapos, camerarot, sector, camheight, swapb, squaresize);
   renderWater(camerapos, camerarot, squaresize);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -461,13 +551,6 @@ void render(GLFWwindow *window, struct model *models, GLuint *textures, int *swa
   drawFoliage(models, camerapos, camerarot, *sector);
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
-  //glDepthFunc(GL_ALWAYS);
-  //glDisable(GL_LIGHTING);
-  //glDisable(GL_FOG);
-  //if (gui()) {
-  //glBindTexture(GL_TEXTURE_2D, textures[4]);
-  //engine.menus[engine.menu].drawMenu();
-  //}
   if (*swapb)
     glfwSwapBuffers(window);
   *swapb = 1;
@@ -518,14 +601,14 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
   temp = -readTerrainHeight(-camerapos->x - TERRAIN_SQUARE_SIZE, -camerapos->z - TERRAIN_SQUARE_SIZE);
   ground = ground < temp ? ground : temp;
   ground += -TERRAIN_SQUARE_SIZE * 0.3f;
-  camerapos->y = camerapos->y > ground ? ground : camerapos->y;
-  //camerapos->y = ground;
+  //camerapos->y = camerapos->y > ground ? ground : camerapos->y;
+  camerapos->y = ground;
 }
 
 
 int main(int argc, char *argv[])
 {
-  GLuint textures[5];
+  GLuint textures[5], shaders[5];
   GLFWwindow *window = NULL;
   int swapb = 1, squaresize = 0;
   char direction;
@@ -535,7 +618,7 @@ int main(int argc, char *argv[])
   struct v3f camerapos = {0.0f, 0.0f, 0.0f};
   struct model *models = malloc(sizeof(struct model) * 5);
 
-  if ((window = startGraphics(window, textures)) != NULL) {
+  if ((window = startGraphics(window, textures, shaders)) != NULL) {
     loadFromOBJFile("data/models/tree1.obj", &models[0]);
     loadFromOBJFile("data/models/tree2.obj", &models[1]);
     loadFromOBJFile("data/models/tree3.obj", &models[2]);
@@ -544,7 +627,7 @@ int main(int argc, char *argv[])
       camheight = cameraHeight(camerapos);
       keyboardInput(window, &direction);
       mouseLook(window, &camerarot);
-      render(window, models, textures, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend);
+      render(window, models, textures, shaders, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend);
       movement(&camerapos, camerarot, direction, 100.0f);
       updateCamera(camerarot);
       glTranslatef(camerapos.x, camerapos.y, camerapos.z);
