@@ -6,18 +6,22 @@ float algorithmicTerrainHeight(float x, float z)
 {
   float height, x1, z1, a1, a2, h1, h2, g1, g2;
 
-  x += 5000;
-  z += 70000;
+  while (x > WORLD_SIZE)
+    x -= WORLD_SIZE * 2;
+  while (x < -WORLD_SIZE)
+    x += WORLD_SIZE * 2;
+  while (z > WORLD_SIZE)
+    z -= WORLD_SIZE * 2;
+  while (z < -WORLD_SIZE)
+    z += WORLD_SIZE * 2;
   x1 = 0.00011f * sqrt(x*x+z*z);
   z1 = 0.00017f * z;
   a1 = sinf(x1) * 5300;
   a2 = sinf(z1) * 1700;
   h1 = sinf(x * 0.00087f) * 670;
   h2 = sinf(z * 0.00114f) * 630;
-  x *= 0.0051f;
-  z *= 0.0043f;
-  g1 = sinf(x) * 50;
-  g2 = sinf(z) * 70;
+  g1 = sinf(x * 0.0051f) * 50;
+  g2 = sinf(z * 0.0043f) * 70;
   height = (float) (fabs(a1) - fabs(a2) - fabs(h1) - fabs(h2) - fabs(g1) - fabs(g2));
   x1 *= 2.317f;
   z1 *= 2.127f;
@@ -29,8 +33,10 @@ float algorithmicTerrainHeight(float x, float z)
     height -= (float) ((height + 20.0f) * (height - 50.0f) * 0.0002f) * (1 - sinf(x1 + z1));
   if (height > TERRAIN_WATER_LEVEL)
     height += (450 - height) * 0.5f;
-  x1 = 0.0223f * x;
-  z1 = 0.0712f * z;
+  else
+    height += (-700 - height) * 0.02f;
+  x1 = 0.000223f * x;
+  z1 = 0.000712f * z;
   h1 = (int) (x1*x1+z1*z1) % 20000;
   height += fabs(h1 - 10000) - 9000;
 
@@ -84,11 +90,11 @@ struct terrain readTerrain(float x, float z)
 
 void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int *swapb, int squaresize)
 {
-  //float rot;
+  float rot;
   struct v3f center;
 
-  //rot = camerarot.x < 75.0f ? camerarot.x : 75.0f;
-  //center = degreestovector2d (camerapos, camerarot.y, 0.0f, TERRAIN_CENTRE_DISTANCE * cosf (rot / PIx180));
+  rot = camerarot.x < 75.0f ? camerarot.x : 75.0f;
+  center = degreestovector2d (camerapos, camerarot.y, 0.0f, TERRAIN_CENTRE_DISTANCE * cosf (rot / PIx180));
   center = camerapos;
   if (center.x > (sector->x + TERRAIN_STEP_SIZE * squaresize) ||
        center.x < (sector->x - TERRAIN_STEP_SIZE * squaresize)) {
@@ -111,9 +117,9 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
 {
   struct terrain temp1, temp2;
   struct v3f temp3f;
-  int xshift, zshift, xgrid, zgrid, x2, z2, alt, cull;
+  int xgrid, zgrid, x1, z1, x2, z2, x3, z3, alt, cull;
   static int alt2 = 0;
-  float x, z, xpos = 0.0f, zpos = 0.0f;
+  float x, z, xpos = 0.0f, zpos = 0.0f, dist;
   float v1[3], v2[3], v3[3];
   unsigned char NEcolorR [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
   unsigned char NEcolorG [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
@@ -157,19 +163,17 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   //selectPosition();
 
   // scaling terrain
-  for (alt = 1; alt < 15; alt++) {
-    if (camheight < TERRAIN_SQUARE_SIZE * 25) {
+  for (alt = 1; alt < 50; alt++) {
+    if (camheight < TERRAIN_SQUARE_SIZE * 15) {
       *squaresize = TERRAIN_SQUARE_SIZE;
       break;
     }
-    else if (camheight < alt * TERRAIN_SQUARE_SIZE * 25) {
+    else if (camheight < alt * TERRAIN_SQUARE_SIZE * 15) {
       *squaresize = (int) (TERRAIN_SQUARE_SIZE + TERRAIN_SQUARE_SIZE * ((alt * 2) - 3) / 2);
       break;
     }
-    else {
-      *squaresize = (int) (TERRAIN_SQUARE_SIZE + TERRAIN_SQUARE_SIZE
-                          * ((alt * 2) - 3) / 2);
-    }
+    else
+      *squaresize = (int) (TERRAIN_SQUARE_SIZE + TERRAIN_SQUARE_SIZE * ((alt * 2) - 3) / 2);
   }
   if (alt2 != alt) {
     alt2 = alt;
@@ -182,29 +186,53 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   glPushMatrix();
   glScalef(0.01f, 0.01f, 0.01f);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
-    xshift = *squaresize;
-    zshift = *squaresize;
-    xpos = (-TERRAIN_GRID_SIZE_HALF + xgrid) * xshift + x * *squaresize;
-    zpos = (-TERRAIN_GRID_SIZE_HALF + zgrid) * zshift + z * *squaresize;
-    xshift = *squaresize / 2;
-    zshift = *squaresize / 2;
+    x3 = fabs(TERRAIN_GRID_SIZE_HALF - xgrid) - 24; x3 = x3 < 0 ? 0 : (x3 + 24) * 5;
+    z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) - 24; z3 = z3 < 0 ? 0 : (z3 + 24) * 5;
+    xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) * (x3 + *squaresize) + x * *squaresize;
+    zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) * (z3 + *squaresize) + z * *squaresize;
+    dist = distance2d(camerapos, mv3f(-xpos, 0.0f, -zpos));
+    if (xgrid > TERRAIN_GRID_SIZE_HALF + 23) {
+      x1 = xpos + x3 - 2759.0f + *squaresize / 2;
+      x2 = xpos - x3 - 2759.0f - *squaresize / 2;
+    }
+    else if (xgrid < TERRAIN_GRID_SIZE_HALF - 23) {
+      x1 = xpos + x3 + 2759.0f + *squaresize / 2;
+      x2 = xpos - x3 + 2759.0f - *squaresize / 2;
+    }
+    else {
+      x1 = xpos + x3 + *squaresize / 2;
+      x2 = xpos - x3 - *squaresize / 2;
+    }
+    if (zgrid > TERRAIN_GRID_SIZE_HALF + 23) {
+      z1 = zpos + z3 - 2759.0f + *squaresize / 2;
+      z2 = zpos - z3 - 2759.0f - *squaresize / 2;
+    }
+    else if (zgrid < TERRAIN_GRID_SIZE_HALF - 23) {
+      z1 = zpos + z3 + 2759.0f + *squaresize / 2;
+      z2 = zpos - z3 + 2759.0f - *squaresize / 2;
+    }
+    else {
+      z1 = zpos + z3 + *squaresize / 2;
+      z2 = zpos - z3 - *squaresize / 2;
+    }
+    x1 = snap(x1, 32); x2 = snap(x2, 32); z1 = snap(z1, 32); z2 = snap(z2, 32);
     cull = fabs((int) (camerarot.y - vectorstodegree2d(camerapos, mv3f(-xpos, 0, -zpos))));
     while (cull >= 360)
       cull -= 360;
-    if (camerarot.x > 27.0f || cull <= 75 || cull >= 285 || distance2d(camerapos, mv3f(-xpos, 0.0f, -zpos)) < *squaresize * 1.5f) {
-      NEx[xgrid][zgrid] = (int) (xpos + xshift);
-      NEz[xgrid][zgrid] = (int) (zpos - zshift);
+    if (camerarot.x > 27.0f || cull <= 75 || cull >= 285 || dist < *squaresize * 1.5f) {
+      NEx[xgrid][zgrid] = x1;
+      NEz[xgrid][zgrid] = z2;
       temp1 = readTerrain (NEx[xgrid][zgrid], NEz[xgrid][zgrid]); // color read here
       NEy[xgrid][zgrid] = (int) temp1.height;
-      NWx[xgrid][zgrid] = (int) (xpos - xshift);
-      NWz[xgrid][zgrid] = (int) (zpos - zshift);
+      NWx[xgrid][zgrid] = x2;
+      NWz[xgrid][zgrid] = z2;
       NWy[xgrid][zgrid] = (int) (readTerrainHeight (NWx[xgrid][zgrid], NWz[xgrid][zgrid]));
-      SEx[xgrid][zgrid] = (int) (xpos + xshift);
-      SEz[xgrid][zgrid] = (int) (zpos + zshift);
+      SEx[xgrid][zgrid] = x1;
+      SEz[xgrid][zgrid] = z1;
       temp2 = readTerrain (SEx[xgrid][zgrid], SEz[xgrid][zgrid]); // color read here too..
       SEy[xgrid][zgrid] = (int) temp2.height;
-      SWx[xgrid][zgrid] = (int) (xpos - xshift);
-      SWz[xgrid][zgrid] = (int) (zpos + zshift);
+      SWx[xgrid][zgrid] = x2;
+      SWz[xgrid][zgrid] = z1;
       SWy[xgrid][zgrid] = (int) (readTerrainHeight (SWx[xgrid][zgrid], SWz[xgrid][zgrid]));
       switch (temp2.type) {
       case T_TYPE_GRASS1:
@@ -354,6 +382,7 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
                                + Nnormz[xgrid][z2] + Snormz[xgrid][z2]) / 6;
       if (*swapb) {
         glBegin(GL_TRIANGLE_STRIP);
+        //glBegin(GL_LINES);
         glColor3ub(SEcolorR[xgrid-1][zgrid], SEcolorG[xgrid-1][zgrid], SEcolorB[xgrid-1][zgrid]);
         glNormal3f(SWnormx[xgrid][zgrid], SWnormy[xgrid][zgrid], SWnormz[xgrid][zgrid]);
         glTexCoord2i((SWx[xgrid][zgrid]), (SWz[xgrid][zgrid]));

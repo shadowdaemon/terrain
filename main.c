@@ -267,10 +267,10 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squa
 
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
   glClearColor(clear[0], clear[1], clear[2], clear[3]);
-  fogstart -= (fogstart - squaresize * TERRAIN_GRID_SIZE * 0.35f) * 0.1f;
-  *fogend -= (*fogend - squaresize * TERRAIN_GRID_SIZE * 0.45f) * 0.1f;
+  fogstart -= (fogstart - squaresize * TERRAIN_GRID_SIZE * 0.8f) * 0.1f;
+  *fogend -= (*fogend - squaresize * TERRAIN_GRID_SIZE * 1.0f) * 0.1f;
   glFogfv(GL_FOG_COLOR, clear);
-  glFogf(GL_FOG_START, fogstart < 35000.0f ? fogstart : 35000.0f);
+  glFogf(GL_FOG_START, fogstart < 7000.0f ? fogstart : 7000.0f);
   glFogf(GL_FOG_END, *fogend < 40000.f ? *fogend : 40000.f);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
@@ -423,7 +423,7 @@ void keyboardInput(GLFWwindow *window, char *direction)
 void drawFoliage(struct model *models, struct v3f camerapos, struct v3f camerarot, struct v2f sector)
 {
   int xgrid, zgrid, x1, z1, cull;
-  const int squaresize = TERRAIN_SQUARE_SIZE * 5;
+  int squaresize = TERRAIN_SQUARE_SIZE * 2.3f;
   float x, z, xpos = 0.0f, zpos = 0.0f, dist;
   struct terrain temp;
   GLubyte alpha;
@@ -434,8 +434,8 @@ void drawFoliage(struct model *models, struct v3f camerapos, struct v3f cameraro
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
     xpos = (-TERRAIN_GRID_SIZE_HALF + xgrid + x) * squaresize;
     zpos = (-TERRAIN_GRID_SIZE_HALF + zgrid + z) * squaresize;
-    x1 = (int) xpos % 97;
-    z1 = (int) zpos % 53;
+    x1 = (int) xpos % 297;
+    z1 = (int) zpos % 153;
     xpos += z1;
     zpos += x1;
     cull = fabs((int) (camerarot.y - vectorstodegree2d(camerapos, mv3f(-xpos, 0, -zpos))));
@@ -444,14 +444,14 @@ void drawFoliage(struct model *models, struct v3f camerapos, struct v3f cameraro
     temp = readTerrain(xpos, zpos);
     dist = distance2d(camerapos, mv3f(-xpos, 0.0f, -zpos));
     x1 = x1 * x1 + z1 * z1;
-    if (temp.height > TERRAIN_WATER_LEVEL + 50 && temp.height < 3750 && (cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) && dist < VIEW_DISTANCE && (x1 % 117 < 50) && temp.type != T_TYPE_DIRT) {
+    if (temp.height > TERRAIN_WATER_LEVEL + 50 && temp.height < 3750 && (cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) && dist < VIEW_DISTANCE && (x1 % 117 < 17) && temp.type != T_TYPE_DIRT) {
       if (dist < VIEW_DISTANCE_HALF)
         alpha = 255;
       else if (dist < VIEW_DISTANCE)
         alpha = (GLubyte) (255 - ((dist - VIEW_DISTANCE_HALF) / (float) VIEW_DISTANCE_HALF) * 255);
       else
         alpha = 0;
-      drawModel(models[x1 % 4], mv3f(-xpos, temp.height, -zpos), mv3f(0, x1 % 359, 0), 5, alpha);
+      drawModel(models[x1 % 4], mv3f(-xpos, temp.height, -zpos), mv3f(0, x1 % 359, 0), 4, alpha);
     }
     if (xgrid >= TERRAIN_GRID_SIZE - 1) {
       zgrid++;
@@ -484,7 +484,7 @@ void renderSky(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, float
 
 void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize)
 {
-  int xshift, zshift, xgrid, zgrid, size = *squaresize * 2;
+  int xshift, zshift, xgrid, zgrid, size = *squaresize * 8;
   float xpos, zpos;
 
   glMateriali(GL_FRONT, GL_SHININESS, 17);
@@ -538,10 +538,10 @@ void render(GLFWwindow *window, struct model *models, GLuint *textures, GLuint *
   glEnable(GL_LIGHTING);
   glEnable(GL_NORMALIZE);
   updateFogLights(clear, ambient, camheight, *squaresize, fogend);
-  glUseProgramARB(shaders[0]);
-  glActiveTextureARB(GL_TEXTURE1_ARB);
+  //glUseProgramARB(shaders[0]);
+  //glActiveTextureARB(GL_TEXTURE0_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
-  glUniform1iARB(glGetUniformLocationARB(shaders[0], "scene"), 0);
+  //glUniform1iARB(glGetUniformLocationARB(shaders[0], "scene"), 0);
   drawTerrain(camerapos, camerarot, sector, camheight, swapb, squaresize);
   renderWater(camerapos, camerarot, squaresize);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -600,9 +600,10 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
   ground = ground < temp ? ground : temp;
   temp = -readTerrainHeight(-camerapos->x - TERRAIN_SQUARE_SIZE, -camerapos->z - TERRAIN_SQUARE_SIZE);
   ground = ground < temp ? ground : temp;
-  ground += -TERRAIN_SQUARE_SIZE * 0.3f;
-  //camerapos->y = camerapos->y > ground ? ground : camerapos->y;
-  camerapos->y = ground;
+  ground += -TERRAIN_SQUARE_SIZE * 0.15f;
+  camerapos->y = camerapos->y > ground ? ground : camerapos->y;
+  //ground = ground > TERRAIN_WATER_LEVEL + 50 ? TERRAIN_WATER_LEVEL + 50 : ground;
+  //camerapos->y = ground;
 }
 
 
@@ -628,7 +629,7 @@ int main(int argc, char *argv[])
       keyboardInput(window, &direction);
       mouseLook(window, &camerarot);
       render(window, models, textures, shaders, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend);
-      movement(&camerapos, camerarot, direction, 100.0f);
+      movement(&camerapos, camerarot, direction, 75.0f);
       updateCamera(camerarot);
       glTranslatef(camerapos.x, camerapos.y, camerapos.z);
     }
