@@ -80,5 +80,5 @@ struct terrain readTerrain(float x, float y);
 float readTerrainHeight(float x, float y);
 void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int *swapb, int squaresize);
 void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *swapb, int *squaresize);
-void loadFromOBJFile(char *name, struct model *model);
+void loadFromOBJFile(const char *name, struct model *model);
 void drawModel(struct model model, struct v3f pos, struct v3f rot, GLfloat size, GLuint alpha);

@@ -3,7 +3,7 @@
 #include "common.h"
 
 
-void loadFromOBJFile(char *name, struct model *model)
+void loadFromOBJFile(const char *name, struct model *model)
 {
   FILE *fp;
   long int fpos;
