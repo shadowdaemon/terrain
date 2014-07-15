@@ -116,9 +116,9 @@ GLFWwindow *startGraphics(GLFWwindow *window, GLuint *textures, GLuint *shaders)
   int lightpos[]  = {1, 0, 500, 0};
   int width, height;
   // float lightdir[]  = {0.0f, -1.0f, 0.0f};
-  float lightspec[] = {0.5f, 0.5f, 0.5f, 1.0f};
-  float lightamb[]  = {0.1f, 0.1f, 0.1f, 1.0f};
-  float lightdiff[] = {0.8f, 0.8f, 0.8f, 1.0f};
+  float lightspec[] = {0.3f, 0.33f, 0.31f, 1.0f};
+  float lightamb[]  = {0.1f, 0.07f, 0.08f, 1.0f};
+  float lightdiff[] = {0.82f, 0.77f, 0.75f, 1.0f};
   GLuint fragShader, vertShader;
   GLchar *fragSrc = NULL, *vertSrc = NULL;
   long filelen;
@@ -202,6 +202,22 @@ GLFWwindow *startGraphics(GLFWwindow *window, GLuint *textures, GLuint *shaders)
   glLightfv(GL_LIGHT0, GL_SPECULAR, lightspec);
   glLightfv(GL_LIGHT0, GL_AMBIENT, lightamb);
   glLightfv(GL_LIGHT0, GL_DIFFUSE, lightdiff);
+  glEnable(GL_LIGHT1);
+  lightpos[1]  = 5000;
+  glLightiv(GL_LIGHT1, GL_POSITION, lightpos);
+  glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 10.0f);
+  lightspec[0] = 0.22f;
+  lightspec[1] = 0.1f;
+  lightspec[1] = 0.2f;
+  glLightfv(GL_LIGHT1, GL_SPECULAR, lightspec);
+  lightamb[0] = 0.0f;
+  lightamb[1] = 0.0f;
+  lightamb[2] = 0.0f;
+  glLightfv(GL_LIGHT1, GL_AMBIENT, lightamb);
+  lightdiff[0] = 0.15f;
+  lightdiff[1] = 0.17f;
+  lightdiff[2] = 0.19f;
+  glLightfv(GL_LIGHT1, GL_DIFFUSE, lightdiff);
 
   printf("%s\n", glGetString(GL_VERSION));
   printf("%s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -268,13 +284,13 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squa
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
   glClearColor(clear[0], clear[1], clear[2], clear[3]);
   fogstart -= (fogstart - squaresize * TERRAIN_GRID_SIZE * 0.8f) * 0.1f;
-  *fogend -= (*fogend - squaresize * TERRAIN_GRID_SIZE * 1.0f) * 0.1f;
+  *fogend -= (*fogend - squaresize * TERRAIN_GRID_SIZE * 1.2f) * 0.1f;
   glFogfv(GL_FOG_COLOR, clear);
   glFogf(GL_FOG_START, fogstart < 7000.0f ? fogstart : 7000.0f);
   glFogf(GL_FOG_END, *fogend < 40000.f ? *fogend : 40000.f);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glFrustum(-0.54f, 0.54f, -0.4f, 0.4f, 0.8f, *fogend * 1.1f);
+  glFrustum(-5.4f, 5.4f, -4.0f, 4.0f, 8.0f, *fogend * 1.1f);
   glMatrixMode(GL_MODELVIEW);
 }
 
@@ -347,14 +363,15 @@ void updateCamera(struct v3f cameraRot)
 
 float cameraHeight(struct v3f camerapos)
 {
-  struct v3f temp;
   static float height;
+  float ground;
 
-  temp.x = fabs((int) (-camerapos.y - readTerrainHeight(camerapos.x, camerapos.z)));
-  if (height > temp.x)
-    height -= (height - temp.x) * 0.1f; // adjust quickly if going down
+  ground = fabs((int) (-camerapos.y - readTerrainHeight(camerapos.x, camerapos.z)));
+  ground = ground > TERRAIN_WATER_LEVEL - 70 ? TERRAIN_WATER_LEVEL - 70 : ground;
+  if (height > ground)
+    height -= (height - ground) * 0.1f; // adjust quickly if going down
   else
-    height -= (height - temp.x) * 0.05f; // adjust slowly if going up
+    height -= (height - ground) * 0.05f; // adjust slowly if going up
 
   return height;
 }
@@ -420,7 +437,7 @@ void keyboardInput(GLFWwindow *window, char *direction)
 }
 
 
-void drawFoliage(struct model *models, struct v3f camerapos, struct v3f camerarot, struct v2f sector)
+void drawFoliage(struct model *models, struct v3f camerapos, struct v3f camerarot, struct v2f sector, float camheight)
 {
   int xgrid, zgrid, x1, z1, cull;
   int squaresize = TERRAIN_SQUARE_SIZE * 2.3f;
@@ -442,7 +459,7 @@ void drawFoliage(struct model *models, struct v3f camerapos, struct v3f cameraro
     while (cull >= 360)
     cull -= 360;
     temp = readTerrain(xpos, zpos);
-    dist = distance2d(camerapos, mv3f(-xpos, 0.0f, -zpos));
+    dist = distance3d(camerapos, mv3f(-xpos, -camheight, -zpos));
     x1 = x1 * x1 + z1 * z1;
     if (temp.height > TERRAIN_WATER_LEVEL + 50 && temp.height < 3750 && (cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) && dist < VIEW_DISTANCE && (x1 % 117 < 17) && temp.type != T_TYPE_DIRT) {
       if (dist < VIEW_DISTANCE_HALF)
@@ -548,7 +565,7 @@ void render(GLFWwindow *window, struct model *models, GLuint *textures, GLuint *
   glEnableClientState(GL_NORMAL_ARRAY);
   //glEnableClientState(GL_TEXTURE_COORD_ARRAY); /* this does not currently work */
   glBindTexture(GL_TEXTURE_2D, textures[1]);
-  drawFoliage(models, camerapos, camerarot, *sector);
+  drawFoliage(models, camerapos, camerarot, *sector, camheight);
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
   if (*swapb)
@@ -601,8 +618,8 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
   temp = -readTerrainHeight(-camerapos->x - TERRAIN_SQUARE_SIZE, -camerapos->z - TERRAIN_SQUARE_SIZE);
   ground = ground < temp ? ground : temp;
   ground += -TERRAIN_SQUARE_SIZE * 0.15f;
+  ground = ground > TERRAIN_WATER_LEVEL - 70 ? TERRAIN_WATER_LEVEL - 70 : ground;
   camerapos->y = camerapos->y > ground ? ground : camerapos->y;
-  //ground = ground > TERRAIN_WATER_LEVEL + 50 ? TERRAIN_WATER_LEVEL + 50 : ground;
   //camerapos->y = ground;
 }
 
@@ -629,7 +646,7 @@ int main(int argc, char *argv[])
       keyboardInput(window, &direction);
       mouseLook(window, &camerarot);
       render(window, models, textures, shaders, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend);
-      movement(&camerapos, camerarot, direction, 75.0f);
+      movement(&camerapos, camerarot, direction, 135.0f);
       updateCamera(camerarot);
       glTranslatef(camerapos.x, camerapos.y, camerapos.z);
     }

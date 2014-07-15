@@ -26,42 +26,39 @@ float algorithmicTerrainHeight(float x, float z)
   x1 *= 2.317f;
   z1 *= 2.127f;
   if (height > TERRAIN_WATER_LEVEL)
-    height += (float) ((height - 100.0f) * (height - 140.0f) * 0.0002f * sinf(x1 - z1));
+    height += (float) ((height - 100.0f) * (height - 140.0f) * 0.00011f * sinf(x1 - z1));
   x1 *= 0.47f;
   z1 *= 1.37f;
   if (height > TERRAIN_WATER_LEVEL)
-    height -= (float) ((height + 20.0f) * (height - 50.0f) * 0.0002f) * (1 - sinf(x1 + z1));
+    height -= (float) ((height + 20.0f) * (height - 50.0f) * 0.00017f) * (1 - sinf(x1 + z1));
   if (height > TERRAIN_WATER_LEVEL)
-    height += (450 - height) * 0.5f;
+    height += (450 - height) * 0.31f;
   else
-    height += (-700 - height) * 0.02f;
+    height += (-300 - height) * 0.17f;
   x1 = 0.000223f * x;
   z1 = 0.000712f * z;
   h1 = (int) (x1*x1+z1*z1) % 20000;
-  height += fabs(h1 - 10000) - 9000;
+  height += fabs(h1 - 10000) - 7000;
 
   return height;
 }
 
 
-char calculateTerrainType(float height, float sample)
+char calculateTerrainType(float height)
 {
   char type = T_TYPE_DIRT;
-  float diff = fabs(height - sample);
 
   if (height <= TERRAIN_WATER_LEVEL)
     type = T_TYPE_ROCK;
   else if (height < TERRAIN_WATER_LEVEL + 100)
     type = T_TYPE_DIRT;
-  else if (height < 500)
+  else if (height < 1000)
     type = T_TYPE_GRASS1;
-  else if (diff > TERRAIN_SQUARE_SIZE / 5.0f)
-    type = T_TYPE_DIRT;
-  else if (height < 1250 || (diff < TERRAIN_SQUARE_SIZE / 9.0f && height < 2500))
+  else if (height < 2000)
     type = T_TYPE_GRASS2;
-  else if (height < 2500)
+  else if (height < 3500)
     type = T_TYPE_GRASS3;
-  else if (height < 3000)
+  else if (height < 4000)
     type = T_TYPE_DIRT;
   else
     type = T_TYPE_ROCK;
@@ -79,10 +76,9 @@ float readTerrainHeight(float x, float y) {
 struct terrain readTerrain(float x, float z)
 {
   struct terrain temp;
-  float h = algorithmicTerrainHeight(x + TERRAIN_SQUARE_SIZE / 3.0f, z + TERRAIN_SQUARE_SIZE / 3.0f);
 
   temp.height = algorithmicTerrainHeight(x, z);
-  temp.type = calculateTerrainType(temp.height, h);
+  temp.type = calculateTerrainType(temp.height);
 
   return temp;
 }
@@ -186,36 +182,35 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   glPushMatrix();
   glScalef(0.01f, 0.01f, 0.01f);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
-    x3 = fabs(TERRAIN_GRID_SIZE_HALF - xgrid) - 24; x3 = x3 < 0 ? 0 : (x3 + 24) * 5;
-    z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) - 24; z3 = z3 < 0 ? 0 : (z3 + 24) * 5;
+    x3 = fabs(TERRAIN_GRID_SIZE_HALF - xgrid) - 32; x3 = x3 < 0 ? 0 : (x3 + 32) * 5;
+    z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) - 32; z3 = z3 < 0 ? 0 : (z3 + 32) * 5;
     xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) * (x3 + *squaresize) + x * *squaresize;
     zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) * (z3 + *squaresize) + z * *squaresize;
     dist = distance2d(camerapos, mv3f(-xpos, 0.0f, -zpos));
-    if (xgrid > TERRAIN_GRID_SIZE_HALF + 23) {
-      x1 = xpos + x3 - 2759.0f + *squaresize / 2;
-      x2 = xpos - x3 - 2759.0f - *squaresize / 2;
+    if (xgrid > TERRAIN_GRID_SIZE_HALF + 31) {
+      x1 = xpos + x3 - 4960.0f + *squaresize / 2;
+      x2 = xpos - x3 - 4960.0f - *squaresize / 2;
     }
-    else if (xgrid < TERRAIN_GRID_SIZE_HALF - 23) {
-      x1 = xpos + x3 + 2759.0f + *squaresize / 2;
-      x2 = xpos - x3 + 2759.0f - *squaresize / 2;
+    else if (xgrid < TERRAIN_GRID_SIZE_HALF - 31) {
+      x1 = xpos + x3 + 4960.0f + *squaresize / 2;
+      x2 = xpos - x3 + 4960.0f - *squaresize / 2;
     }
     else {
       x1 = xpos + x3 + *squaresize / 2;
       x2 = xpos - x3 - *squaresize / 2;
     }
-    if (zgrid > TERRAIN_GRID_SIZE_HALF + 23) {
-      z1 = zpos + z3 - 2759.0f + *squaresize / 2;
-      z2 = zpos - z3 - 2759.0f - *squaresize / 2;
+    if (zgrid > TERRAIN_GRID_SIZE_HALF + 31) {
+      z1 = zpos + z3 - 4960.0f + *squaresize / 2;
+      z2 = zpos - z3 - 4960.0f - *squaresize / 2;
     }
-    else if (zgrid < TERRAIN_GRID_SIZE_HALF - 23) {
-      z1 = zpos + z3 + 2759.0f + *squaresize / 2;
-      z2 = zpos - z3 + 2759.0f - *squaresize / 2;
+    else if (zgrid < TERRAIN_GRID_SIZE_HALF - 31) {
+      z1 = zpos + z3 + 4960.0f + *squaresize / 2;
+      z2 = zpos - z3 + 4960.0f - *squaresize / 2;
     }
     else {
       z1 = zpos + z3 + *squaresize / 2;
       z2 = zpos - z3 - *squaresize / 2;
     }
-    x1 = snap(x1, 32); x2 = snap(x2, 32); z1 = snap(z1, 32); z2 = snap(z2, 32);
     cull = fabs((int) (camerarot.y - vectorstodegree2d(camerapos, mv3f(-xpos, 0, -zpos))));
     while (cull >= 360)
       cull -= 360;
@@ -226,34 +221,40 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
       NEy[xgrid][zgrid] = (int) temp1.height;
       NWx[xgrid][zgrid] = x2;
       NWz[xgrid][zgrid] = z2;
-      NWy[xgrid][zgrid] = (int) (readTerrainHeight (NWx[xgrid][zgrid], NWz[xgrid][zgrid]));
+      NWy[xgrid][zgrid] = (int) readTerrainHeight (NWx[xgrid][zgrid], NWz[xgrid][zgrid]);
       SEx[xgrid][zgrid] = x1;
       SEz[xgrid][zgrid] = z1;
       temp2 = readTerrain (SEx[xgrid][zgrid], SEz[xgrid][zgrid]); // color read here too..
       SEy[xgrid][zgrid] = (int) temp2.height;
       SWx[xgrid][zgrid] = x2;
       SWz[xgrid][zgrid] = z1;
-      SWy[xgrid][zgrid] = (int) (readTerrainHeight (SWx[xgrid][zgrid], SWz[xgrid][zgrid]));
+      SWy[xgrid][zgrid] = (int) readTerrainHeight (SWx[xgrid][zgrid], SWz[xgrid][zgrid]);
       switch (temp2.type) {
       case T_TYPE_GRASS1:
-        SEcolorR[xgrid][zgrid] = 30;
+        x2 = ((1000 - SEy[xgrid][zgrid]) / 900.0f) * 70.0f;
+        SEcolorR[xgrid][zgrid] = 30 + x2;
         SEcolorG[xgrid][zgrid] = 98;
         SEcolorB[xgrid][zgrid] = 5;
         break;
       case T_TYPE_GRASS2:
-        SEcolorR[xgrid][zgrid] = 55;
-        SEcolorG[xgrid][zgrid] = 105;
+        z1 = ((2000 - SEy[xgrid][zgrid]) / 1000.0f) * 25.0f;
+        SEcolorR[xgrid][zgrid] = 55 - z1;
+        SEcolorG[xgrid][zgrid] = 90;
         SEcolorB[xgrid][zgrid] = 5;
         break;
       case T_TYPE_GRASS3:
-        SEcolorR[xgrid][zgrid] = 48;
+        x1 = ((3500 - SEy[xgrid][zgrid]) / 1500.0f) * 45.0f;
+        SEcolorR[xgrid][zgrid] = 93 - x1;
         SEcolorG[xgrid][zgrid] = 90;
-        SEcolorB[xgrid][zgrid] = 42;
+        z1 = ((3500 - SEy[xgrid][zgrid]) / 1500.0f) * 37.0f;
+        SEcolorB[xgrid][zgrid] = 42 - z1;
         break;
       case T_TYPE_ROCK:
-        SEcolorR[xgrid][zgrid] = 91;
-        SEcolorG[xgrid][zgrid] = 96;
-        SEcolorB[xgrid][zgrid] = 78;
+        x1 = SEy[xgrid][zgrid] < TERRAIN_WATER_LEVEL ? SEy[xgrid][zgrid] * 0.041f : 0;
+        x1 = x1 < -77 ? -77 : x1;
+        SEcolorR[xgrid][zgrid] = 91 + x1;
+        SEcolorG[xgrid][zgrid] = 96 + x1;
+        SEcolorB[xgrid][zgrid] = 78 + x1;
         break;
       case T_TYPE_DIRT:
         SEcolorR[xgrid][zgrid] = 101;
@@ -267,30 +268,36 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
         break;
       default:
         SEcolorR[xgrid][zgrid] = 83;
-        SEcolorG[xgrid][zgrid] = 122;
+        SEcolorG[xgrid][zgrid] = 77;
         SEcolorB[xgrid][zgrid] = 45;
         break;
       }
       switch (temp1.type) {
       case T_TYPE_GRASS1:
-        NEcolorR[xgrid][zgrid] = 30;
+        x2 = ((1000 - NEy[xgrid][zgrid]) / 900.0f) * 70.0f;
+        NEcolorR[xgrid][zgrid] = 30 + x2;
         NEcolorG[xgrid][zgrid] = 98;
         NEcolorB[xgrid][zgrid] = 5;
         break;
       case T_TYPE_GRASS2:
-        NEcolorR[xgrid][zgrid] = 55;
-        NEcolorG[xgrid][zgrid] = 105;
+        z1 = ((2000 - NEy[xgrid][zgrid]) / 1000.0f) * 25.0f;
+        NEcolorR[xgrid][zgrid] = 55 - z1;
+        NEcolorG[xgrid][zgrid] = 90;
         NEcolorB[xgrid][zgrid] = 5;
         break;
       case T_TYPE_GRASS3:
-        NEcolorR[xgrid][zgrid] = 48;
+        x1 = ((3500 - NEy[xgrid][zgrid]) / 1500.0f) * 45.0f;
+        NEcolorR[xgrid][zgrid] = 93 - x1;
         NEcolorG[xgrid][zgrid] = 90;
-        NEcolorB[xgrid][zgrid] = 42;
+        z1 = ((3500 - NEy[xgrid][zgrid]) / 1500.0f) * 37.0f;
+        NEcolorB[xgrid][zgrid] = 42 - z1;
         break;
       case T_TYPE_ROCK:
-        NEcolorR[xgrid][zgrid] = 91;
-        NEcolorG[xgrid][zgrid] = 96;
-        NEcolorB[xgrid][zgrid] = 78;
+        x1 = NEy[xgrid][zgrid] < TERRAIN_WATER_LEVEL ? NEy[xgrid][zgrid] * 0.041f : 0;
+        x1 = x1 < -77 ? -77 : x1;
+        NEcolorR[xgrid][zgrid] = 91 + x1;
+        NEcolorG[xgrid][zgrid] = 96 + x1;
+        NEcolorB[xgrid][zgrid] = 78 + x1;
         break;
       case T_TYPE_DIRT:
         NEcolorR[xgrid][zgrid] = 93;
@@ -304,7 +311,7 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
         break;
       default:
         NEcolorR[xgrid][zgrid] = 83;
-        NEcolorG[xgrid][zgrid] = 122;
+        NEcolorG[xgrid][zgrid] = 77;
         NEcolorB[xgrid][zgrid] = 45;
         break;
       }
@@ -382,7 +389,6 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
                                + Nnormz[xgrid][z2] + Snormz[xgrid][z2]) / 6;
       if (*swapb) {
         glBegin(GL_TRIANGLE_STRIP);
-        //glBegin(GL_LINES);
         glColor3ub(SEcolorR[xgrid-1][zgrid], SEcolorG[xgrid-1][zgrid], SEcolorB[xgrid-1][zgrid]);
         glNormal3f(SWnormx[xgrid][zgrid], SWnormy[xgrid][zgrid], SWnormz[xgrid][zgrid]);
         glTexCoord2i((SWx[xgrid][zgrid]), (SWz[xgrid][zgrid]));
