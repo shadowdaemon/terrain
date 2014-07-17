@@ -2,43 +2,159 @@
 #include "maths.h"
 
 
-float algorithmicTerrainHeight(float x, float z)
+float algorithmicTerrainHeight1(float x, float z, float height)
 {
-  float height, x1, z1, a1, a2, h1, h2, g1, g2;
+  float x1, z1, a1, a2, h1, h2, g1, g2;
 
-  while (x > WORLD_SIZE)
-    x -= WORLD_SIZE * 2;
-  while (x < -WORLD_SIZE)
-    x += WORLD_SIZE * 2;
-  while (z > WORLD_SIZE)
-    z -= WORLD_SIZE * 2;
-  while (z < -WORLD_SIZE)
-    z += WORLD_SIZE * 2;
   x1 = 0.00011f * sqrt(x*x+z*z);
   z1 = 0.00017f * z;
-  a1 = sinf(x1) * 5300;
-  a2 = sinf(z1) * 1700;
-  h1 = sinf(x * 0.00087f) * 670;
-  h2 = sinf(z * 0.00114f) * 630;
-  g1 = sinf(x * 0.0051f) * 50;
-  g2 = sinf(z * 0.0043f) * 70;
-  height = (float) (fabs(a1) - fabs(a2) - fabs(h1) - fabs(h2) - fabs(g1) - fabs(g2));
-  x1 *= 2.317f;
-  z1 *= 2.127f;
-  if (height > TERRAIN_WATER_LEVEL)
-    height += (float) ((height - 100.0f) * (height - 140.0f) * 0.00011f * sinf(x1 - z1));
-  x1 *= 0.47f;
-  z1 *= 1.37f;
-  if (height > TERRAIN_WATER_LEVEL)
-    height -= (float) ((height + 20.0f) * (height - 50.0f) * 0.00017f) * (1 - sinf(x1 + z1));
-  if (height > TERRAIN_WATER_LEVEL)
-    height += (450 - height) * 0.31f;
-  else
-    height += (-300 - height) * 0.17f;
-  x1 = 0.000223f * x;
-  z1 = 0.000712f * z;
-  h1 = (int) (x1*x1+z1*z1) % 20000;
-  height += fabs(h1 - 10000) - 7000;
+  a1 = sinf(x1 * 0.19f) * 9700;
+  a2 = sinf(z1 - 0.07f * x1) * 4700;
+  g1 = sinf(0.000223f * x) * 3742;
+  g2 = sinf(0.000212f * z) * 3721;
+  x += 3337.2f;
+  z += 14213.5f;
+  h1 = 4000 - fabs(4000 - (int)(x*0.0008f) % 8000);
+  h2 = 5000 - fabs(5000 - (int)(z*0.00007f) % 10000);
+  height += 20000 - fabs(a1) - fabs(a2) - fabs(g1) - fabs(g2) + h1 * 5.2f + h2 * 6.7f;
+  x += 2331.2f;
+  z += 5213.3f;
+  if (height > 2000 || height < 1500) {
+    a1 = height < 1500 ? (1500 - height) * 0.001f : 0;
+    a1 = a1 > 1 ? 1 : a1;
+    a2 = height > 2000 ? (height - 2000) * 0.0005f : 0;
+    a2 = a2 > 1 ? 1 : a2;
+    h1 = sinf(x * 0.00077f) * 710 * (a1 + a2);
+    h2 = sinf(z * 0.00072f) * 716 * (a1 + a2);
+    height += - fabs(h1) - fabs(h2);
+  }
+  height += (500 - height) * 0.31f + (11000 - height) * 0.17f + (height - 3500) * (3500 - height) * 0.0001f;
+  if (height > 3000) {
+    a2 = (height - 3000) * 0.0005f;
+    a2 = a2 > 2 ? 2 : a2;
+    g1 = sinf(x * 0.0051f) * 50 * a2;
+    g2 = sinf(z * 0.0043f) * 52 * a2;
+    height += - fabs(g1) - fabs(g2);
+  }
+  else if (height < 2300) {
+    a1 = (2300 - height) * 0.0005f;
+    a1 = a1 < 0 ? 0 : a1;
+    g1 = cosf(x * 0.000267f) * 500 * a1;
+    g2 = cosf(z * 0.000279f) * 590 * a1;
+    height += g1 - g2;
+  }
+
+  return height;
+}
+
+
+float algorithmicTerrainHeight2(float x, float z, float height)
+{
+  float x1, z1, a1, a2, h1, h2, g1, g2;
+
+  x1 = 0.00014f * x;
+  z1 = 0.00021f * z;
+  a1 = sinf(x1 * 0.37f) * 12700;
+  a2 = sinf(z1 - 0.07f * x1) * 4950;
+  g1 = sinf(0.000223f * x) * 2742;
+  g2 = sinf(0.000212f * z) * 3721;
+  h1 = 6000 - fabs(6000 - (int)(x*0.00092f) % 12000);
+  h2 = 5000 - fabs(5000 - (int)(z*0.00009f) % 10000);
+  height += 21000 - fabs(a1) - fabs(a2) - fabs(g1) - fabs(g2) + h1 * 6.2f + h2 * 6.9f;
+  if (height > 2000 || height < 1500) {
+    a1 = height < 1500 ? (1500 - height) * 0.001f : 0;
+    a1 = a1 > 1 ? 1 : a1;
+    a2 = height > 2000 ? (height - 2000) * 0.0005f : 0;
+    a2 = a2 > 1 ? 1 : a2;
+    h1 = sinf(x * 0.00077f) * 910 * (a1 + a2);
+    h2 = sinf(z * 0.00072f) * 916 * (a1 + a2);
+    height += - fabs(h1) - fabs(h2);
+  }
+  height += (1500 - height) * 0.26f + (height - 1000) * (1000 - height) * 0.00017f;
+  if (height > 3000) {
+    a2 = (height - 3000) * 0.0005f;
+    a2 = a2 > 2 ? 2 : a2;
+    g1 = sinf(x * 0.0061f) * 70 * a2;
+    g2 = sinf(z * 0.0063f) * 72 * a2;
+    height += - fabs(g1) - fabs(g2);
+  }
+  else if (height < 2300) {
+    a1 = (2300 - height) * 0.0005f;
+    a1 = a1 < 0 ? 0 : a1;
+    g1 = cosf(x * 0.000267f) * 500 * a1;
+    g2 = cosf(z * 0.000279f) * 590 * a1;
+    height += g1 - g2;
+  }
+
+  return height;
+}
+
+
+float algorithmicTerrainHeight3(float x, float z, float height)
+{
+  float x1, z1, a1, a2, h1, h2, g1, g2;
+
+  x1 = 0.00005f * x;
+  z1 = 0.00011f * z;
+  a1 = sinf(x1) * 3700;
+  a2 = sinf(z1) * 4450;
+  g1 = sinf(0.000223f * x) * 1722;
+  g2 = sinf(0.000212f * z) * 1601;
+  h1 = 3000 - fabs(3000 - (int)(x*0.0011f) % 6000);
+  h2 = 4000 - fabs(4000 - (int)(z*0.00012f) % 8000);
+  height += 8000 - fabs(a1) - fabs(a2) - fabs(g1) - fabs(g2) + h1 * 6.2f + h2 * 6.9f;
+  if (height > 2500 || height < 1000) {
+    a1 = height < 1000 ? (1000 - height) * 0.001f : 0;
+    a1 = a1 > 1 ? 1 : a1;
+    a2 = height > 2500 ? (height - 2500) * 0.0007f : 0;
+    a2 = a2 > 1 ? 1 : a2;
+    h1 = sinf(x * 0.00077f) * 310 * (a1 + a2);
+    h2 = sinf(z * 0.00072f) * 316 * (a1 + a2);
+    height += - fabs(h1) - fabs(h2);
+  }
+  if (height > 2000) {
+    a2 = (height - 2000) * 0.0005f;
+    a2 = a2 > 2 ? 2 : a2;
+    g1 = sinf(x * 0.0057f) * 37 * a2;
+    g2 = sinf(z * 0.0054f) * 40 * a2;
+    height += - fabs(g1) - fabs(g2);
+  }
+
+  return height;
+}
+
+
+float algorithmicTerrainHeight(float x, float z)
+{
+  float height = 0.0f, dist = 0.0f, x1, z1;
+
+  height = algorithmicTerrainHeight3(z*0.17, x*0.17, height) * 2.7f - 1000;
+  dist = distance2d(mv3f(-102000, 0, 131200), mv3f(x, 0, z));
+  if (dist < 186000) {
+    dist = (186000 - dist) / 186000;
+    dist = dist < 0 ? 0 : dist;
+    height += (algorithmicTerrainHeight3(x*0.07, z*0.07, height) - 2250) * dist * 7.2f;
+  }
+  dist = distance2d(mv3f(5000, 0, -102000), mv3f(x, 0, z));
+  if (dist < 120000) {
+    dist = (120000 - dist) / 120000;
+    dist = dist < 0 ? 0 : dist;
+    height += (algorithmicTerrainHeight1(x*1.3, z*1.3, height) - 1500) * dist;
+  }
+  dist = distance2d(mv3f(94000, 0, 17500), mv3f(x, 0, z));
+  if (dist < 107000) {
+    dist = (107000 - dist) / 107000;
+    dist = dist < 0 ? 0 : dist;
+    height += (algorithmicTerrainHeight2(x, z, height) - 750) * dist;
+  }
+  dist = distance2d(mv3f(0, 0, 0), mv3f(x, 0, z));
+  if (dist < 25200) {
+    dist = (25200 - dist) / 25200;
+    dist = dist < 0 ? 0 : dist;
+    height += (1570.0f - height) * dist;
+  }
+  height -= height < 1500 ? (height - 1500) * 0.46f : 0;
+  height -= height > 8000 ? (height - 8000) * 0.61f : 0;
 
   return height;
 }
@@ -56,9 +172,9 @@ char calculateTerrainType(float height)
     type = T_TYPE_GRASS1;
   else if (height < 2000)
     type = T_TYPE_GRASS2;
-  else if (height < 3500)
+  else if (height < 5000)
     type = T_TYPE_GRASS3;
-  else if (height < 4000)
+  else if (height < 7000)
     type = T_TYPE_DIRT;
   else
     type = T_TYPE_ROCK;
@@ -86,11 +202,11 @@ struct terrain readTerrain(float x, float z)
 
 void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int *swapb, int squaresize)
 {
-  float rot;
+  //float rot;
   struct v3f center;
 
-  rot = camerarot.x < 75.0f ? camerarot.x : 75.0f;
-  center = degreestovector2d (camerapos, camerarot.y, 0.0f, TERRAIN_CENTRE_DISTANCE * cosf (rot / PIx180));
+  //rot = camerarot.x < 75.0f ? camerarot.x : 75.0f;
+  //center = degreestovector2d (camerapos, camerarot.y, 0.0f, TERRAIN_CENTRE_DISTANCE * cosf (rot / PIx180));
   center = camerapos;
   if (center.x > (sector->x + TERRAIN_STEP_SIZE * squaresize) ||
        center.x < (sector->x - TERRAIN_STEP_SIZE * squaresize)) {
@@ -115,6 +231,7 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   struct v3f temp3f;
   int xgrid, zgrid, x1, z1, x2, z2, x3, z3, alt, cull;
   static int alt2 = 0;
+  const int altstep = 11;
   float x, z, xpos = 0.0f, zpos = 0.0f, dist;
   float v1[3], v2[3], v3[3];
   unsigned char NEcolorR [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
@@ -154,22 +271,22 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   float SWnormy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
   float SWnormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
 
-  glMateriali(GL_FRONT, GL_SHININESS, 97);
+  glMateriali(GL_FRONT, GL_SHININESS, 197);
   moveTerrain(camerapos, camerarot, sector, swapb, *squaresize);
   //selectPosition();
 
   // scaling terrain
-  for (alt = 1; alt < 50; alt++) {
-    if (camheight < TERRAIN_SQUARE_SIZE * 15) {
-      *squaresize = TERRAIN_SQUARE_SIZE;
+  for (alt = 0; alt < 25000; alt++) {
+    if (camheight < TERRAIN_SQUARE_SIZE * 3) {
+      *squaresize = TERRAIN_SQUARE_SIZE / 2;
       break;
     }
-    else if (camheight < alt * TERRAIN_SQUARE_SIZE * 15) {
-      *squaresize = (int) (TERRAIN_SQUARE_SIZE + TERRAIN_SQUARE_SIZE * ((alt * 2) - 3) / 2);
+    else if (camheight < alt * TERRAIN_SQUARE_SIZE * altstep) {
+      *squaresize = (TERRAIN_SQUARE_SIZE + TERRAIN_SQUARE_SIZE * ((alt * 2) - 3) / 2);
       break;
     }
     else
-      *squaresize = (int) (TERRAIN_SQUARE_SIZE + TERRAIN_SQUARE_SIZE * ((alt * 2) - 3) / 2);
+      *squaresize = (TERRAIN_SQUARE_SIZE + TERRAIN_SQUARE_SIZE * ((alt * 2) - 3) / 2);
   }
   if (alt2 != alt) {
     alt2 = alt;
@@ -182,39 +299,52 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   glPushMatrix();
   glScalef(0.01f, 0.01f, 0.01f);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
-    x3 = fabs(TERRAIN_GRID_SIZE_HALF - xgrid) - 32; x3 = x3 < 0 ? 0 : (x3 + 32) * 5;
-    z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) - 32; z3 = z3 < 0 ? 0 : (z3 + 32) * 5;
-    xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) * (x3 + *squaresize) + x * *squaresize;
-    zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) * (z3 + *squaresize) + z * *squaresize;
-    dist = distance2d(camerapos, mv3f(-xpos, 0.0f, -zpos));
-    if (xgrid > TERRAIN_GRID_SIZE_HALF + 31) {
-      x1 = xpos + x3 - 4960.0f + *squaresize / 2;
-      x2 = xpos - x3 - 4960.0f - *squaresize / 2;
-    }
-    else if (xgrid < TERRAIN_GRID_SIZE_HALF - 31) {
-      x1 = xpos + x3 + 4960.0f + *squaresize / 2;
-      x2 = xpos - x3 + 4960.0f - *squaresize / 2;
+    if (alt < 5) {
+      x3 = fabs(TERRAIN_GRID_SIZE_HALF - xgrid) - 20; x3 = x3 < 0 ? 0 : (x3 + 20) * 8;
+      z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) - 20; z3 = z3 < 0 ? 0 : (z3 + 20) * 8;
+      xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) * (x3 + *squaresize) + x * *squaresize;
+      zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) * (z3 + *squaresize) + z * *squaresize;
+      dist = distance2d(camerapos, mv3f(-xpos, 0.0f, -zpos));
+      if (xgrid > TERRAIN_GRID_SIZE_HALF + 19) {
+        x1 = xpos + x3 - 3040.0f + *squaresize / 2;
+        x2 = xpos - x3 - 3040.0f - *squaresize / 2;
+      }
+      else if (xgrid < TERRAIN_GRID_SIZE_HALF - 19) {
+        x1 = xpos + x3 + 3040.0f + *squaresize / 2;
+        x2 = xpos - x3 + 3040.0f - *squaresize / 2;
+      }
+      else {
+        x1 = xpos + x3 + *squaresize / 2;
+        x2 = xpos - x3 - *squaresize / 2;
+      }
+      if (zgrid > TERRAIN_GRID_SIZE_HALF + 19) {
+        z1 = zpos + z3 - 3040.0f + *squaresize / 2;
+        z2 = zpos - z3 - 3040.0f - *squaresize / 2;
+      }
+      else if (zgrid < TERRAIN_GRID_SIZE_HALF - 19) {
+        z1 = zpos + z3 + 3040.0f + *squaresize / 2;
+        z2 = zpos - z3 + 3040.0f - *squaresize / 2;
+      }
+      else {
+        z1 = zpos + z3 + *squaresize / 2;
+        z2 = zpos - z3 - *squaresize / 2;
+      }
     }
     else {
+      x3 = fabs(TERRAIN_GRID_SIZE_HALF - xgrid) * 8;
+      z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) * 8;
+      xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) * (x3 + *squaresize) + x * *squaresize;
+      zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) * (z3 + *squaresize) + z * *squaresize;
+      dist = distance2d(camerapos, mv3f(-xpos, 0.0f, -zpos));
       x1 = xpos + x3 + *squaresize / 2;
       x2 = xpos - x3 - *squaresize / 2;
-    }
-    if (zgrid > TERRAIN_GRID_SIZE_HALF + 31) {
-      z1 = zpos + z3 - 4960.0f + *squaresize / 2;
-      z2 = zpos - z3 - 4960.0f - *squaresize / 2;
-    }
-    else if (zgrid < TERRAIN_GRID_SIZE_HALF - 31) {
-      z1 = zpos + z3 + 4960.0f + *squaresize / 2;
-      z2 = zpos - z3 + 4960.0f - *squaresize / 2;
-    }
-    else {
       z1 = zpos + z3 + *squaresize / 2;
       z2 = zpos - z3 - *squaresize / 2;
     }
     cull = fabs((int) (camerarot.y - vectorstodegree2d(camerapos, mv3f(-xpos, 0, -zpos))));
     while (cull >= 360)
       cull -= 360;
-    if (camerarot.x > 27.0f || cull <= 75 || cull >= 285 || dist < *squaresize * 1.5f) {
+    if (camerarot.x > 27.0f || cull <= 75 || cull >= 285 || dist < *squaresize * 3.5f) {
       NEx[xgrid][zgrid] = x1;
       NEz[xgrid][zgrid] = z2;
       temp1 = readTerrain (NEx[xgrid][zgrid], NEz[xgrid][zgrid]); // color read here
@@ -243,10 +373,10 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
         SEcolorB[xgrid][zgrid] = 5;
         break;
       case T_TYPE_GRASS3:
-        x1 = ((3500 - SEy[xgrid][zgrid]) / 1500.0f) * 45.0f;
+        x1 = ((5000 - SEy[xgrid][zgrid]) / 3000.0f) * 45.0f;
         SEcolorR[xgrid][zgrid] = 93 - x1;
         SEcolorG[xgrid][zgrid] = 90;
-        z1 = ((3500 - SEy[xgrid][zgrid]) / 1500.0f) * 37.0f;
+        z1 = ((5000 - SEy[xgrid][zgrid]) / 3000.0f) * 37.0f;
         SEcolorB[xgrid][zgrid] = 42 - z1;
         break;
       case T_TYPE_ROCK:
@@ -286,10 +416,10 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
         NEcolorB[xgrid][zgrid] = 5;
         break;
       case T_TYPE_GRASS3:
-        x1 = ((3500 - NEy[xgrid][zgrid]) / 1500.0f) * 45.0f;
+        x1 = ((5000 - NEy[xgrid][zgrid]) / 3000.0f) * 45.0f;
         NEcolorR[xgrid][zgrid] = 93 - x1;
         NEcolorG[xgrid][zgrid] = 90;
-        z1 = ((3500 - NEy[xgrid][zgrid]) / 1500.0f) * 37.0f;
+        z1 = ((5000 - NEy[xgrid][zgrid]) / 3000.0f) * 37.0f;
         NEcolorB[xgrid][zgrid] = 42 - z1;
         break;
       case T_TYPE_ROCK:
@@ -389,19 +519,31 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
                                + Nnormz[xgrid][z2] + Snormz[xgrid][z2]) / 6;
       if (*swapb) {
         glBegin(GL_TRIANGLE_STRIP);
-        glColor3ub(SEcolorR[xgrid-1][zgrid], SEcolorG[xgrid-1][zgrid], SEcolorB[xgrid-1][zgrid]);
+        if (xgrid <= 0)
+          glColor3ub(122, 122, 122);
+        else
+          glColor3ub(SEcolorR[xgrid-1][zgrid], SEcolorG[xgrid-1][zgrid], SEcolorB[xgrid-1][zgrid]);
         glNormal3f(SWnormx[xgrid][zgrid], SWnormy[xgrid][zgrid], SWnormz[xgrid][zgrid]);
         glTexCoord2i((SWx[xgrid][zgrid]), (SWz[xgrid][zgrid]));
         glVertex3i(SWx[xgrid][zgrid], SWy[xgrid][zgrid], SWz[xgrid][zgrid]);
-        glColor3ub(SEcolorR[xgrid][zgrid], SEcolorG[xgrid][zgrid], SEcolorB[xgrid][zgrid]);
+        if (xgrid >= TERRAIN_GRID_SIZE - 1)
+          glColor3ub(122, 122, 122);
+        else
+          glColor3ub(SEcolorR[xgrid][zgrid], SEcolorG[xgrid][zgrid], SEcolorB[xgrid][zgrid]);
         glNormal3f(SEnormx[xgrid][zgrid], SEnormy[xgrid][zgrid], SEnormz[xgrid][zgrid]);
         glTexCoord2i((SEx[xgrid][zgrid]), (SEz[xgrid][zgrid]));
         glVertex3i(SEx[xgrid][zgrid], SEy[xgrid][zgrid], SEz[xgrid][zgrid]);
-        glColor3ub(NEcolorR[xgrid-1][zgrid], NEcolorG[xgrid-1][zgrid], NEcolorB[xgrid-1][zgrid]);
+        if (xgrid <= 0)
+          glColor3ub(122, 122, 122);
+        else
+          glColor3ub(NEcolorR[xgrid-1][zgrid], NEcolorG[xgrid-1][zgrid], NEcolorB[xgrid-1][zgrid]);
         glNormal3f(NWnormx[xgrid][zgrid], NWnormy[xgrid][zgrid], NWnormz[xgrid][zgrid]);
         glTexCoord2i((NWx[xgrid][zgrid]), (NWz[xgrid][zgrid]));
         glVertex3i(NWx[xgrid][zgrid], NWy[xgrid][zgrid], NWz[xgrid][zgrid]);
-        glColor3ub(NEcolorR[xgrid][zgrid], NEcolorG[xgrid][zgrid], NEcolorB[xgrid][zgrid]);
+        if (xgrid >= TERRAIN_GRID_SIZE - 1)
+          glColor3ub(122, 122, 122);
+        else
+          glColor3ub(NEcolorR[xgrid][zgrid], NEcolorG[xgrid][zgrid], NEcolorB[xgrid][zgrid]);
         glNormal3f(NEnormx[xgrid][zgrid], NEnormy[xgrid][zgrid], NEnormz[xgrid][zgrid]);
         glTexCoord2i((NEx[xgrid][zgrid]), (NEz[xgrid][zgrid]));
         glVertex3i(NEx[xgrid][zgrid], NEy[xgrid][zgrid], NEz[xgrid][zgrid]);
