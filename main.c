@@ -512,12 +512,17 @@ void renderSky(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, float
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_LIGHTING);
   glBegin(GL_QUADS);
-  glColor3ub(122, 122, 255);
-  glVertex3f(100000.0f, 3000.0f, 100000.0f);
-  glVertex3f(-100000.0f, 3000.0f, 100000.0f);
   glColor3fv(clear);
-  glVertex3f(-100000.0f, 3000.0f, -fogend);
-  glVertex3f(100000.0f, 3000.0f, -fogend);
+  glVertex3f(150000.0f, 3000.0f, 150000.0f);
+  glVertex3f(-150000.0f, 3000.0f, 150000.0f);
+  glColor3ub(117, 132, 215);
+  glVertex3f(-150000.0f, 3000.0f, -fogend);
+  glVertex3f(150000.0f, 3000.0f, -fogend);
+  glVertex3f(150000.0f, 3000.0f, -fogend);
+  glVertex3f(-150000.0f, 3000.0f, -fogend);
+  glColor3fv(clear);
+  glVertex3f(-150000.0f, -5000.0f, -fogend);
+  glVertex3f(150000.0f, -5000.0f, -fogend);
   glEnd();
   glPopMatrix();
 }
@@ -561,7 +566,7 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize)
 void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
 {
   int xshift, zshift, xgrid, zgrid, size = *squaresize * 8;
-  float xpos, zpos, height = 8500.0f, scale = 0.0001f;
+  float xpos, zpos, height = 11500.0f, scale = 0.00005f;
 
   glMateriali(GL_FRONT, GL_SHININESS, 167);
   glDisable(GL_CULL_FACE);
@@ -690,8 +695,8 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
   ground = ground < temp ? ground : temp;
   ground += -TERRAIN_SQUARE_SIZE * 0.02f;
   ground = ground > TERRAIN_WATER_LEVEL - 70 ? TERRAIN_WATER_LEVEL - 70 : ground;
-  //camerapos->y = camerapos->y > ground ? ground : camerapos->y;
-  camerapos->y = ground;
+  camerapos->y = camerapos->y > ground ? ground : camerapos->y;
+  //camerapos->y = ground;
 }
 
 
@@ -718,7 +723,7 @@ int main(int argc, char *argv[])
       keyboardInput(window, &direction);
       mouseLook(window, &camerarot);
       render(window, models, textures, shaders, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend);
-      speed = 30;
+      speed = 150;
       movement(&camerapos, camerarot, direction, speed);
       updateCamera(camerarot);
       glTranslatef(camerapos.x, camerapos.y, camerapos.z);

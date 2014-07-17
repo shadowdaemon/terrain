@@ -139,19 +139,19 @@ float algorithmicTerrainHeight(float x, float z)
   if (dist < 120000) {
     dist = (120000 - dist) / 120000;
     dist = dist < 0 ? 0 : dist;
-    height += (algorithmicTerrainHeight1(x*1.3, z*1.3, height) - 1500) * dist;
+    height += (algorithmicTerrainHeight1(x*0.3, z*0.3, height) - 1500) * dist * 0.71f;
   }
   dist = distance2d(mv3f(94000, 0, 17500), mv3f(x, 0, z));
   if (dist < 107000) {
     dist = (107000 - dist) / 107000;
     dist = dist < 0 ? 0 : dist;
-    height += (algorithmicTerrainHeight2(x, z, height) - 750) * dist;
+    height += (algorithmicTerrainHeight2(x*0.4, z*0.4, height) - 750) * dist * 0.75f;
   }
   dist = distance2d(mv3f(0, 0, 0), mv3f(x, 0, z));
-  if (dist < 25200) {
-    dist = (25200 - dist) / 25200;
+  if (dist < 35200) {
+    dist = (35200 - dist) / 35200;
     dist = dist < 0 ? 0 : dist;
-    height += (1570.0f - height) * dist;
+    height += (570.0f - height) * dist;
   }
   height -= height < 1500 ? (height - 1500) * 0.46f : 0;
   height -= height > 8000 ? (height - 8000) * 0.61f : 0;
@@ -278,7 +278,7 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   // scaling terrain
   for (alt = 0; alt < 25000; alt++) {
     if (camheight < TERRAIN_SQUARE_SIZE * 3) {
-      *squaresize = TERRAIN_SQUARE_SIZE / 2;
+      *squaresize = TERRAIN_SQUARE_SIZE;
       break;
     }
     else if (camheight < alt * TERRAIN_SQUARE_SIZE * altstep) {
