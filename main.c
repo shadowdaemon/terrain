@@ -46,6 +46,8 @@ PFNGLGETATTRIBLOCATIONARBPROC _GetAttribLocationARB;
 PFNGLBINDATTRIBLOCATIONARBPROC _BindAttribLocationARB;
 PFNGLVERTEXATTRIB3FVARBPROC _VertexAttrib3fvARB;
 
+struct v3f modelrot = {0.0f, 0.0f, 0.0f};
+struct v3f modelpos = {0.0f, 0.0f, 0.0f};
 
 static void keyInputGLFW(GLFWwindow* window, int key, int scancode, int action, int mods);
 
@@ -187,6 +189,8 @@ GLFWwindow *startGraphics(GLFWwindow *window, GLuint *textures, GLuint *shaders)
   loadTexture2D("data/textures/foliage.tga");
   glBindTexture(GL_TEXTURE_2D, textures[2]);
   loadTexture2D("data/textures/cloud_alpha.tga");
+  glBindTexture(GL_TEXTURE_2D, textures[3]);
+  loadTexture2D("data/textures/fighter.png");
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
@@ -401,23 +405,38 @@ float cameraHeight(struct v3f camerapos)
 }
 
 
-void mouseLook(GLFWwindow *window, struct v3f *cameraRot)
+void cameraTrailMovement(struct v3f *camerapos, struct v3f *camerarot)
+{
+  extern struct v3f modelpos;
+  extern struct v3f modelrot;
+  struct v3f temp = modelpos;
+
+  degreestovector3d(&temp, modelrot, mv3f(0, 180, 0), 150);
+  camerapos->x += (temp.x - camerapos->x) * 0.1f;
+  camerapos->y += (temp.y - camerapos->y) * 0.1f;
+  camerapos->z += (temp.z - camerapos->z) * 0.1f;
+  camerarot->x = modelrot.x;
+  camerarot->y = vectorstodegree2d(mv3f(modelpos.x, 0, modelpos.z), *camerapos) - 180;
+}
+
+
+void mouseLook(GLFWwindow *window, struct v3f *camerarot)
 {
   const float mouse_sensitivity = 0.1f;
   struct v2d mouse_pos;
 
   glfwGetCursorPos (window, &mouse_pos.x, &mouse_pos.y);
-  if (cameraRot->x > 90.0f)
+  if (camerarot->x > 90.0f)
     glfwSetCursorPos (window, mouse_pos.x, (int) (90 / mouse_sensitivity));
-  if (cameraRot->x < -90.0f)
+  if (camerarot->x < -90.0f)
     glfwSetCursorPos (window, mouse_pos.x, (int) (-90 / mouse_sensitivity));
-  while (cameraRot->y >= 360.0f)
-    cameraRot->y -= 360.0f;
-  while (cameraRot->y < 0.0f)
-    cameraRot->y += 360.0f;
+  while (camerarot->y >= 360.0f)
+    camerarot->y -= 360.0f;
+  while (camerarot->y < 0.0f)
+    camerarot->y += 360.0f;
   // mouse x, y / view x, y swapped here...
-  cameraRot->y = (float) (mouse_pos.x * mouse_sensitivity);
-  cameraRot->x = (float) (mouse_pos.y * mouse_sensitivity);
+  camerarot->y = (float) (mouse_pos.x * mouse_sensitivity);
+  camerarot->x = (float) (mouse_pos.y * mouse_sensitivity);
 }
 
 
@@ -470,29 +489,35 @@ void drawFoliage(struct model *models, struct v3f camerapos, struct v3f cameraro
   GLubyte alpha;
 
   glMateriali(GL_FRONT, GL_SHININESS, 37);
-  x = (int) (sector.x / -squaresize);
-  z = (int) (sector.y / -squaresize);
+  x = (int) (sector.x / squaresize);
+  z = (int) (sector.y / squaresize);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
-    xpos = (-TERRAIN_GRID_SIZE_HALF + xgrid + x) * squaresize;
-    zpos = (-TERRAIN_GRID_SIZE_HALF + zgrid + z) * squaresize;
+    xpos = (xgrid - TERRAIN_GRID_SIZE_HALF + x) * squaresize;
+    zpos = (zgrid - TERRAIN_GRID_SIZE_HALF + z) * squaresize;
     x1 = (int) xpos % 297;
     z1 = (int) zpos % 153;
     xpos += z1;
     zpos += x1;
-    cull = fabs((int) (camerarot.y - vectorstodegree2d(camerapos, mv3f(-xpos, 0, -zpos))));
+    cull = fabs((int) (camerarot.y - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
     while (cull >= 360)
       cull -= 360;
-    temp = readTerrain(xpos, zpos);
-    dist = distance3d(camerapos, mv3f(-xpos, -camheight, -zpos));
+    dist = distance3d(camerapos, mv3f(xpos, -camheight, zpos));
     x1 = x1 * x1 + z1 * z1;
-    if (temp.height > TERRAIN_WATER_LEVEL + 50 && temp.height < 3750 && (cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) && dist < VIEW_DISTANCE && (x1 % 1176 < 137) && temp.type != T_TYPE_DIRT) {
-      if (dist < VIEW_DISTANCE_HALF)
-        alpha = 255;
-      else if (dist < VIEW_DISTANCE)
-        alpha = (GLubyte) (255 - ((dist - VIEW_DISTANCE_HALF) / (float) VIEW_DISTANCE_HALF) * 255);
-      else
-        alpha = 0;
-      drawModel(models[x1 % 4], mv3f(-xpos, temp.height, -zpos), mv3f(0, x1 % 359, 0), 3, alpha);
+    if ((cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) && dist < VIEW_DISTANCE && (x1 % 1176 < 137)) {
+      temp = readTerrain(-xpos, -zpos);
+      if (temp.height > TERRAIN_WATER_LEVEL + 50 && temp.height < 3750 && temp.type != T_TYPE_DIRT) {
+        if (dist < VIEW_DISTANCE_HALF)
+          alpha = 255;
+        else if (dist < VIEW_DISTANCE)
+          alpha = (GLubyte) (255 - ((dist - VIEW_DISTANCE_HALF) / (float) VIEW_DISTANCE_HALF) * 255);
+        else
+          alpha = 0;
+        drawModel(models[x1 % 6], mv3f(xpos, temp.height, zpos), mv3f(0, x1, 0), 3, alpha);
+        xpos += z1;
+        zpos -= z1;
+        temp = readTerrain(-xpos, -zpos);
+        drawModel(models[(int)fabs(z1) % 6], mv3f(xpos, temp.height, zpos), mv3f(0, z1, 0), 3, alpha);
+      }
     }
     if (xgrid >= TERRAIN_GRID_SIZE - 1) {
       zgrid++;
@@ -513,16 +538,16 @@ void renderSky(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, float
   glDisable(GL_LIGHTING);
   glBegin(GL_QUADS);
   glColor3fv(clear);
-  glVertex3f(150000.0f, 3000.0f, 150000.0f);
-  glVertex3f(-150000.0f, 3000.0f, 150000.0f);
+  glVertex3f(250000.0f, 3000.0f, 250000.0f);
+  glVertex3f(-250000.0f, 3000.0f, 250000.0f);
   glColor3ub(117, 132, 215);
-  glVertex3f(-150000.0f, 3000.0f, -fogend);
-  glVertex3f(150000.0f, 3000.0f, -fogend);
-  glVertex3f(150000.0f, 3000.0f, -fogend);
-  glVertex3f(-150000.0f, 3000.0f, -fogend);
+  glVertex3f(-250000.0f, 3000.0f, -fogend);
+  glVertex3f(250000.0f, 3000.0f, -fogend);
+  glVertex3f(250000.0f, 3000.0f, -fogend);
+  glVertex3f(-250000.0f, 3000.0f, -fogend);
   glColor3fv(clear);
-  glVertex3f(-150000.0f, -5000.0f, -fogend);
-  glVertex3f(150000.0f, -5000.0f, -fogend);
+  glVertex3f(-250000.0f, -5000.0f, -fogend);
+  glVertex3f(250000.0f, -5000.0f, -fogend);
   glEnd();
   glPopMatrix();
 }
@@ -568,7 +593,7 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   int xshift, zshift, xgrid, zgrid, size = *squaresize * 8;
   float xpos, zpos, height = 11500.0f, scale = 0.00005f;
 
-  glMateriali(GL_FRONT, GL_SHININESS, 167);
+  glMateriali(GL_FRONT, GL_SHININESS, 161);
   glDisable(GL_CULL_FACE);
   glEnable(GL_TEXTURE_2D);
   glPushMatrix();
@@ -612,6 +637,8 @@ void render(GLFWwindow *window, struct model *models, GLuint *textures, GLuint *
   GLfloat materialColor[4];
   GLfloat clear[4]   = {0.5f, 0.5f, 0.5f, 1.0f};
   GLfloat ambient[4] = {0.49f, 0.45f, 0.47f, 1.0f};
+  extern struct v3f modelpos;
+  extern struct v3f modelrot;
 
   materialColor[3] = 1.0f;
   materialColor[0] = materialColor[1] = materialColor[2] = 0.8f;
@@ -633,12 +660,15 @@ void render(GLFWwindow *window, struct model *models, GLuint *textures, GLuint *
   //glUniform1iARB(glGetUniformLocationARB(shaders[0], "scene"), 0);
   drawTerrain(camerapos, camerarot, sector, camheight, swapb, squaresize);
   renderWater(camerapos, camerarot, squaresize);
+  clear[2] += fabs(sinf(camheight*0.00067f)) * 0.23f;
   updateFogLights(clear, ambient, camheight, *squaresize, fogend);
   glEnableClientState(GL_VERTEX_ARRAY);
   glEnableClientState(GL_NORMAL_ARRAY);
   //glEnableClientState(GL_TEXTURE_COORD_ARRAY); /* this does not currently work */
   glBindTexture(GL_TEXTURE_2D, textures[1]);
   drawFoliage(models, camerapos, camerarot, *sector, camheight);
+  glBindTexture(GL_TEXTURE_2D, textures[3]);
+  drawModel(models[6], mv3f(modelpos.x, -modelpos.y, modelpos.z), mv3f(modelrot.x, 180 - modelrot.y, modelrot.z), 20, 255);  
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
@@ -700,6 +730,55 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
 }
 
 
+void flyMovement(struct v3f *modelpos, struct v3f *modelrot, char direction, float speed)
+{
+  float ground, temp;
+  const int offset = TERRAIN_SQUARE_SIZE / 4;
+
+  switch (direction) {
+  case INPUT_UP:
+    degreestovector3d(modelpos, *modelrot, mv3f(0.0f, 0.0f, 0.0f), speed);
+    break;
+  case INPUT_DOWN:
+    degreestovector3d(modelpos, *modelrot, mv3f(0.0f, 0.0f, 0.0f), -speed);
+    break;
+  case INPUT_LEFT:
+    degreestovector3d(modelpos, mv3f(0.0f, modelrot->y, 0.0f),
+                                   mv3f(0.0f, 270.0f, 0.0f), speed);
+    break;
+  case INPUT_RIGHT:
+    degreestovector3d(modelpos, mv3f(0.0f, modelrot->y, 0.0f),
+                                   mv3f(0.0f, 90.0f, 0.0f), speed);
+    break;
+  case INPUT_UP_RIGHT:
+    degreestovector3d(modelpos, *modelrot, mv3f(0.0f, 45.0f, 0.0f), speed);
+    break;
+  case INPUT_UP_LEFT:
+    degreestovector3d(modelpos, *modelrot, mv3f(0.0f, -45.0f, 0.0f), speed);
+    break;
+  case INPUT_DOWN_RIGHT:
+    degreestovector3d(modelpos, *modelrot, mv3f(0.0f, -45.0f, 0.0f), -speed);
+    break;
+  case INPUT_DOWN_LEFT:
+    degreestovector3d(modelpos, *modelrot, mv3f(0.0f, 45.0f, 0.0f), -speed);
+    break;
+  default: break;
+  }
+  ground = -readTerrainHeight(-modelpos->x, -modelpos->z);
+  temp = -readTerrainHeight(-modelpos->x + offset, -modelpos->z + offset);
+  ground = ground < temp ? ground : temp;
+  temp = -readTerrainHeight(-modelpos->x + offset, -modelpos->z - offset);
+  ground = ground < temp ? ground : temp;
+  temp = -readTerrainHeight(-modelpos->x - offset, -modelpos->z + offset);
+  ground = ground < temp ? ground : temp;
+  temp = -readTerrainHeight(-modelpos->x - offset, -modelpos->z - offset);
+  ground = ground < temp ? ground : temp;
+  ground += -TERRAIN_SQUARE_SIZE * 0.12f;
+  ground = ground > TERRAIN_WATER_LEVEL - 50 ? TERRAIN_WATER_LEVEL - 50 : ground;
+  modelpos->y = modelpos->y > ground ? ground : modelpos->y;
+}
+
+
 int main(int argc, char *argv[])
 {
   GLuint textures[5], shaders[5];
@@ -710,7 +789,9 @@ int main(int argc, char *argv[])
   struct v2f sector    = {0.0f, 0.0f};
   struct v3f camerarot = {0.0f, 0.0f, 0.0f};
   struct v3f camerapos = {0.0f, 0.0f, 0.0f};
-  struct model *models = malloc(sizeof(struct model) * 5);
+  extern struct v3f modelpos;
+  extern struct v3f modelrot;
+  struct model *models = malloc(sizeof(struct model) * 7);
 
   if ((window = startGraphics(window, textures, shaders)) != NULL) {
     glfwSwapBuffers(window);
@@ -718,13 +799,19 @@ int main(int argc, char *argv[])
     loadFromOBJFile("data/models/tree2.obj", &models[1]);
     loadFromOBJFile("data/models/tree3.obj", &models[2]);
     loadFromOBJFile("data/models/tree4.obj", &models[3]);
+    loadFromOBJFile("data/models/mtree1.obj", &models[4]);
+    loadFromOBJFile("data/models/stump1.obj", &models[5]);
+    loadFromOBJFile("data/models/fighter.obj", &models[6]);
     while (!glfwWindowShouldClose(window)) {
       camheight = cameraHeight(camerapos);
       keyboardInput(window, &direction);
-      mouseLook(window, &camerarot);
+      //mouseLook(window, &camerarot);
+      mouseLook(window, &modelrot);
       render(window, models, textures, shaders, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend);
-      speed = 150;
-      movement(&camerapos, camerarot, direction, speed);
+      speed = 250;
+      //movement(&camerapos, camerarot, direction, speed);
+      flyMovement(&modelpos, &modelrot, direction, speed);
+      cameraTrailMovement(&camerapos, &camerarot);
       updateCamera(camerarot);
       glTranslatef(camerapos.x, camerapos.y, camerapos.z);
     }
