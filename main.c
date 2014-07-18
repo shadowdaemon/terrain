@@ -46,8 +46,6 @@ PFNGLGETATTRIBLOCATIONARBPROC _GetAttribLocationARB;
 PFNGLBINDATTRIBLOCATIONARBPROC _BindAttribLocationARB;
 PFNGLVERTEXATTRIB3FVARBPROC _VertexAttrib3fvARB;
 
-struct v3f modelrot = {0.0f, 0.0f, 0.0f};
-struct v3f modelpos = {0.0f, 0.0f, 0.0f};
 
 static void keyInputGLFW(GLFWwindow* window, int key, int scancode, int action, int mods);
 
@@ -405,10 +403,8 @@ float cameraHeight(struct v3f camerapos)
 }
 
 
-void cameraTrailMovement(struct v3f *camerapos, struct v3f *camerarot)
+void cameraTrailMovement(struct v3f *camerapos, struct v3f *camerarot, struct v3f modelpos, struct v3f modelrot)
 {
-  extern struct v3f modelpos;
-  extern struct v3f modelrot;
   struct v3f temp = modelpos;
 
   degreestovector3d(&temp, modelrot, mv3f(0, 180, 0), 150);
@@ -632,13 +628,11 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
 }
 
 
-void render(GLFWwindow *window, struct model *models, GLuint *textures, GLuint *shaders, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *squaresize, float *fogend)
+void render(GLFWwindow *window, struct model *models, GLuint *textures, GLuint *shaders, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *squaresize, float *fogend, struct v3f playerpos, struct v3f playerrot)
 {
   GLfloat materialColor[4];
   GLfloat clear[4]   = {0.5f, 0.5f, 0.5f, 1.0f};
   GLfloat ambient[4] = {0.49f, 0.45f, 0.47f, 1.0f};
-  extern struct v3f modelpos;
-  extern struct v3f modelrot;
 
   materialColor[3] = 1.0f;
   materialColor[0] = materialColor[1] = materialColor[2] = 0.8f;
@@ -667,8 +661,9 @@ void render(GLFWwindow *window, struct model *models, GLuint *textures, GLuint *
   //glEnableClientState(GL_TEXTURE_COORD_ARRAY); /* this does not currently work */
   glBindTexture(GL_TEXTURE_2D, textures[1]);
   drawFoliage(models, camerapos, camerarot, *sector, camheight);
+  materialColor[0] = materialColor[1] = materialColor[2] = 0.1f;
   glBindTexture(GL_TEXTURE_2D, textures[3]);
-  drawModel(models[6], mv3f(modelpos.x, -modelpos.y, modelpos.z), mv3f(modelrot.x, 180 - modelrot.y, modelrot.z), 20, 255);  
+  drawModel(models[6], mv3f(playerpos.x, -playerpos.y, playerpos.z), mv3f(playerrot.x, 180 - playerrot.y, playerrot.z), 20, 255);  
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
@@ -789,8 +784,8 @@ int main(int argc, char *argv[])
   struct v2f sector    = {0.0f, 0.0f};
   struct v3f camerarot = {0.0f, 0.0f, 0.0f};
   struct v3f camerapos = {0.0f, 0.0f, 0.0f};
-  extern struct v3f modelpos;
-  extern struct v3f modelrot;
+  struct v3f playerrot = {0.0f, 0.0f, 0.0f};
+  struct v3f playerpos = {0.0f, 0.0f, 0.0f};
   struct model *models = malloc(sizeof(struct model) * 7);
 
   if ((window = startGraphics(window, textures, shaders)) != NULL) {
@@ -801,17 +796,17 @@ int main(int argc, char *argv[])
     loadFromOBJFile("data/models/tree4.obj", &models[3]);
     loadFromOBJFile("data/models/mtree1.obj", &models[4]);
     loadFromOBJFile("data/models/stump1.obj", &models[5]);
-    loadFromOBJFile("data/models/fighter.obj", &models[6]);
+    loadFromOBJFile("data/models/fighter2.obj", &models[6]);
     while (!glfwWindowShouldClose(window)) {
       camheight = cameraHeight(camerapos);
       keyboardInput(window, &direction);
       //mouseLook(window, &camerarot);
-      mouseLook(window, &modelrot);
-      render(window, models, textures, shaders, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend);
+      mouseLook(window, &playerrot);
+      render(window, models, textures, shaders, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend, playerpos, playerrot);
       speed = 250;
       //movement(&camerapos, camerarot, direction, speed);
-      flyMovement(&modelpos, &modelrot, direction, speed);
-      cameraTrailMovement(&camerapos, &camerarot);
+      flyMovement(&playerpos, &playerrot, direction, speed);
+      cameraTrailMovement(&camerapos, &camerarot, playerpos, playerrot);
       updateCamera(camerarot);
       glTranslatef(camerapos.x, camerapos.y, camerapos.z);
     }
