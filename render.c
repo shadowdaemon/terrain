@@ -196,7 +196,9 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
 }
 
 
-void render(GLFWwindow *window, struct model *models, GLuint *textures, GLuint *shaders, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *squaresize, float *fogend, struct v3f playerpos, struct v3f playerrot)
+void render(GLFWwindow *window, struct model *models, GLuint *textures, GLuint *shaders,
+            int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
+            float camheight, int *squaresize, float *fogend, struct v3f playerpos, struct v3f playerrot)
 {
   GLfloat materialColor[4];
   GLfloat clear[4]   = {0.5f, 0.5f, 0.5f, 1.0f};
@@ -229,7 +231,6 @@ void render(GLFWwindow *window, struct model *models, GLuint *textures, GLuint *
   //glEnableClientState(GL_TEXTURE_COORD_ARRAY); /* this does not currently work */
   glBindTexture(GL_TEXTURE_2D, textures[1]);
   renderFoliage(models, camerapos, camerarot, *sector, camheight);
-  materialColor[0] = materialColor[1] = materialColor[2] = 0.1f;
   glBindTexture(GL_TEXTURE_2D, textures[3]);
   drawModel(models[6], mv3f(playerpos.x, -playerpos.y, playerpos.z), mv3f(playerrot.x, 180 - playerrot.y, playerrot.z), 20, 255);  
   glDisableClientState(GL_VERTEX_ARRAY);
