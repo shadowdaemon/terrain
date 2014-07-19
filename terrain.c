@@ -126,14 +126,14 @@ float algorithmicTerrainHeight3(float x, float z, float height)
 
 float algorithmicTerrainHeight(float x, float z)
 {
-  float height = 0.0f, dist = 0.0f, x1, z1;
+  float height = 0.0f, dist = 0.0f;
 
-  height = algorithmicTerrainHeight3(z*0.17, x*0.17, height) * 2.7f - 1000;
+  height = algorithmicTerrainHeight3(z*0.17, x*0.17, height) * 1.7f - 1000;
   dist = distance2d(mv3f(-102000, 0, 131200), mv3f(x, 0, z));
   if (dist < 186000) {
     dist = (186000 - dist) / 186000;
     dist = dist < 0 ? 0 : dist;
-    height += (algorithmicTerrainHeight3(x*0.07, z*0.07, height) - 2250) * dist * 7.2f;
+    height += (algorithmicTerrainHeight3(x*0.11, z*0.11, height) - 2250) * dist * 2.2f;
   }
   dist = distance2d(mv3f(5000, 0, -102000), mv3f(x, 0, z));
   if (dist < 120000) {
