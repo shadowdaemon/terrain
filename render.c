@@ -33,7 +33,7 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squa
   lightamb[1] = 0.0f;
   lightamb[2] = 0.0f;
   glLightfv(GL_LIGHT1, GL_AMBIENT, lightamb);
-  lightdiff[0] = 0.25f + sinf(camheight*0.00057f) * 0.15f;
+  lightdiff[0] = 0.25f + sinf(camheight*0.00017f) * 0.15f;
   lightdiff[1] = 0.17f;
   lightdiff[2] = 0.19f;
   glLightfv(GL_LIGHT1, GL_DIFFUSE, lightdiff);
@@ -232,7 +232,7 @@ void render(GLFWwindow *window, struct model *models, GLuint *textures, GLuint *
   glBindTexture(GL_TEXTURE_2D, textures[1]);
   renderFoliage(models, camerapos, camerarot, *sector, camheight);
   glBindTexture(GL_TEXTURE_2D, textures[3]);
-  drawModel(models[6], mv3f(playerpos.x, -playerpos.y, playerpos.z), mv3f(playerrot.x, 180 - playerrot.y, playerrot.z), 20, 255);  
+  drawModel(models[6], playerpos, mv3f(playerrot.x, 180 - playerrot.y, playerrot.z), 20, 255);  
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
   glBindTexture(GL_TEXTURE_2D, textures[2]);

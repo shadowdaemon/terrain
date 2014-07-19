@@ -320,14 +320,28 @@ float cameraHeight(struct v3f camerapos)
 
 void cameraTrailMovement(struct v3f *camerapos, struct v3f *camerarot, struct v3f modelpos, struct v3f modelrot)
 {
-  struct v3f temp = modelpos;
+  struct v3f temppos = modelpos;
+  float temp = 0.0f, ground = 0.0f;
+  const int offset = TERRAIN_SQUARE_SIZE / 4;
 
-  degreestovector3d(&temp, modelrot, mv3f(0, 180, 0), 150);
-  camerapos->x += (temp.x - camerapos->x) * 0.1f;
-  camerapos->y += (temp.y - camerapos->y) * 0.1f;
-  camerapos->z += (temp.z - camerapos->z) * 0.1f;
+  degreestovector3d(&temppos, modelrot, mv3f(0, 180, 0), 150);
+  camerapos->x += (temppos.x - camerapos->x) * 0.27f;
+  camerapos->y += (-temppos.y - camerapos->y) * 0.27f;
+  camerapos->z += (temppos.z - camerapos->z) * 0.27f;
   camerarot->x = modelrot.x;
   camerarot->y = vectorstodegree2d(mv3f(modelpos.x, 0, modelpos.z), *camerapos) - 180;
+  ground = -readTerrainHeight(-camerapos->x, -camerapos->z);
+  temp = -readTerrainHeight(-camerapos->x + offset, -camerapos->z + offset);
+  ground = ground < temp ? ground : temp;
+  temp = -readTerrainHeight(-camerapos->x + offset, -camerapos->z - offset);
+  ground = ground < temp ? ground : temp;
+  temp = -readTerrainHeight(-camerapos->x - offset, -camerapos->z + offset);
+  ground = ground < temp ? ground : temp;
+  temp = -readTerrainHeight(-camerapos->x - offset, -camerapos->z - offset);
+  ground = ground < temp ? ground : temp;
+  ground += -TERRAIN_SQUARE_SIZE * 0.07f;
+  ground = ground > TERRAIN_WATER_LEVEL - 70 ? TERRAIN_WATER_LEVEL - 70 : ground;
+  camerapos->y = camerapos->y > ground ? ground : camerapos->y;
 }
 
 
@@ -441,52 +455,104 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
 }
 
 
-void flyMovement(struct v3f *modelpos, struct v3f *modelrot, char direction, float speed)
+void flyMovement(struct airunit *unit, char input)
 {
-  float ground, temp;
+  struct v3f temppos;
+  float ground, speed, temp1, temp2;
   const int offset = TERRAIN_SQUARE_SIZE / 4;
 
-  switch (direction) {
+  switch (input) {
   case INPUT_UP:
-    degreestovector3d(modelpos, *modelrot, mv3f(0.0f, 0.0f, 0.0f), speed);
+    unit->thrust = unit->thrust + 0.05f;
     break;
   case INPUT_DOWN:
-    degreestovector3d(modelpos, *modelrot, mv3f(0.0f, 0.0f, 0.0f), -speed);
+    unit->thrust = unit->thrust - 0.05f;
     break;
   case INPUT_LEFT:
-    degreestovector3d(modelpos, mv3f(0.0f, modelrot->y, 0.0f),
-                                   mv3f(0.0f, 270.0f, 0.0f), speed);
+    unit->rot.z -= 5.0f;
     break;
   case INPUT_RIGHT:
-    degreestovector3d(modelpos, mv3f(0.0f, modelrot->y, 0.0f),
-                                   mv3f(0.0f, 90.0f, 0.0f), speed);
+    unit->rot.z += 5.0f;
     break;
   case INPUT_UP_RIGHT:
-    degreestovector3d(modelpos, *modelrot, mv3f(0.0f, 45.0f, 0.0f), speed);
+    unit->thrust = unit->thrust + 0.05f;
+    unit->rot.z += 5.0f;
     break;
   case INPUT_UP_LEFT:
-    degreestovector3d(modelpos, *modelrot, mv3f(0.0f, -45.0f, 0.0f), speed);
+    unit->thrust = unit->thrust + 0.05f;
+    unit->rot.z -= 5.0f;
     break;
   case INPUT_DOWN_RIGHT:
-    degreestovector3d(modelpos, *modelrot, mv3f(0.0f, -45.0f, 0.0f), -speed);
+    unit->thrust = unit->thrust - 0.05f;
+    unit->rot.z += 5.0f;
     break;
   case INPUT_DOWN_LEFT:
-    degreestovector3d(modelpos, *modelrot, mv3f(0.0f, 45.0f, 0.0f), -speed);
+    unit->thrust = unit->thrust - 0.05f;
+    unit->rot.z -= 5.0f;
     break;
   default: break;
   }
-  ground = -readTerrainHeight(-modelpos->x, -modelpos->z);
-  temp = -readTerrainHeight(-modelpos->x + offset, -modelpos->z + offset);
-  ground = ground < temp ? ground : temp;
-  temp = -readTerrainHeight(-modelpos->x + offset, -modelpos->z - offset);
-  ground = ground < temp ? ground : temp;
-  temp = -readTerrainHeight(-modelpos->x - offset, -modelpos->z + offset);
-  ground = ground < temp ? ground : temp;
-  temp = -readTerrainHeight(-modelpos->x - offset, -modelpos->z - offset);
-  ground = ground < temp ? ground : temp;
-  ground += -TERRAIN_SQUARE_SIZE * 0.12f;
-  ground = ground > TERRAIN_WATER_LEVEL - 50 ? TERRAIN_WATER_LEVEL - 50 : ground;
-  modelpos->y = modelpos->y > ground ? ground : modelpos->y;
+  ground = readTerrainHeight(-unit->pos.x, -unit->pos.z);
+  temp1 = readTerrainHeight(-unit->pos.x + offset, -unit->pos.z + offset);
+  ground = ground > temp1 ? ground : temp1;
+  temp1 = readTerrainHeight(-unit->pos.x + offset, -unit->pos.z - offset);
+  ground = ground > temp1 ? ground : temp1;
+  temp1 = readTerrainHeight(-unit->pos.x - offset, -unit->pos.z + offset);
+  ground = ground > temp1 ? ground : temp1;
+  temp1 = readTerrainHeight(-unit->pos.x - offset, -unit->pos.z - offset);
+  ground = ground > temp1 ? ground : temp1;
+  ground += TERRAIN_SQUARE_SIZE * 0.02f;
+  ground = ground < TERRAIN_WATER_LEVEL + 20 ? TERRAIN_WATER_LEVEL + 20 : ground;
+  temp1 = 1 - fabs(unit->pos.y - 9700) / 19000.0f;
+  temp1 = temp1 < 0.0f ? 0.0f : temp1;
+  temp2 = 1 - unit->pos.y / 17000.0f;
+  temp2 = temp2 < 0.0f ? 0.0f : temp2;
+  temppos = unit->pos;
+  unit->thrust = unit->thrust > unit->maxthrust ? unit->maxthrust : unit->thrust < 0 ? 0 : unit->thrust;
+  degreestovector3d(&temppos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), unit->thrust * temp1);
+  unit->vec.x += temppos.x - unit->pos.x;
+  unit->vec.y += temppos.y - unit->pos.y;
+  unit->vec.z += temppos.z - unit->pos.z;
+  speed = distance2d(mv3f(0, 0, 0), unit->vec) * 0.5f;
+  speed = speed < 300 ? speed : 300;
+  temppos = mv3f(0, 0, 0);
+  degreestovector3d(&temppos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), speed * temp2 * 0.7f);
+  temp1 = (vectorstodegree2d(temppos, mv3f(0, 0, 0)) - vectorstodegree2d(unit->vec, mv3f(0, 0, 0))) * 0.05f;
+  if (vectorstodegree2d(temppos, mv3f(0, 0, 0)) > vectorstodegree2d(unit->vec, mv3f(0, 0, 0)) + 0.8f)
+    unit->rot.z += temp1 > 21 ? 0 : temp1;
+  else if (vectorstodegree2d(unit->vec, mv3f(0, 0, 0)) > vectorstodegree2d(temppos, mv3f(0, 0, 0)) + 0.8f)
+    unit->rot.z += temp1 < -21 ? 0 : temp1;
+  else
+    unit->rot.z -= unit->rot.z * 0.07f;
+  unit->rot.z = unit->rot.z > 70 ? 70 : unit->rot.z < -70 ? -70 : unit->rot.z;
+  unit->pos.x += temppos.x + unit->vec.x;
+  unit->pos.y += temppos.y + unit->vec.y;
+  unit->pos.z += temppos.z + unit->vec.z;
+  unit->vec.y += speed * 0.017f * temp2 - WORLD_GRAVITY;
+  temp1 = (1.5f - unit->vec.y) * 0.1f;
+  temp1 = temp1 < 50 ? temp1 - 3 > 0 ? temp1 - 3 : 0 : 50;
+  degreestovector3d(&unit->vec, unit->rot, mv3f(180.0f, 180.0f, 0.0f), temp1 * temp2 > 0 ? temp1 * temp2 : 0);
+  unit->vec.x -= unit->vec.x * 0.002f * speed * temp2;
+  unit->vec.y -= unit->vec.y * 0.002f * speed * temp2;
+  unit->vec.z -= unit->vec.z * 0.002f * speed * temp2;
+  temp2 = fabs(unit->pos.y - ground);
+  if (temp2 < 500)
+    unit->vec.y += 0.2f * (500 - temp2) / 500.0f;
+  if (temp2 < 1250)
+    unit->vec.y += 0.5f * (1250 - temp2) / 1250.0f;
+  if (unit->pos.y < ground) {
+    unit->vec.y = 0.0f;
+    unit->pos.y = ground;
+    unit->vec.x -= unit->vec.x * 0.4f;
+    unit->vec.z -= unit->vec.z * 0.4f;
+    unit->thrust -= unit->thrust * 0.08f;
+  }
+}
+
+
+void updateAirPositions(struct airunit *airunits)
+{
+
 }
 
 
@@ -496,13 +562,12 @@ int main(int argc, char *argv[])
   GLFWwindow *window = NULL;
   int swapb = 1, squaresize = 0;
   char direction;
-  float camheight = 0.0f, fogend = 20.0f, speed = 0.0f;
+  float camheight = 0.0f, fogend = 20.0f;
   struct v2f sector    = {0.0f, 0.0f};
   struct v3f camerarot = {0.0f, 0.0f, 0.0f};
   struct v3f camerapos = {0.0f, 0.0f, 0.0f};
-  struct v3f playerrot = {0.0f, 0.0f, 0.0f};
-  struct v3f playerpos = {0.0f, 0.0f, 0.0f};
-  struct model *models = malloc(sizeof(struct model) * 7);
+  struct model *models = malloc(sizeof(struct model) * 8);
+  struct airunit *airunits = malloc(sizeof(struct airunit) * 16);
 
   if ((window = startGraphics(window, textures, shaders)) != NULL) {
     glfwSwapBuffers(window);
@@ -513,16 +578,18 @@ int main(int argc, char *argv[])
     loadFromOBJFile("data/models/mtree1.obj", &models[4]);
     loadFromOBJFile("data/models/stump1.obj", &models[5]);
     loadFromOBJFile("data/models/fighter1.obj", &models[6]);
+    loadFromOBJFile("data/models/fighter2.obj", &models[7]);
+    airunits[0].maxthrust = 10.0f;
     while (!glfwWindowShouldClose(window)) {
       camheight = cameraHeight(camerapos);
       keyboardInput(window, &direction);
       //mouseLook(window, &camerarot);
-      mouseLook(window, &playerrot);
-      render(window, models, textures, shaders, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend, playerpos, playerrot);
-      speed = 250;
-      //movement(&camerapos, camerarot, direction, speed);
-      flyMovement(&playerpos, &playerrot, direction, speed);
-      cameraTrailMovement(&camerapos, &camerarot, playerpos, playerrot);
+      mouseLook(window, &airunits[0].rot);
+      render(window, models, textures, shaders, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend, airunits[0].pos, airunits[0].rot);
+      //movement(&camerapos, camerarot, direction, 100);
+      flyMovement(&airunits[0], direction);
+      updateAirPositions(airunits);
+      cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot);
       updateCamera(camerarot);
       glTranslatef(camerapos.x, camerapos.y, camerapos.z);
     }
