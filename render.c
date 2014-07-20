@@ -76,11 +76,11 @@ void renderFoliage(struct model *models, struct v3f camerapos, struct v3f camera
           alpha = (GLubyte) (255 - ((dist - VIEW_DISTANCE_HALF) / (float) VIEW_DISTANCE_HALF) * 255);
         else
           alpha = 0;
-        drawModel(models[x1 % 6], mv3f(xpos, temp.height, zpos), mv3f(0, x1, 0), 3, alpha);
+        drawModel(models[x1 % 6], mv3f(xpos, temp.height, zpos), mv3f(0, x1, 0), 15, alpha);
         xpos += z1;
         zpos -= z1;
         temp = readTerrain(-xpos, -zpos);
-        drawModel(models[(int)fabs(z1) % 6], mv3f(xpos, temp.height, zpos), mv3f(0, z1, 0), 3, alpha);
+        drawModel(models[(int)fabs(z1) % 6], mv3f(xpos, temp.height, zpos), mv3f(0, z1, 0), 15, alpha);
       }
     }
     if (xgrid >= TERRAIN_GRID_SIZE - 1) {
@@ -198,11 +198,12 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
 
 void render(GLFWwindow *window, struct model *models, GLuint *textures, GLuint *shaders,
             int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
-            float camheight, int *squaresize, float *fogend, struct v3f playerpos, struct v3f playerrot)
+            float camheight, int *squaresize, float *fogend, struct airunit *airunits)
 {
   GLfloat materialColor[4];
   GLfloat clear[4]   = {0.5f, 0.5f, 0.5f, 1.0f};
   GLfloat ambient[4] = {0.49f, 0.45f, 0.47f, 1.0f};
+  int i;
 
   materialColor[3] = 1.0f;
   materialColor[0] = materialColor[1] = materialColor[2] = 0.8f;
@@ -210,6 +211,7 @@ void render(GLFWwindow *window, struct model *models, GLuint *textures, GLuint *
   glMaterialfv(GL_FRONT, GL_AMBIENT, materialColor);
   glMaterialfv(GL_FRONT, GL_SPECULAR, materialColor);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  glShadeModel(GL_SMOOTH);
   glUseProgramARB(0);
   renderSky(camerapos, camerarot, clear, *fogend);
   glEnable(GL_DEPTH_TEST);
@@ -232,7 +234,12 @@ void render(GLFWwindow *window, struct model *models, GLuint *textures, GLuint *
   glBindTexture(GL_TEXTURE_2D, textures[1]);
   renderFoliage(models, camerapos, camerarot, *sector, camheight);
   glBindTexture(GL_TEXTURE_2D, textures[3]);
-  drawModel(models[6], playerpos, mv3f(playerrot.x, 180 - playerrot.y, playerrot.z), 20, 255);  
+  glShadeModel(GL_FLAT);
+  //glDisable(GL_NORMALIZE);
+  //glDisable(GL_TEXTURE_2D);
+  drawModel(models[6], airunits[0].pos, mv3f(airunits[0].rot.x, 180 - airunits[0].rot.y, airunits[0].rot.z), 20, 255);  
+  for (i = 1; i < 15; i++)
+    drawModel(models[6], airunits[i].pos, mv3f(airunits[i].rot.x, 180 - airunits[i].rot.y, airunits[i].rot.z), 20, 255);  
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
   glBindTexture(GL_TEXTURE_2D, textures[2]);

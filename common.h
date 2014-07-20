@@ -5,6 +5,7 @@
 #define VIEW_DISTANCE                       12000
 #define VIEW_DISTANCE_HALF                  6000
 #define WORLD_SIZE                          50000
+#define WORLD_GRAVITY                       1.5f
 #define TERRAIN_GRID_SIZE                   120
 #define TERRAIN_GRID_SIZE_HALF              60
 #define TERRAIN_GRID_SIZE_QUARTER           30
@@ -35,6 +36,8 @@
 #define INPUT_DOWN_LEFT                     8
 #define INPUT_VERT_UP                       9
 #define INPUT_VERT_DOWN                     10
+#define INPUT_SPACE                         16
+#define UNIT_AIRFIGHTER                     0
 
 #define glActiveTexureARB _ActiveTexureARB
 #define glCreateProgramARB _CreateProgramARB
@@ -117,6 +120,16 @@ struct model {
   GLfloat (*tex_coords)[2];
 };
 
+struct airunit {
+  int type;
+  struct v3f pos;
+  struct v3f rot;
+  struct v3f vec;
+  float thrust;
+  float speed;
+  float height;
+};
+
 float algorithmicTerrainHeight(float x, float z);
 struct terrain readTerrain(float x, float y);
 float readTerrainHeight(float x, float y);
@@ -124,4 +137,4 @@ void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
 void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *swapb, int *squaresize);
 void loadFromOBJFile(const char *name, struct model *model);
 void drawModel(struct model model, struct v3f pos, struct v3f rot, GLfloat size, GLuint alpha);
-void render(GLFWwindow *window, struct model *models, GLuint *textures, GLuint *shaders, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *squaresize, float *fogend, struct v3f playerpos, struct v3f playerrot);
+void render(GLFWwindow *window, struct model *models, GLuint *textures, GLuint *shaders, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *squaresize, float *fogend, struct airunit *airunits);
