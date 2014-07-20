@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "common.h"
+#include "maths.h"
 
 
 void loadFromOBJFile(const char *name, struct model *model)
 {
   FILE *fp;
   long int fpos;
-  char temp, i;
+  char temp;
+  int i;
   GLuint indice, tex_indice;
   GLint num_verts = 0;
   GLint num_norms = 0;
@@ -51,6 +52,37 @@ void loadFromOBJFile(const char *name, struct model *model)
           }
         }
       }
+    }
+    float v1[3], v2[3], v3[3];
+    struct v3f t;
+    for (i = 0; i < model->num_indices; i++){
+      if (i - 1 < 0) {
+        v1[0] = model->verts[model->indices[model->num_indices-1]][0];
+        v1[1] = model->verts[model->indices[model->num_indices-1]][1];
+        v1[2] = model->verts[model->indices[model->num_indices-1]][2];
+      }
+      else {
+        v1[0] = model->verts[model->indices[i-1]][0];
+        v1[1] = model->verts[model->indices[i-1]][1];
+        v1[2] = model->verts[model->indices[i-1]][2];
+      }
+      v2[0] = model->verts[model->indices[i]][0];
+      v2[1] = model->verts[model->indices[i]][1];
+      v2[2] = model->verts[model->indices[i]][2];
+      if (i == model->num_indices - 1){
+        v3[0] = model->verts[model->indices[0]][0];
+        v3[1] = model->verts[model->indices[0]][1];
+        v3[2] = model->verts[model->indices[0]][2];
+      }
+      else {
+        v3[0] = model->verts[model->indices[i+1]][0];
+        v3[1] = model->verts[model->indices[i+1]][1];
+        v3[2] = model->verts[model->indices[i+1]][2];
+      }
+      t = calcNormal(v1, v2, v3);
+      model->norms[model->indices[i]][0] = t.x;
+      model->norms[model->indices[i]][1] = t.y;
+      model->norms[model->indices[i]][2] = t.z;
     }
     model->verts = (void *) realloc(model->verts, sizeof(GLfloat) * model->num_indices);
     model->norms = (void *) realloc(model->norms, sizeof(GLfloat) * model->num_indices);
