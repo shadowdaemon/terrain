@@ -128,7 +128,7 @@ float algorithmicTerrainHeight(float x, float z)
 {
   float height = 0.0f, dist = 0.0f;
 
-  height = algorithmicTerrainHeight3(z*0.17, x*0.17, height) * 1.7f - 1000;
+  height = algorithmicTerrainHeight3(z*0.67, x*0.67, height) * 1.7f - 1000;
   dist = distance2d(mv3f(-102000, 0, 131200), mv3f(x, 0, z));
   if (dist < 186000) {
     dist = (186000 - dist) / 186000;
@@ -297,7 +297,8 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   z = (int) (sector->y / -(*squaresize));
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
-  glScalef(0.01f, 0.01f, 0.01f);
+  //glScalef(0.05f, 0.05f, 0.05f);
+  glScalef(0.0005f, 0.0005f, 0.0005f);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
     if (alt < 5) {
       x3 = fabs(TERRAIN_GRID_SIZE_HALF - xgrid) - 20; x3 = x3 < 0 ? 0 : (x3 + 20) * 8;

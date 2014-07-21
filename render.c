@@ -67,7 +67,7 @@ void renderFoliage(struct model *models, struct v3f camerapos, struct v3f camera
       cull -= 360;
     dist = distance3d(camerapos, mv3f(xpos, -camheight, zpos));
     x1 = x1 * x1 + z1 * z1;
-    if ((cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) && dist < VIEW_DISTANCE && (x1 % 1176 < 137)) {
+    if ((((cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) && dist < VIEW_DISTANCE) || dist < TERRAIN_SQUARE_SIZE * 2) && (x1 % 3176 < 687)) {
       temp = readTerrain(-xpos, -zpos);
       if (temp.height > TERRAIN_WATER_LEVEL + 50 && temp.height < 3750 && temp.type != T_TYPE_DIRT) {
         if (dist < VIEW_DISTANCE_HALF)
@@ -76,11 +76,19 @@ void renderFoliage(struct model *models, struct v3f camerapos, struct v3f camera
           alpha = (GLubyte) (255 - ((dist - VIEW_DISTANCE_HALF) / (float) VIEW_DISTANCE_HALF) * 255);
         else
           alpha = 0;
-        drawModel(models[x1 % 6], mv3f(xpos, temp.height, zpos), mv3f(0, x1, 0), 15, alpha);
-        xpos += z1;
-        zpos -= z1;
+        drawModel(models[x1 % 6], mv3f(xpos, temp.height, zpos), mv3f(0, x1, 0), 1, alpha);
+        xpos += z1 * 1.6f;
+        zpos -= z1 * 0.8f;
         temp = readTerrain(-xpos, -zpos);
-        drawModel(models[(int)fabs(z1) % 6], mv3f(xpos, temp.height, zpos), mv3f(0, z1, 0), 15, alpha);
+        drawModel(models[2], mv3f(xpos, temp.height, zpos), mv3f(0, z1, 0), 1, alpha);
+        xpos -= z1 * 0.7f;
+        zpos += z1 * 1.5f;
+        temp = readTerrain(-xpos, -zpos);
+        drawModel(models[x1 % 4 + 1], mv3f(xpos, temp.height, zpos), mv3f(0, x1, 0), 1, alpha);
+        xpos += z1 * 1.1f;
+        zpos -= z1 * 1.9f;
+        temp = readTerrain(-xpos, -zpos);
+        drawModel(models[(int)fabs(zpos) % 6], mv3f(xpos, temp.height, zpos), mv3f(0, z1, 0), 1, alpha);
       }
     }
     if (xgrid >= TERRAIN_GRID_SIZE - 1) {
@@ -154,8 +162,8 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize)
 
 void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
 {
-  int xshift, zshift, xgrid, zgrid, size = *squaresize * 8;
-  float xpos, zpos, height = 11500.0f, scale = 0.00005f;
+  int xshift, zshift, xgrid, zgrid, size = *squaresize * 16;
+  float xpos, zpos, height = 4500.0f, scale = 0.00005f;
 
   glMateriali(GL_FRONT, GL_SHININESS, 161);
   glDisable(GL_CULL_FACE);
@@ -193,6 +201,17 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   glPopMatrix();
   //glEnable(GL_TEXTURE_2D);
   glEnable(GL_CULL_FACE);
+}
+
+
+void beam(struct v3f start, struct v3f end)
+{
+  glBegin(GL_LINES);
+  glColor4ub(255, 25, 5, 175);
+  glVertex3f(-start.x, start.y, -start.z);
+  glColor4ub(205, 25, 5, 0);
+  glVertex3f(-end.x, end.y, -end.z);
+  glEnd();
 }
 
 
@@ -234,12 +253,14 @@ void render(GLFWwindow *window, struct model *models, GLuint *textures, GLuint *
   glBindTexture(GL_TEXTURE_2D, textures[1]);
   renderFoliage(models, camerapos, camerarot, *sector, camheight);
   glBindTexture(GL_TEXTURE_2D, textures[3]);
-  glShadeModel(GL_FLAT);
-  //glDisable(GL_NORMALIZE);
-  //glDisable(GL_TEXTURE_2D);
-  drawModel(models[6], airunits[0].pos, mv3f(airunits[0].rot.x, 180 - airunits[0].rot.y, airunits[0].rot.z), 20, 255);  
+  //struct v3f pos = airunits[0].pos;
+  //degreestovector3d(&pos, airunits[0].rot, mv3f(180, 180, 0), 15000);
+  //glUseProgramARB(shaders[0]);
+  //beam(airunits[0].pos, pos);
+  //glUseProgramARB(0);
+  drawModel(models[6], airunits[0].pos, mv3f(airunits[0].rot.x, 180 - airunits[0].rot.y, airunits[0].rot.z), 1, 255);  
   for (i = 1; i < 15; i++)
-    drawModel(models[6], airunits[i].pos, mv3f(airunits[i].rot.x, 180 - airunits[i].rot.y, airunits[i].rot.z), 20, 255);  
+    drawModel(models[6], airunits[i].pos, mv3f(airunits[i].rot.x, 180 - airunits[i].rot.y, airunits[i].rot.z), 1, 255);  
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
   glBindTexture(GL_TEXTURE_2D, textures[2]);

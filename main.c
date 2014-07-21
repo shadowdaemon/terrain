@@ -20,18 +20,26 @@ static void errorFreeImage(FREE_IMAGE_FORMAT fif, const char *err)
 }
 
 
-void loadTexture2D(const char *file)
+void loadTexture2D(const char *file, const char contrast)
 {
   FIBITMAP *img = FreeImage_Load(FreeImage_GetFileType(file, 0), file, 0);
+  FIBITMAP *foo = FreeImage_Load(FreeImage_GetFileType(file, 0), file, 0);
   img = FreeImage_ConvertTo32Bits(img);
-  GLsizei width = FreeImage_GetWidth(img);
-  GLsizei height = FreeImage_GetHeight(img);
-  GLubyte *bits = (GLubyte*) FreeImage_GetBits(img);
+  foo = FreeImage_ConvertTo32Bits(foo);
+  GLsizei width = FreeImage_GetWidth(foo);
+  GLsizei height = FreeImage_GetHeight(foo);
+  if (contrast == 'y') {
+    FreeImage_AdjustContrast(img, -70);
+    FreeImage_AdjustContrast(foo, -90);
+  }
+  GLubyte *bits = (GLubyte*) FreeImage_GetBits(foo);
   int i;
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
   for (i = 1; i < 10; i++){
     width /= 2;
     height /= 2;
+    if (contrast == 'y')
+      FreeImage_AdjustContrast(img, 7 * i);
     bits = (GLubyte*) FreeImage_GetBits(FreeImage_Rescale(img, width, height, FILTER_BICUBIC));
     glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
     if (width == 1 || height == 1)
@@ -39,6 +47,7 @@ void loadTexture2D(const char *file)
   }
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i);
   FreeImage_Unload(img);
+  FreeImage_Unload(foo);
 }
 
 
@@ -128,8 +137,6 @@ GLFWwindow *startGraphics(GLFWwindow *window, GLuint *textures, GLuint *shaders)
   glCullFace(GL_BACK);
   glEnable(GL_COLOR_MATERIAL);
   glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-  glMatrixMode(GL_PROJECTION);
-  glFrustum(-0.54f, 0.54f, -0.4f, 0.4f, 0.8f, 50000.0f);
   glMatrixMode(GL_MODELVIEW);
   glfwGetFramebufferSize(window, &width, &height);
   glViewport(0, 0, width, height);
@@ -139,13 +146,13 @@ GLFWwindow *startGraphics(GLFWwindow *window, GLuint *textures, GLuint *shaders)
   glEnable(GL_TEXTURE_2D);
   glGenTextures(5, textures);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
-  loadTexture2D("data/textures/terrain.tga");
+  loadTexture2D("data/textures/terrain.tga", 'y');
   glBindTexture(GL_TEXTURE_2D, textures[1]);
-  loadTexture2D("data/textures/foliage.tga");
+  loadTexture2D("data/textures/foliage.tga", 'n');
   glBindTexture(GL_TEXTURE_2D, textures[2]);
-  loadTexture2D("data/textures/cloud_alpha.tga");
+  loadTexture2D("data/textures/cloud_alpha.tga", 'n');
   glBindTexture(GL_TEXTURE_2D, textures[3]);
-  loadTexture2D("data/textures/fighter.png");
+  loadTexture2D("data/textures/fighter.png", 'n');
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
@@ -323,7 +330,7 @@ void cameraTrailMovement(struct v3f *camerapos, struct v3f *camerarot, struct v3
   float temp = 0.0f, ground = 0.0f;
   const int offset = TERRAIN_SQUARE_SIZE / 4;
 
-  degreestovector3d(&temppos, modelrot, mv3f(0, 180, 0), 150);
+  degreestovector3d(&temppos, modelrot, mv3f(0, 180, 0), 30);
   camerapos->x += (temppos.x - camerapos->x) * 0.27f;
   camerapos->y += (-temppos.y - camerapos->y) * 0.27f;
   camerapos->z += (temppos.z - camerapos->z) * 0.27f;
@@ -452,8 +459,8 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
   ground = ground < temp ? ground : temp;
   ground += -TERRAIN_SQUARE_SIZE * 0.02f;
   ground = ground > TERRAIN_WATER_LEVEL - 70 ? TERRAIN_WATER_LEVEL - 70 : ground;
-  camerapos->y = camerapos->y > ground ? ground : camerapos->y;
-  //camerapos->y = ground;
+  //camerapos->y = camerapos->y > ground ? ground : camerapos->y;
+  camerapos->y = ground;
 }
 
 
@@ -496,8 +503,8 @@ void flyMovement(struct airunit *unit, char input)
   }
   switch (unit->type) {
   case UNIT_AIRFIGHTER:
-    maxthrust = 7.0f;
-    drag = 0.001f;
+    maxthrust = 4.0f;
+    drag = 0.002f;
     lift = 0.017f;
   }
   ground = readTerrainHeight(-unit->pos.x, -unit->pos.z);
@@ -538,7 +545,9 @@ void flyMovement(struct airunit *unit, char input)
   unit->pos.x += temppos.x + unit->vec.x;
   unit->pos.y += temppos.y + unit->vec.y;
   unit->pos.z += temppos.z + unit->vec.z;
-  unit->vec.y += speed * lift * temp2 - WORLD_GRAVITY;
+  unit->vec.y += speed * lift * temp2;
+  if (unit->vec.y > -WORLD_GRAVITY * 20)
+    unit->vec.y -= WORLD_GRAVITY;
   temp1 = (1.5f - unit->vec.y) * 0.1f;
   temp1 = temp1 < 50 ? temp1 - 3 > 0 ? temp1 - 3 : 0 : 50;
   degreestovector3d(&unit->vec, unit->rot, mv3f(180.0f, 180.0f, 0.0f), temp1 * temp2 > 0 ? temp1 * temp2 : 0);

@@ -2,15 +2,15 @@
 
 #define PI                     3.14159265358979323846f
 #define PIx180                 180.0f*PI
-#define VIEW_DISTANCE                       12000
-#define VIEW_DISTANCE_HALF                  6000
+#define VIEW_DISTANCE                       5000
+#define VIEW_DISTANCE_HALF                  2500
 #define WORLD_SIZE                          50000
-#define WORLD_GRAVITY                       1.5f
+#define WORLD_GRAVITY                       0.98f
 #define TERRAIN_GRID_SIZE                   120
 #define TERRAIN_GRID_SIZE_HALF              60
 #define TERRAIN_GRID_SIZE_QUARTER           30
-#define TERRAIN_SQUARE_SIZE                 500
-#define TERRAIN_SQUARE_SIZE_HALF            250
+#define TERRAIN_SQUARE_SIZE                 300
+#define TERRAIN_SQUARE_SIZE_HALF            150
 #define TERRAIN_CENTRE_DISTANCE             (TERRAIN_SQUARE_SIZE*TERRAIN_GRID_SIZE*0.1f)
 #define TERRAIN_STEP_SIZE                   8
 #define TERRAIN_WATER_LEVEL                 0
