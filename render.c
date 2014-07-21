@@ -47,7 +47,7 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squa
 void renderFoliage(struct model *models, struct v3f camerapos, struct v3f camerarot, struct v2f sector, float camheight)
 {
   int xgrid, zgrid, x1, z1, cull;
-  int squaresize = TERRAIN_SQUARE_SIZE * 0.8f;
+  int squaresize = TERRAIN_SQUARE_SIZE * 0.4f;
   float x, z, xpos = 0.0f, zpos = 0.0f, dist;
   struct terrain temp;
   GLubyte alpha;
@@ -67,7 +67,7 @@ void renderFoliage(struct model *models, struct v3f camerapos, struct v3f camera
       cull -= 360;
     dist = distance3d(camerapos, mv3f(xpos, -camheight, zpos));
     x1 = x1 * x1 + z1 * z1;
-    if ((((cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) && dist < VIEW_DISTANCE) || dist < TERRAIN_SQUARE_SIZE * 2) && (x1 % 3176 < 687)) {
+    if ((((cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) && dist < VIEW_DISTANCE) || dist < TERRAIN_SQUARE_SIZE * 2) && (x1 % 3176 < 187)) {
       temp = readTerrain(-xpos, -zpos);
       if (temp.height > TERRAIN_WATER_LEVEL + 50 && temp.height < 3750 && temp.type != T_TYPE_DIRT) {
         if (dist < VIEW_DISTANCE_HALF)
@@ -165,7 +165,7 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   int xshift, zshift, xgrid, zgrid, size = *squaresize * 16;
   float xpos, zpos, height = 4500.0f, scale = 0.00005f;
 
-  glMateriali(GL_FRONT, GL_SHININESS, 161);
+  glMateriali(GL_FRONT, GL_SHININESS, 111);
   glDisable(GL_CULL_FACE);
   glEnable(GL_TEXTURE_2D);
   glPushMatrix();

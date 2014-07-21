@@ -74,8 +74,8 @@ float algorithmicTerrainHeight2(float x, float z, float height)
   if (height > 3000) {
     a2 = (height - 3000) * 0.0005f;
     a2 = a2 > 2 ? 2 : a2;
-    g1 = sinf(x * 0.0061f) * 70 * a2;
-    g2 = sinf(z * 0.0063f) * 72 * a2;
+    g1 = sinf(x * 0.0061f) * 60 * a2;
+    g2 = sinf(z * 0.0063f) * 62 * a2;
     height += - fabs(g1) - fabs(g2);
   }
   else if (height < 2300) {
@@ -115,8 +115,8 @@ float algorithmicTerrainHeight3(float x, float z, float height)
   if (height > 2000) {
     a2 = (height - 2000) * 0.0005f;
     a2 = a2 > 2 ? 2 : a2;
-    g1 = sinf(x * 0.0057f) * 63 * a2;
-    g2 = sinf(z * 0.0054f) * 70 * a2;
+    g1 = sinf(x * 0.0057f) * 53 * a2;
+    g2 = sinf(z * 0.0054f) * 60 * a2;
     height += - fabs(g1) - fabs(g2);
   }
 
@@ -128,7 +128,7 @@ float algorithmicTerrainHeight(float x, float z)
 {
   float height = 0.0f, dist = 0.0f;
 
-  height = algorithmicTerrainHeight3(z*0.67, x*0.67, height) * 1.7f - 1000;
+  height = algorithmicTerrainHeight3(z*0.67, x*0.67, height) * 1.1f - 1500;
   dist = distance2d(mv3f(-102000, 0, 131200), mv3f(x, 0, z));
   if (dist < 186000) {
     dist = (186000 - dist) / 186000;
@@ -151,7 +151,7 @@ float algorithmicTerrainHeight(float x, float z)
   if (dist < 15000) {
     dist = (15000 - dist) / 10000;
     dist = dist < 0 ? 0 : dist > 1 ? 1 : dist;
-    height += (1570.0f - height) * dist;
+    height += (1070.0f - height) * dist;
   }
   height -= height < 1500 ? (height - 1500) * 0.46f : 0;
   height -= height > 8000 ? (height - 8000) * 0.61f : 0;
@@ -271,7 +271,7 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   float SWnormy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
   float SWnormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
 
-  glMateriali(GL_FRONT, GL_SHININESS, 197);
+  glMateriali(GL_FRONT, GL_SHININESS, 97);
   moveTerrain(camerapos, camerarot, sector, swapb, *squaresize);
   //selectPosition();
 

@@ -2,8 +2,8 @@
 
 #define PI                     3.14159265358979323846f
 #define PIx180                 180.0f*PI
-#define VIEW_DISTANCE                       5000
-#define VIEW_DISTANCE_HALF                  2500
+#define VIEW_DISTANCE                       4000
+#define VIEW_DISTANCE_HALF                  2000
 #define WORLD_SIZE                          50000
 #define WORLD_GRAVITY                       0.98f
 #define TERRAIN_GRID_SIZE                   120
