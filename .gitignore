@@ -1,4 +1,6 @@
 core
+data/blender
+data/wings
 terrain
 testing
 *.o

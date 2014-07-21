@@ -640,12 +640,12 @@ int main(int argc, char *argv[])
       airunits[i].type = UNIT_AIRFIGHTER;
       airunits[i].pos.x = (i - 5) * 50;
     }
-    loadFromOBJFile("data/models/tree1b.obj", &models[0]);
-    loadFromOBJFile("data/models/tree2b.obj", &models[1]);
-    loadFromOBJFile("data/models/tree3b.obj", &models[2]);
-    loadFromOBJFile("data/models/tree4b.obj", &models[3]);
-    loadFromOBJFile("data/models/mtree1b.obj", &models[4]);
-    loadFromOBJFile("data/models/stump1b.obj", &models[5]);
+    loadFromOBJFile("data/models/tree1.obj", &models[0]);
+    loadFromOBJFile("data/models/tree2.obj", &models[1]);
+    loadFromOBJFile("data/models/tree3.obj", &models[2]);
+    loadFromOBJFile("data/models/tree4.obj", &models[3]);
+    loadFromOBJFile("data/models/mtree1.obj", &models[4]);
+    loadFromOBJFile("data/models/stump1.obj", &models[5]);
     loadFromOBJFile("data/models/fighter1.obj", &models[6]);
     loadFromOBJFile("data/models/fighter2.obj", &models[7]);
     loadFromOBJFile("data/models/cube-no-normals.obj", &models[8]);
