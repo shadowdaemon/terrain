@@ -1,6 +1,5 @@
 # Blender v2.71 (sub 0) OBJ File: 'tree3.blend'
 # www.blender.org
-mtllib tree3b.mtl
 o tree3
 v 0.094098 -23.803740 1.300929
 v -1.085472 -23.803741 -0.457807
@@ -58,7 +57,6 @@ vt 0.419429 0.465317
 vt 0.621375 0.475725
 vt 0.556735 0.237527
 vt 0.520420 0.229916
-usemtl tetrahedron1_auv.001
 s off
 f 1/1 4/2 2/3
 f 3/4 1/1 2/3
