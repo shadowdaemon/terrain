@@ -97,7 +97,7 @@ void renderFoliage(struct aiScene *scene, GLuint *textures, struct v3f camerapos
           glBindTexture(GL_TEXTURE_2D, textures[1]);
         }
         else
-        drawModel((const struct aiScene *) &scene[(int)fabs(zpos) % 6], mv3f(xpos, temp.height, zpos), mv3f(0, z1, 0), 1, alpha);
+          drawModel((const struct aiScene *) &scene[(int)fabs(zpos) % 6], mv3f(xpos, temp.height, zpos), mv3f(0, z1, 0), 1, alpha);
       }
     }
     if (xgrid >= TERRAIN_GRID_SIZE - 1) {

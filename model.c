@@ -19,8 +19,8 @@ const struct aiScene *loadFromOBJFile(const char *name)
 void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfloat size, GLuint alpha)
 {
   GLuint k;
-  GLint i, j;
-  const struct aiMesh *mesh = scene->mMeshes[0];
+  GLint h, i, j;
+  struct aiMesh *mesh;
   struct aiFace *face;
 
   glPushMatrix();
@@ -30,18 +30,21 @@ void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfl
   glRotatef((GLfloat) (rot.z), 0.0f, 0.0f, 1.0f);
   glScalef(size, size, size);
   glColor4ub(125, 125, 125, alpha);
-  glTexCoordPointer(2, GL_FLOAT, 0, mesh->mTextureCoords);
-  glVertexPointer(3, GL_FLOAT, 0, mesh->mVertices);
-  glNormalPointer(GL_FLOAT, 0, mesh->mNormals);
-  glBegin(GL_TRIANGLES);
-  for (k = 0; k < mesh->mNumFaces; k++) {
-    face = &mesh->mFaces[k];
-    for (i = 0; i < face->mNumIndices; i++) {
-      j = face->mIndices[i];
-      glTexCoord2f(mesh->mTextureCoords[0][j].x, mesh->mTextureCoords[0][j].y);
-      glArrayElement(j);
+  for (h = 0; h < scene->mNumMeshes; h++) {
+    mesh = scene->mMeshes[0];
+    //glTexCoordPointer(2, GL_FLOAT, 0, mesh->mTextureCoords);
+    glVertexPointer(3, GL_FLOAT, 0, mesh->mVertices);
+    glNormalPointer(GL_FLOAT, 0, mesh->mNormals);
+    glBegin(GL_TRIANGLES);
+    for (k = 0; k < mesh->mNumFaces; k++) {
+      face = &mesh->mFaces[k];
+      for (i = 0; i < face->mNumIndices; i++) {
+        j = face->mIndices[i];
+        glTexCoord2f(mesh->mTextureCoords[0][j].x, mesh->mTextureCoords[0][j].y);
+        glArrayElement(j);
+      }
     }
+    glEnd();
   }
-  glEnd();
   glPopMatrix();
 }
