@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <FreeImage.h>
+// #include <assimp/cimport.h>
+#include <assimp/scene.h>
+// #include <assimp/vector3.h>
+// #include <assimp/postprocess.h>
 #include "maths.h"
 
 
@@ -78,8 +82,9 @@ void loadGLSL(GLchar *src, long len, const char *file)
 }
 
 
-GLFWwindow *startGraphics(GLFWwindow *window, GLuint *textures, GLuint *shaders)
+GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
 {
+  GLFWwindow *window = NULL;
   int lightpos[]  = {1, 0, 500, 0};
   int width, height;
   // float lightdir[]  = {0.0f, -1.0f, 0.0f};
@@ -153,6 +158,8 @@ GLFWwindow *startGraphics(GLFWwindow *window, GLuint *textures, GLuint *shaders)
   loadTexture2D("data/textures/cloud_alpha.tga", 'n');
   glBindTexture(GL_TEXTURE_2D, textures[3]);
   loadTexture2D("data/textures/fighter.png", 'n');
+  glBindTexture(GL_TEXTURE_2D, textures[4]);
+  loadTexture2D("data/textures/house1.tga", 'n');
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
@@ -516,7 +523,7 @@ void flyMovement(struct airunit *unit, char input)
   ground = ground > temp1 ? ground : temp1;
   temp1 = readTerrainHeight(-unit->pos.x - offset, -unit->pos.z - offset);
   ground = ground > temp1 ? ground : temp1;
-  ground += TERRAIN_SQUARE_SIZE * 0.02f;
+  //ground += TERRAIN_SQUARE_SIZE * 0.02f;
   ground = ground < TERRAIN_WATER_LEVEL + 20 ? TERRAIN_WATER_LEVEL + 20 : ground;
   temp1 = 1 - fabs(unit->pos.y - 9700) / 19000.0f;
   temp1 = temp1 < 0.0f ? 0.0f : temp1;
@@ -631,30 +638,30 @@ int main(int argc, char *argv[])
   struct v2f sector    = {0.0f, 0.0f};
   struct v3f camerarot = {0.0f, 0.0f, 0.0f};
   struct v3f camerapos = {0.0f, 0.0f, 0.0f};
-  struct model *models = malloc(sizeof(struct model) * 12);
+  struct aiScene *scene = malloc(sizeof(struct aiScene) * 12);
   struct airunit *airunits = malloc(sizeof(struct airunit) * 16);
 
-  if ((window = startGraphics(window, textures, shaders)) != NULL) {
+  if ((window = startGraphics(textures, shaders)) != NULL) {
     glfwSwapBuffers(window);
     for (i = 0; i < 15; i++) {
       airunits[i].type = UNIT_AIRFIGHTER;
       airunits[i].pos.x = (i - 5) * 50;
     }
-    loadFromOBJFile("data/models/tree1.obj", &models[0]);
-    loadFromOBJFile("data/models/tree2.obj", &models[1]);
-    loadFromOBJFile("data/models/tree3.obj", &models[2]);
-    loadFromOBJFile("data/models/tree4.obj", &models[3]);
-    loadFromOBJFile("data/models/mtree1.obj", &models[4]);
-    loadFromOBJFile("data/models/stump1.obj", &models[5]);
-    loadFromOBJFile("data/models/fighter1.obj", &models[6]);
-    loadFromOBJFile("data/models/fighter2.obj", &models[7]);
-    loadFromOBJFile("data/models/cube-no-normals.obj", &models[8]);
+    scene[0] = *loadFromOBJFile("data/models/tree1.obj");
+    scene[1] = *loadFromOBJFile("data/models/tree2.obj");
+    scene[2] = *loadFromOBJFile("data/models/tree3.obj");
+    scene[3] = *loadFromOBJFile("data/models/tree4.obj");
+    scene[4] = *loadFromOBJFile("data/models/mtree1.obj");
+    scene[5] = *loadFromOBJFile("data/models/stump1.obj");
+    scene[6] = *loadFromOBJFile("data/models/fighter1.obj");
+    scene[7] = *loadFromOBJFile("data/models/fighter2.obj");
+    scene[8] = *loadFromOBJFile("data/models/house1.obj");
     while (!glfwWindowShouldClose(window)) {
       camheight = cameraHeight(camerapos);
       keyboardInput(window, &direction);
       //mouseLook(window, &camerarot);
       mouseLook(window, &airunits[0].rot);
-      render(window, models, textures, shaders, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend, airunits);
+      render(window, scene, textures, shaders, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend, airunits);
       //movement(&camerapos, camerarot, direction, 100);
       flyMovement(&airunits[0], direction);
       updateAirPositions(airunits);
@@ -662,7 +669,7 @@ int main(int argc, char *argv[])
       updateCamera(camerarot);
       glTranslatef(camerapos.x, camerapos.y, camerapos.z);
     }
-    free(models);
+    free(scene);
     glfwDestroyWindow(window);
     glfwTerminate();
     return EXIT_SUCCESS;
