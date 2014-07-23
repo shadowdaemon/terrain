@@ -363,87 +363,87 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
       switch (temp2.type) {
       case T_TYPE_GRASS1:
         x2 = ((1000 - SEy[xgrid][zgrid]) / 900.0f) * 70.0f;
-        SEcolorR[xgrid][zgrid] = 30 + x2;
-        SEcolorG[xgrid][zgrid] = 98;
-        SEcolorB[xgrid][zgrid] = 5;
+        SEcolorR[xgrid][zgrid] = 40 + x2;
+        SEcolorG[xgrid][zgrid] = 108;
+        SEcolorB[xgrid][zgrid] = 15;
         break;
       case T_TYPE_GRASS2:
         z1 = ((2000 - SEy[xgrid][zgrid]) / 1000.0f) * 25.0f;
-        SEcolorR[xgrid][zgrid] = 55 - z1;
-        SEcolorG[xgrid][zgrid] = 90;
-        SEcolorB[xgrid][zgrid] = 5;
+        SEcolorR[xgrid][zgrid] = 65 - z1;
+        SEcolorG[xgrid][zgrid] = 100;
+        SEcolorB[xgrid][zgrid] = 15;
         break;
       case T_TYPE_GRASS3:
         x1 = ((5000 - SEy[xgrid][zgrid]) / 3000.0f) * 45.0f;
-        SEcolorR[xgrid][zgrid] = 93 - x1;
-        SEcolorG[xgrid][zgrid] = 90;
+        SEcolorR[xgrid][zgrid] = 103 - x1;
+        SEcolorG[xgrid][zgrid] = 100;
         z1 = ((5000 - SEy[xgrid][zgrid]) / 3000.0f) * 37.0f;
-        SEcolorB[xgrid][zgrid] = 42 - z1;
+        SEcolorB[xgrid][zgrid] = 52 - z1;
         break;
       case T_TYPE_ROCK:
         x1 = SEy[xgrid][zgrid] < TERRAIN_WATER_LEVEL ? SEy[xgrid][zgrid] * 0.041f : 0;
         x1 = x1 < -77 ? -77 : x1;
-        SEcolorR[xgrid][zgrid] = 91 + x1;
-        SEcolorG[xgrid][zgrid] = 96 + x1;
-        SEcolorB[xgrid][zgrid] = 78 + x1;
+        SEcolorR[xgrid][zgrid] = 101 + x1;
+        SEcolorG[xgrid][zgrid] = 106 + x1;
+        SEcolorB[xgrid][zgrid] = 88 + x1;
         break;
       case T_TYPE_DIRT:
-        SEcolorR[xgrid][zgrid] = 101;
-        SEcolorG[xgrid][zgrid] = 98;
-        SEcolorB[xgrid][zgrid] = 53;
+        SEcolorR[xgrid][zgrid] = 111;
+        SEcolorG[xgrid][zgrid] = 108;
+        SEcolorB[xgrid][zgrid] = 63;
         break;
       case T_TYPE_CRATER:
-        SEcolorR[xgrid][zgrid] = 53;
-        SEcolorG[xgrid][zgrid] = 56;
-        SEcolorB[xgrid][zgrid] = 33;
+        SEcolorR[xgrid][zgrid] = 63;
+        SEcolorG[xgrid][zgrid] = 66;
+        SEcolorB[xgrid][zgrid] = 43;
         break;
       default:
-        SEcolorR[xgrid][zgrid] = 83;
-        SEcolorG[xgrid][zgrid] = 77;
-        SEcolorB[xgrid][zgrid] = 45;
+        SEcolorR[xgrid][zgrid] = 93;
+        SEcolorG[xgrid][zgrid] = 87;
+        SEcolorB[xgrid][zgrid] = 55;
         break;
       }
       switch (temp1.type) {
       case T_TYPE_GRASS1:
         x2 = ((1000 - NEy[xgrid][zgrid]) / 900.0f) * 70.0f;
-        NEcolorR[xgrid][zgrid] = 30 + x2;
-        NEcolorG[xgrid][zgrid] = 98;
-        NEcolorB[xgrid][zgrid] = 5;
+        NEcolorR[xgrid][zgrid] = 40 + x2;
+        NEcolorG[xgrid][zgrid] = 108;
+        NEcolorB[xgrid][zgrid] = 15;
         break;
       case T_TYPE_GRASS2:
         z1 = ((2000 - NEy[xgrid][zgrid]) / 1000.0f) * 25.0f;
-        NEcolorR[xgrid][zgrid] = 55 - z1;
-        NEcolorG[xgrid][zgrid] = 90;
-        NEcolorB[xgrid][zgrid] = 5;
+        NEcolorR[xgrid][zgrid] = 65 - z1;
+        NEcolorG[xgrid][zgrid] = 100;
+        NEcolorB[xgrid][zgrid] = 15;
         break;
       case T_TYPE_GRASS3:
         x1 = ((5000 - NEy[xgrid][zgrid]) / 3000.0f) * 45.0f;
-        NEcolorR[xgrid][zgrid] = 93 - x1;
-        NEcolorG[xgrid][zgrid] = 90;
+        NEcolorR[xgrid][zgrid] = 103 - x1;
+        NEcolorG[xgrid][zgrid] = 100;
         z1 = ((5000 - NEy[xgrid][zgrid]) / 3000.0f) * 37.0f;
-        NEcolorB[xgrid][zgrid] = 42 - z1;
+        NEcolorB[xgrid][zgrid] = 52 - z1;
         break;
       case T_TYPE_ROCK:
         x1 = NEy[xgrid][zgrid] < TERRAIN_WATER_LEVEL ? NEy[xgrid][zgrid] * 0.041f : 0;
         x1 = x1 < -77 ? -77 : x1;
-        NEcolorR[xgrid][zgrid] = 91 + x1;
-        NEcolorG[xgrid][zgrid] = 96 + x1;
-        NEcolorB[xgrid][zgrid] = 78 + x1;
+        NEcolorR[xgrid][zgrid] = 101 + x1;
+        NEcolorG[xgrid][zgrid] = 106 + x1;
+        NEcolorB[xgrid][zgrid] = 88 + x1;
         break;
       case T_TYPE_DIRT:
-        NEcolorR[xgrid][zgrid] = 93;
-        NEcolorG[xgrid][zgrid] = 101;
-        NEcolorB[xgrid][zgrid] = 53;
+        NEcolorR[xgrid][zgrid] = 103;
+        NEcolorG[xgrid][zgrid] = 111;
+        NEcolorB[xgrid][zgrid] = 63;
         break;
       case T_TYPE_CRATER:
-        NEcolorR[xgrid][zgrid] = 53;
-        NEcolorG[xgrid][zgrid] = 56;
-        NEcolorB[xgrid][zgrid] = 33;
+        NEcolorR[xgrid][zgrid] = 63;
+        NEcolorG[xgrid][zgrid] = 66;
+        NEcolorB[xgrid][zgrid] = 43;
         break;
       default:
-        NEcolorR[xgrid][zgrid] = 83;
-        NEcolorG[xgrid][zgrid] = 77;
-        NEcolorB[xgrid][zgrid] = 45;
+        NEcolorR[xgrid][zgrid] = 93;
+        NEcolorG[xgrid][zgrid] = 87;
+        NEcolorB[xgrid][zgrid] = 55;
         break;
       }
       //  calcnormal for top segment
