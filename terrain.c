@@ -293,8 +293,8 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
     *swapb = 0;
   }
   // *squaresize = TERRAIN_SQUARE_SIZE;
-  x = (int) (sector->x / -(*squaresize));
-  z = (int) (sector->y / -(*squaresize));
+  x = (int) (sector->x / (*squaresize));
+  z = (int) (sector->y / (*squaresize));
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
   //glScalef(0.05f, 0.05f, 0.05f);
@@ -305,7 +305,7 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
       z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) - 20; z3 = z3 < 0 ? 0 : (z3 + 20) * 8;
       xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) * (x3 + *squaresize) + x * *squaresize;
       zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) * (z3 + *squaresize) + z * *squaresize;
-      dist = distance2d(camerapos, mv3f(-xpos, 0.0f, -zpos));
+      dist = distance2d(camerapos, mv3f(xpos, 0.0f, zpos));
       if (xgrid > TERRAIN_GRID_SIZE_HALF + 19) {
         x1 = xpos + x3 - 3040.0f + *squaresize / 2;
         x2 = xpos - x3 - 3040.0f - *squaresize / 2;
@@ -336,13 +336,13 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
       z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) * 8;
       xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) * (x3 + *squaresize) + x * *squaresize;
       zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) * (z3 + *squaresize) + z * *squaresize;
-      dist = distance2d(camerapos, mv3f(-xpos, 0.0f, -zpos));
+      dist = distance2d(camerapos, mv3f(xpos, 0.0f, zpos));
       x1 = xpos + x3 + *squaresize / 2;
       x2 = xpos - x3 - *squaresize / 2;
       z1 = zpos + z3 + *squaresize / 2;
       z2 = zpos - z3 - *squaresize / 2;
     }
-    cull = fabs((int) (camerarot.y - vectorstodegree2d(camerapos, mv3f(-xpos, 0, -zpos))));
+    cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
     while (cull >= 360)
       cull -= 360;
     if (camerarot.x > 27.0f || cull <= 75 || cull >= 285 || dist < *squaresize * 3.5f) {

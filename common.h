@@ -11,7 +11,7 @@
 #define TERRAIN_GRID_SIZE_QUARTER           30
 #define TERRAIN_SQUARE_SIZE                 300
 #define TERRAIN_SQUARE_SIZE_HALF            150
-#define TERRAIN_CENTRE_DISTANCE             (TERRAIN_SQUARE_SIZE*TERRAIN_GRID_SIZE*0.1f)
+// #define TERRAIN_CENTRE_DISTANCE             (TERRAIN_SQUARE_SIZE*TERRAIN_GRID_SIZE*0.1f)
 #define TERRAIN_STEP_SIZE                   8
 #define TERRAIN_WATER_LEVEL                 0
 #define T_TYPE_CRATER                       2

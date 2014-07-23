@@ -63,14 +63,14 @@ void renderFoliage(struct aiScene *scene, GLuint *textures, struct v3f camerapos
     z1 = (int) zpos % 153;
     xpos += z1;
     zpos += x1;
-    cull = fabs((int) (camerarot.y - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
+    cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
     while (cull >= 360)
       cull -= 360;
-    dist = distance3d(camerapos, mv3f(xpos, -camheight, zpos));
+    dist = distance3d(camerapos, mv3f(xpos, camheight, zpos));
     x1 = x1 * x1 + z1 * z1;
     x1 = x1 % 3176;
     if ((((cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) && dist < VIEW_DISTANCE) || dist < TERRAIN_SQUARE_SIZE * 10) && (x1 < 187)) {
-      temp = readTerrain(-xpos, -zpos);
+      temp = readTerrain(xpos, zpos);
       if (temp.height > TERRAIN_WATER_LEVEL + 50 && temp.height < 3750 && temp.type != T_TYPE_DIRT) {
         if (dist < VIEW_DISTANCE_HALF)
           alpha = 255;
@@ -82,15 +82,15 @@ void renderFoliage(struct aiScene *scene, GLuint *textures, struct v3f camerapos
         x1 = x1 % 150 + 50;
         xpos += x1 * 1.6f;
         zpos -= x1 * 0.8f;
-        temp = readTerrain(-xpos, -zpos);
+        temp = readTerrain(xpos, zpos);
         drawModel((const struct aiScene *) &scene[2], mv3f(xpos, temp.height, zpos), mv3f(0, z1, 0), 1, alpha);
         xpos -= x1 * 0.7f;
         zpos += x1 * 1.5f;
-        temp = readTerrain(-xpos, -zpos);
+        temp = readTerrain(xpos, zpos);
         drawModel((const struct aiScene *) &scene[x1 % 4 + 1], mv3f(xpos, temp.height, zpos), mv3f(0, x1, 0), 1, alpha);
         xpos += x1 * 1.1f;
         zpos -= x1 * 1.9f;
-        temp = readTerrain(-xpos, -zpos);
+        temp = readTerrain(xpos, zpos);
         if ((int)fabs(zpos) % 6 < 2) {
           glBindTexture(GL_TEXTURE_2D, textures[4]);
           drawModel((const struct aiScene *) &scene[8], mv3f(xpos, temp.height, zpos), mv3f(0, z1, 0), 2, alpha);
@@ -113,8 +113,8 @@ void renderSky(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, float
   glPushMatrix();
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_FOG);
-  glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
-  glRotatef((GLfloat) (-camerarot.y), 0.0f, 1.0f, 0.0f);
+  glTranslatef(camerapos.x, camerapos.y, camerapos.z);
+  glRotatef(-camerarot.y, 0.0f, 1.0f, 0.0f);
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_LIGHTING);
   glBegin(GL_QUADS);
@@ -143,8 +143,8 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   glDisable(GL_CULL_FACE);
   glDisable(GL_TEXTURE_2D);
   glPushMatrix();
-  glTranslatef(-camerapos.x, 0.0f, -camerapos.z);
-  glRotatef((GLfloat) (-camerarot.y), 0.0f, 1.0f, 0.0f);
+  glTranslatef(camerapos.x, 0.0f, camerapos.z);
+  glRotatef(-camerarot.y, 0.0f, 1.0f, 0.0f);
   glBegin(GL_QUADS);
   glColor4ub(32, 112, 255, 110);
   glNormal3i(0, -1, 0);
@@ -178,10 +178,10 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   glDisable(GL_CULL_FACE);
   glEnable(GL_TEXTURE_2D);
   glPushMatrix();
-  glTranslatef(-camerapos.x, 0.0f, -camerapos.z);
+  glTranslatef(camerapos.x, 0.0f, camerapos.z);
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
-  glTranslatef(-camerapos.x*scale, 0.0f, -camerapos.z*scale);
+  glTranslatef(camerapos.x*scale, 0.0f, camerapos.z*scale);
   glScalef(scale, scale, scale);
   glBegin(GL_QUADS);
   glColor4ub(128, 128, 128, 60);
@@ -269,9 +269,9 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   //glUseProgramARB(0);
   //glDisable(GL_TEXTURE_2D);
   //glShadeModel(GL_FLAT);
-  drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, 180 - airunits[0].rot.y, airunits[0].rot.z), 1, 255);  
+  drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 1, 255);  
   for (i = 1; i < 15; i++)
-    drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, 180 - airunits[i].rot.y, airunits[i].rot.z), 1, 255);  
+    drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 1, 255);  
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);

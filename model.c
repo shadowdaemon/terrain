@@ -24,10 +24,10 @@ void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfl
   struct aiFace *face;
 
   glPushMatrix();
-  glTranslatef((GLfloat) -pos.x, (GLfloat) pos.y, (GLfloat) -pos.z);
-  glRotatef((GLfloat) (rot.y), 0.0f, 1.0f, 0.0f);
-  glRotatef((GLfloat) (rot.x), 1.0f, 0.0f, 0.0f);
-  glRotatef((GLfloat) (rot.z), 0.0f, 0.0f, 1.0f);
+  glTranslatef(pos.x, pos.y, pos.z);
+  glRotatef(rot.y, 0.0f, 1.0f, 0.0f);
+  glRotatef(rot.x, 1.0f, 0.0f, 0.0f);
+  glRotatef(rot.z, 0.0f, 0.0f, 1.0f);
   glScalef(size, size, size);
   glColor4ub(125, 125, 125, alpha);
   for (h = 0; h < scene->mNumMeshes; h++) {

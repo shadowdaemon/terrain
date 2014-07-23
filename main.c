@@ -323,9 +323,9 @@ float cameraHeight(struct v3f camerapos)
   static float height;
   float ground;
 
-  ground = fabs((int) (-camerapos.y - readTerrainHeight(-camerapos.x, -camerapos.z)));
+  ground = fabs((int) (camerapos.y - readTerrainHeight(camerapos.x, camerapos.z)));
   ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
-  height -= (height - ground) * 0.11f;
+  height += (ground - height) * 0.11f;
 
   return height;
 }
@@ -337,25 +337,25 @@ void cameraTrailMovement(struct v3f *camerapos, struct v3f *camerarot, struct v3
   float temp = 0.0f, ground = 0.0f;
   const int offset = TERRAIN_SQUARE_SIZE / 4;
 
-  degreestovector3d(&temppos, modelrot, mv3f(0, 180, 0), 30);
+  degreestovector3d(&temppos, modelrot, mv3f(0, 180, 0), 130);
   camerapos->x += (temppos.x - camerapos->x) * 0.27f;
-  camerapos->y += (-temppos.y - camerapos->y) * 0.27f;
+  camerapos->y += (temppos.y - camerapos->y) * 0.27f;
   camerapos->z += (temppos.z - camerapos->z) * 0.27f;
   camerarot->x = modelrot.x;
   //camerarot->y = vectorstodegree2d(mv3f(modelpos.x, 0, modelpos.z), *camerapos) - 180;
-  camerarot->y = vectorstodegree2d(modelpos, *camerapos) - 180;
-  ground = -readTerrainHeight(-camerapos->x, -camerapos->z);
-  temp = -readTerrainHeight(-camerapos->x + offset, -camerapos->z + offset);
-  ground = ground < temp ? ground : temp;
-  temp = -readTerrainHeight(-camerapos->x + offset, -camerapos->z - offset);
-  ground = ground < temp ? ground : temp;
-  temp = -readTerrainHeight(-camerapos->x - offset, -camerapos->z + offset);
-  ground = ground < temp ? ground : temp;
-  temp = -readTerrainHeight(-camerapos->x - offset, -camerapos->z - offset);
-  ground = ground < temp ? ground : temp;
-  ground += -TERRAIN_SQUARE_SIZE * 0.07f;
-  ground = ground > TERRAIN_WATER_LEVEL - 70 ? TERRAIN_WATER_LEVEL - 70 : ground;
-  camerapos->y = camerapos->y > ground ? ground : camerapos->y;
+  camerarot->y = vectorstodegree2d(modelpos, *camerapos);
+  ground = readTerrainHeight(camerapos->x, camerapos->z);
+  temp = readTerrainHeight(camerapos->x + offset, camerapos->z + offset);
+  ground = ground > temp ? ground : temp;
+  temp = readTerrainHeight(camerapos->x + offset, camerapos->z - offset);
+  ground = ground > temp ? ground : temp;
+  temp = readTerrainHeight(camerapos->x - offset, camerapos->z + offset);
+  ground = ground > temp ? ground : temp;
+  temp = readTerrainHeight(camerapos->x - offset, camerapos->z - offset);
+  ground = ground > temp ? ground : temp;
+  ground += TERRAIN_SQUARE_SIZE * 0.07f;
+  ground = ground < TERRAIN_WATER_LEVEL + 10 ? TERRAIN_WATER_LEVEL + 10 : ground;
+  camerapos->y = camerapos->y < ground ? ground : camerapos->y;
 }
 
 
@@ -455,18 +455,18 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
     break;
   default: break;
   }
-  ground = -readTerrainHeight(-camerapos->x, -camerapos->z);
-  temp = -readTerrainHeight(-camerapos->x + offset, -camerapos->z + offset);
-  ground = ground < temp ? ground : temp;
-  temp = -readTerrainHeight(-camerapos->x + offset, -camerapos->z - offset);
-  ground = ground < temp ? ground : temp;
-  temp = -readTerrainHeight(-camerapos->x - offset, -camerapos->z + offset);
-  ground = ground < temp ? ground : temp;
-  temp = -readTerrainHeight(-camerapos->x - offset, -camerapos->z - offset);
-  ground = ground < temp ? ground : temp;
-  ground += -TERRAIN_SQUARE_SIZE * 0.02f;
-  ground = ground > TERRAIN_WATER_LEVEL - 70 ? TERRAIN_WATER_LEVEL - 70 : ground;
-  //camerapos->y = camerapos->y > ground ? ground : camerapos->y;
+  ground = readTerrainHeight(camerapos->x, camerapos->z);
+  temp = readTerrainHeight(camerapos->x + offset, camerapos->z + offset);
+  ground = ground > temp ? ground : temp;
+  temp = readTerrainHeight(camerapos->x + offset, camerapos->z - offset);
+  ground = ground > temp ? ground : temp;
+  temp = readTerrainHeight(camerapos->x - offset, camerapos->z + offset);
+  ground = ground > temp ? ground : temp;
+  temp = readTerrainHeight(camerapos->x - offset, camerapos->z - offset);
+  ground = ground > temp ? ground : temp;
+  ground += TERRAIN_SQUARE_SIZE * 0.02f;
+  ground = ground < TERRAIN_WATER_LEVEL + 10 ? TERRAIN_WATER_LEVEL + 70 : ground;
+  //camerapos->y = camerapos->y < ground ? ground : camerapos->y;
   camerapos->y = ground;
 }
 
@@ -514,14 +514,14 @@ void flyMovement(struct airunit *unit, char input)
     drag = 0.002f;
     lift = 0.017f;
   }
-  ground = readTerrainHeight(-unit->pos.x, -unit->pos.z);
-  temp1 = readTerrainHeight(-unit->pos.x + offset, -unit->pos.z + offset);
+  ground = readTerrainHeight(unit->pos.x, unit->pos.z);
+  temp1 = readTerrainHeight(unit->pos.x + offset, unit->pos.z + offset);
   ground = ground > temp1 ? ground : temp1;
-  temp1 = readTerrainHeight(-unit->pos.x + offset, -unit->pos.z - offset);
+  temp1 = readTerrainHeight(unit->pos.x + offset, unit->pos.z - offset);
   ground = ground > temp1 ? ground : temp1;
-  temp1 = readTerrainHeight(-unit->pos.x - offset, -unit->pos.z + offset);
+  temp1 = readTerrainHeight(unit->pos.x - offset, unit->pos.z + offset);
   ground = ground > temp1 ? ground : temp1;
-  temp1 = readTerrainHeight(-unit->pos.x - offset, -unit->pos.z - offset);
+  temp1 = readTerrainHeight(unit->pos.x - offset, unit->pos.z - offset);
   ground = ground > temp1 ? ground : temp1;
   //ground += TERRAIN_SQUARE_SIZE * 0.02f;
   ground = ground < TERRAIN_WATER_LEVEL + 20 ? TERRAIN_WATER_LEVEL + 20 : ground;
@@ -667,7 +667,7 @@ int main(int argc, char *argv[])
       updateAirPositions(airunits);
       cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot);
       updateCamera(camerarot);
-      glTranslatef(camerapos.x, camerapos.y, camerapos.z);
+      glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
     }
     free(scene);
     glfwDestroyWindow(window);
