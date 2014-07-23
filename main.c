@@ -323,9 +323,9 @@ float cameraHeight(struct v3f camerapos)
   static float height;
   float ground;
 
-  ground = fabs((int) (camerapos.y - readTerrainHeight(camerapos.x, camerapos.z)));
+  ground = readTerrainHeight(camerapos.x, camerapos.z);
   ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
-  height += (ground - height) * 0.11f;
+  height = ground;
 
   return height;
 }
