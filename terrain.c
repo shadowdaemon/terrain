@@ -128,6 +128,7 @@ float algorithmicTerrainHeight(float x, float z)
 {
   float height = 0.0f, dist = 0.0f;
 
+  //height = algorithmicTerrainHeight1(z, x, height);
   height = algorithmicTerrainHeight3(z*0.67, x*0.67, height) * 1.1f - 1500;
   dist = distance2d(mv3f(-102000, 0, 131200), mv3f(x, 0, z));
   if (dist < 186000) {
@@ -194,6 +195,27 @@ struct terrain readTerrain(float x, float z)
   struct terrain temp;
 
   temp.height = algorithmicTerrainHeight(x, z);
+  temp.diff = 0;
+  temp.type = calculateTerrainType(temp.height);
+
+  return temp;
+}
+
+
+struct terrain readTerrainB(float x, float z)
+{
+  struct terrain temp;
+  float h1, h2, h3, h4;
+  const int offset = TERRAIN_SQUARE_SIZE / 4;
+
+  h1 = algorithmicTerrainHeight(x + offset, z + offset);
+  h2 = algorithmicTerrainHeight(x + offset, z - offset);
+  h3 = algorithmicTerrainHeight(x - offset, z + offset);
+  h4 = algorithmicTerrainHeight(x - offset, z - offset);
+  temp.height = algorithmicTerrainHeight(x, z);
+  temp.diff = fabs(temp.height - h1) + fabs(temp.height - h2) + fabs(temp.height - h3) + fabs(temp.height - h4);
+  if (temp.height > h1 && temp.height > h2 && temp.height > 3 && temp.height > h4)
+    temp.diff += 1000.0f;
   temp.type = calculateTerrainType(temp.height);
 
   return temp;
@@ -277,7 +299,7 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
 
   // scaling terrain
   for (alt = 0; alt < 25000; alt++) {
-    if (camheight < TERRAIN_SQUARE_SIZE * 3) {
+    if (camheight < TERRAIN_SQUARE_SIZE * altstep) {
       *squaresize = TERRAIN_SQUARE_SIZE;
       break;
     }
