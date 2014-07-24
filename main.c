@@ -428,30 +428,30 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
 
   switch (direction) {
   case INPUT_UP:
-    degreestovector3d(camerapos, camerarot, mv3f(0.0f, 0.0f, 0.0f), speed);
+    degreestovector3d(camerapos, camerarot, mv3f(0.0f, 0.0f, 0.0f), -speed);
     break;
   case INPUT_DOWN:
-    degreestovector3d(camerapos, camerarot, mv3f(0.0f, 0.0f, 0.0f), -speed);
+    degreestovector3d(camerapos, camerarot, mv3f(0.0f, 0.0f, 0.0f), speed);
     break;
   case INPUT_LEFT:
     degreestovector3d(camerapos, mv3f(0.0f, camerarot.y, 0.0f),
-                                   mv3f(0.0f, 270.0f, 0.0f), speed);
+                                   mv3f(0.0f, 90.0f, 0.0f), speed);
     break;
   case INPUT_RIGHT:
     degreestovector3d(camerapos, mv3f(0.0f, camerarot.y, 0.0f),
-                                   mv3f(0.0f, 90.0f, 0.0f), speed);
+                                   mv3f(0.0f, 270.0f, 0.0f), speed);
     break;
   case INPUT_UP_RIGHT:
-    degreestovector3d(camerapos, camerarot, mv3f(0.0f, 45.0f, 0.0f), speed);
+    degreestovector3d(camerapos, camerarot, mv3f(0.0f, 45.0f, 0.0f), -speed);
     break;
   case INPUT_UP_LEFT:
-    degreestovector3d(camerapos, camerarot, mv3f(0.0f, -45.0f, 0.0f), speed);
-    break;
-  case INPUT_DOWN_RIGHT:
     degreestovector3d(camerapos, camerarot, mv3f(0.0f, -45.0f, 0.0f), -speed);
     break;
+  case INPUT_DOWN_RIGHT:
+    degreestovector3d(camerapos, camerarot, mv3f(0.0f, -45.0f, 0.0f), speed);
+    break;
   case INPUT_DOWN_LEFT:
-    degreestovector3d(camerapos, camerarot, mv3f(0.0f, 45.0f, 0.0f), -speed);
+    degreestovector3d(camerapos, camerarot, mv3f(0.0f, 45.0f, 0.0f), speed);
     break;
   default: break;
   }
@@ -582,7 +582,12 @@ void updateAirPositions(struct airunit *airunits)
   float dist;
 
   for (i = 1; i < 15; i++) {
-    dist = distance2d(airunits[i].pos, airunits[i-1].pos);
+    airunits[i].rot.y += 3 + i * 0.1f;
+    if (airunits[i].height < 100)
+      flyMovement(&airunits[i], INPUT_SPACE);
+    else
+      flyMovement(&airunits[i], INPUT_UP);
+    /*dist = distance2d(airunits[i].pos, airunits[i-1].pos);
     if (airunits[i].height < 1200) {
       airunits[i].rot.y += (vectorstodegree2d(airunits[i].pos, airunits[i-1].pos) - airunits[i].rot.y) * 0.05f;
       if (dist < 1200) {
@@ -623,7 +628,7 @@ void updateAirPositions(struct airunit *airunits)
         flyMovement(&airunits[i], INPUT_UP);
       else
         flyMovement(&airunits[i], INPUT_DOWN);
-    }
+        }*/
   }
 }
 
@@ -659,13 +664,13 @@ int main(int argc, char *argv[])
     while (!glfwWindowShouldClose(window)) {
       camheight = cameraHeight(camerapos);
       keyboardInput(window, &direction);
-      //mouseLook(window, &camerarot);
-      mouseLook(window, &airunits[0].rot);
+      mouseLook(window, &camerarot);
+      //mouseLook(window, &airunits[0].rot);
       render(window, scene, textures, shaders, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend, airunits);
-      //movement(&camerapos, camerarot, direction, 100);
-      flyMovement(&airunits[0], direction);
-      updateAirPositions(airunits);
-      cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot);
+      movement(&camerapos, camerarot, direction, 7);
+      //flyMovement(&airunits[0], direction);
+      //updateAirPositions(airunits);
+      //cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot);
       updateCamera(camerarot);
       glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
     }
