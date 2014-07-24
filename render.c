@@ -120,16 +120,28 @@ void renderSky(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, float
   glDisable(GL_LIGHTING);
   glBegin(GL_QUADS);
   glColor3fv(clear);
-  glVertex3f(250000.0f, 3000.0f, 250000.0f);
-  glVertex3f(-250000.0f, 3000.0f, 250000.0f);
+  glVertex3f(50000.0f, 3000.0f, 50000.0f);
+  glVertex3f(-50000.0f, 3000.0f, 50000.0f);
   glColor3ub(117, 132, 215);
-  glVertex3f(-250000.0f, 3000.0f, -fogend);
-  glVertex3f(250000.0f, 3000.0f, -fogend);
-  glVertex3f(250000.0f, 3000.0f, -fogend);
-  glVertex3f(-250000.0f, 3000.0f, -fogend);
+  glVertex3f(-50000.0f, 3000.0f, -fogend);
+  glVertex3f(50000.0f, 3000.0f, -fogend);
+  glVertex3f(50000.0f, 3000.0f, -fogend);
+  glVertex3f(-50000.0f, 3000.0f, -fogend);
   glColor3fv(clear);
-  glVertex3f(-250000.0f, -5000.0f, -fogend);
-  glVertex3f(250000.0f, -5000.0f, -fogend);
+  glVertex3f(-50000.0f, -5000.0f, -fogend);
+  glVertex3f(50000.0f, -5000.0f, -fogend);
+  glEnd();
+  glBegin(GL_TRIANGLES);
+  glColor3ub(117, 132, 215);
+  glVertex3f(7000.0f, 3000.0f, 50000.0f);
+  glVertex3f(7000.0f, 3000.0f, -fogend);
+  glColor3fv(clear);
+  glVertex3f(7000.0f, -5000.0f, -fogend);
+  glColor3ub(117, 132, 215);
+  glVertex3f(-7000.0f, 3000.0f, -fogend);
+  glVertex3f(-7000.0f, 3000.0f, 50000.0f);
+  glColor3fv(clear);
+  glVertex3f(-7000.0f, -5000.0f, -fogend);
   glEnd();
   glPopMatrix();
 }
@@ -172,8 +184,9 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize)
 
 void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
 {
-  int xshift, zshift, xgrid, zgrid, size = *squaresize * 16;
-  float xpos, zpos, height = 4500.0f, scale = 0.00005f;
+  int xpos, zpos, xshift, zshift, xgrid, zgrid, size = *squaresize * 16;
+  const int height = 4500;
+  float dist, scale = 0.00005f;
 
   glMateriali(GL_FRONT, GL_SHININESS, 111);
   glDisable(GL_CULL_FACE);
@@ -185,7 +198,7 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   glTranslatef(camerapos.x*scale, 0.0f, camerapos.z*scale);
   glScalef(scale, scale, scale);
   glBegin(GL_QUADS);
-  glColor4ub(128, 128, 128, 60);
+  glColor4ub(128, 128, 128, 120);
   glNormal3i(0, -1, 0);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE_HALF && zgrid < TERRAIN_GRID_SIZE_HALF; xgrid++) {
     xshift = zshift = size;
@@ -193,13 +206,17 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
     zpos = (-TERRAIN_GRID_SIZE_QUARTER + zgrid) * zshift;
     xshift = zshift = size / 2;
     glTexCoord2i(xpos + xshift, zpos + zshift);
-    glVertex3f(xpos + xshift, height, zpos + zshift);
+    dist = distance2d(camerapos, mv3f(xpos + xshift, 0.0f, zpos + zshift));
+    glVertex3i(xpos + xshift, height - dist * 0.3f, zpos + zshift);
     glTexCoord2i(xpos - xshift, zpos + zshift);
-    glVertex3f(xpos - xshift, height, zpos + zshift);
+    dist = distance2d(camerapos, mv3f(xpos - xshift, 0.0f, zpos + zshift));
+    glVertex3i(xpos - xshift, height - dist * 0.3f, zpos + zshift);
     glTexCoord2i(xpos - xshift, zpos - zshift);
-    glVertex3f(xpos - xshift, height, zpos - zshift);
+    dist = distance2d(camerapos, mv3f(xpos - xshift, 0.0f, zpos - zshift));
+    glVertex3i(xpos - xshift, height - dist * 0.3f, zpos - zshift);
     glTexCoord2i(xpos + xshift, zpos - zshift);
-    glVertex3f(xpos + xshift, height, zpos - zshift);
+    dist = distance2d(camerapos, mv3f(xpos + xshift, 0.0f, zpos - zshift));
+    glVertex3i(xpos + xshift, height - dist * 0.3f, zpos - zshift);
     if (xgrid >= TERRAIN_GRID_SIZE_HALF - 1) {
       zgrid++;
       xgrid = -1;
@@ -209,7 +226,6 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
-  //glEnable(GL_TEXTURE_2D);
   glEnable(GL_CULL_FACE);
 }
 
@@ -270,9 +286,9 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   //glUseProgramARB(0);
   //glDisable(GL_TEXTURE_2D);
   //glShadeModel(GL_FLAT);
-  drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 1, 255);  
-  for (i = 1; i < 15; i++)
-    drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 1, 255);  
+  //drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 1, 255);  
+  //for (i = 1; i < 15; i++)
+  //drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 1, 255);  
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
