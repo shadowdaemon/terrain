@@ -202,21 +202,29 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   glNormal3i(0, -1, 0);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE_HALF && zgrid < TERRAIN_GRID_SIZE_HALF; xgrid++) {
     xshift = zshift = size;
-    xpos = (-TERRAIN_GRID_SIZE_QUARTER + xgrid) * xshift;
-    zpos = (-TERRAIN_GRID_SIZE_QUARTER + zgrid) * zshift;
+    xpos = (xgrid - TERRAIN_GRID_SIZE_QUARTER) * xshift;
+    zpos = (zgrid - TERRAIN_GRID_SIZE_QUARTER) * zshift;
     xshift = zshift = size / 2;
-    glTexCoord2i(xpos + xshift, zpos + zshift);
-    dist = distance2d(camerapos, mv3f(xpos + xshift, 0.0f, zpos + zshift));
-    glVertex3i(xpos + xshift, height - dist * 0.3f, zpos + zshift);
+    /*glTexCoord2i(xpos + xshift, zpos + zshift);
+    dist = distance2d(mv3f(0, 0, 0), mv3f(xpos + xshift, 0.0f, zpos + zshift));
+    glVertex3i(xpos + xshift, height - dist * 0.1f, zpos + zshift);
     glTexCoord2i(xpos - xshift, zpos + zshift);
-    dist = distance2d(camerapos, mv3f(xpos - xshift, 0.0f, zpos + zshift));
-    glVertex3i(xpos - xshift, height - dist * 0.3f, zpos + zshift);
+    dist = distance2d(mv3f(0, 0, 0), mv3f(xpos - xshift, 0.0f, zpos + zshift));
+    glVertex3i(xpos - xshift, height - dist * 0.1f, zpos + zshift);
     glTexCoord2i(xpos - xshift, zpos - zshift);
-    dist = distance2d(camerapos, mv3f(xpos - xshift, 0.0f, zpos - zshift));
-    glVertex3i(xpos - xshift, height - dist * 0.3f, zpos - zshift);
+    dist = distance2d(mv3f(0, 0, 0), mv3f(xpos - xshift, 0.0f, zpos - zshift));
+    glVertex3i(xpos - xshift, height - dist * 0.1f, zpos - zshift);
     glTexCoord2i(xpos + xshift, zpos - zshift);
-    dist = distance2d(camerapos, mv3f(xpos + xshift, 0.0f, zpos - zshift));
-    glVertex3i(xpos + xshift, height - dist * 0.3f, zpos - zshift);
+    dist = distance2d(mv3f(0, 0, 0), mv3f(xpos + xshift, 0.0f, zpos - zshift));
+    glVertex3i(xpos + xshift, height - dist * 0.1f, zpos - zshift);*/
+    glTexCoord2i(xpos + xshift, zpos + zshift);
+    glVertex3i(xpos + xshift, height, zpos + zshift);
+    glTexCoord2i(xpos - xshift, zpos + zshift);
+    glVertex3i(xpos - xshift, height, zpos + zshift);
+    glTexCoord2i(xpos - xshift, zpos - zshift);
+    glVertex3i(xpos - xshift, height, zpos - zshift);
+    glTexCoord2i(xpos + xshift, zpos - zshift);
+    glVertex3i(xpos + xshift, height, zpos - zshift);
     if (xgrid >= TERRAIN_GRID_SIZE_HALF - 1) {
       zgrid++;
       xgrid = -1;
