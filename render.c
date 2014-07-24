@@ -5,6 +5,7 @@
 void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squaresize, float *fogend)
 {
   static float fogstart = 10.0f;
+  float fstart = 0.5;
   float temp = 0.0f;
   float lightspec[4];
   float lightamb[4];
@@ -40,7 +41,7 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squa
   glLightfv(GL_LIGHT1, GL_DIFFUSE, lightdiff);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glFrustum(-5.4f, 5.4f, -4.0f, 4.0f, 8.0f, *fogend * 1.1f);
+  glFrustum(-5.4f * fstart, 5.4f * fstart, -4.0f * fstart, 4.0f * fstart, 8.0f * fstart, *fogend * 1.1f);
   glMatrixMode(GL_MODELVIEW);
 }
 
