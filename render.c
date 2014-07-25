@@ -92,7 +92,7 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
 }
 
 
-void renderSky(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, float fogend)
+void renderSky(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, GLubyte *skyColor, float fogend)
 {
   glPushMatrix();
   glDisable(GL_DEPTH_TEST);
@@ -103,10 +103,10 @@ void renderSky(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, float
   glDisable(GL_LIGHTING);
   glBegin(GL_QUADS);
   //glColor3fv(clear);
-  glColor3ub(117, 132, 215);
+  glColor3ubv(skyColor);
   glVertex3f(7000.0f, 3000.0f, 50000.0f);
   glVertex3f(-7000.0f, 3000.0f, 50000.0f);
-  //glColor3ub(117, 132, 215);
+  //glColor3ubv(skyColor);
   glVertex3f(-7000.0f, 3000.0f, -fogend);
   glVertex3f(7000.0f, 3000.0f, -fogend);
   glVertex3f(7000.0f, 3000.0f, -fogend);
@@ -116,12 +116,12 @@ void renderSky(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, float
   glVertex3f(7000.0f, -5000.0f, -fogend);
   glEnd();
   glBegin(GL_TRIANGLES);
-  glColor3ub(117, 132, 215);
+  glColor3ubv(skyColor);
   glVertex3f(7000.0f, 3000.0f, 50000.0f);
   glVertex3f(7000.0f, 3000.0f, -fogend);
   glColor3fv(clear);
   glVertex3f(7000.0f, -5000.0f, -fogend);
-  glColor3ub(117, 132, 215);
+  glColor3ubv(skyColor);
   glVertex3f(-7000.0f, 3000.0f, -fogend);
   glVertex3f(-7000.0f, 3000.0f, 50000.0f);
   glColor3fv(clear);
@@ -240,6 +240,8 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   GLfloat materialColor[4];
   GLfloat clear[4]   = {0.5f, 0.5f, 0.5f, 1.0f};
   GLfloat ambient[4] = {0.49f, 0.45f, 0.47f, 1.0f};
+  GLubyte skyColor[3] = {117, 132, 215};
+  GLfloat skyColorB[4] = {0.47f, 0.53f, 0.9f, 1.0f};
   int i;
 
   materialColor[3] = 1.0f;
@@ -250,7 +252,7 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glShadeModel(GL_SMOOTH);
   glUseProgramARB(0);
-  renderSky(camerapos, camerarot, clear, *fogend);
+  renderSky(camerapos, camerarot, clear, skyColor, *fogend);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
   glEnable(GL_FOG);
@@ -284,6 +286,8 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  //glEnable(GL_FOG);
+  //glFogfv(GL_FOG_COLOR, (const GLfloat *) skyColorB);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
   renderCloud(camerapos, camerarot, squaresize);
   if (*swapb)

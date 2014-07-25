@@ -214,8 +214,10 @@ struct terrain readTerrainB(float x, float z)
   h4 = algorithmicTerrainHeight(x - offset, z - offset);
   temp.height = algorithmicTerrainHeight(x, z);
   temp.diff = fabs(temp.height - h1) + fabs(temp.height - h2) + fabs(temp.height - h3) + fabs(temp.height - h4);
-  if (temp.height > h1 && temp.height > h2 && temp.height > 3 && temp.height > h4)
-    temp.diff += 1000.0f;
+  // if (temp.height > h1 && temp.height > h2 && temp.height > h3 && temp.height > h4)
+  if ((temp.height > h1 && temp.height > h2) || (temp.height > h1 && temp.height > h3) || (temp.height > h1 && temp.height > h4)
+      || (temp.height > h2 && temp.height > h3) || (temp.height > h2 && temp.height > h4) || (temp.height > h3 && temp.height > h4))
+    temp.diff += 100.0f;
   temp.type = calculateTerrainType(temp.height);
 
   return temp;
@@ -319,7 +321,6 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   z = (int) (sector->y / (*squaresize));
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
-  //glScalef(0.05f, 0.05f, 0.05f);
   glScalef(0.0005f, 0.0005f, 0.0005f);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
     if (alt < 5) {
