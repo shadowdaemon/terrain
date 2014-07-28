@@ -31,11 +31,12 @@ void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfl
   glScalef(size, size, size);
   glColor4ub(125, 125, 125, alpha);
   for (h = 0; h < scene->mNumMeshes; h++) {
-    mesh = scene->mMeshes[0];
-    //glTexCoordPointer(2, GL_FLOAT, 0, mesh->mTextureCoords);
+    mesh = scene->mMeshes[h];
     glVertexPointer(3, GL_FLOAT, 0, mesh->mVertices);
     glNormalPointer(GL_FLOAT, 0, mesh->mNormals);
-    glBegin(GL_TRIANGLES);
+    glTexCoordPointer(3, GL_FLOAT, 0, mesh->mTextureCoords[0]);
+    glDrawArrays(GL_TRIANGLES, 0, mesh->mNumFaces * 3/*mesh->mFaces[0].mNumIndices*/);
+    /*glBegin(GL_TRIANGLES);
     for (k = 0; k < mesh->mNumFaces; k++) {
       face = &mesh->mFaces[k];
       for (i = 0; i < face->mNumIndices; i++) {
@@ -44,7 +45,7 @@ void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfl
         glArrayElement(j);
       }
     }
-    glEnd();
+    glEnd();*/
   }
   glPopMatrix();
 }

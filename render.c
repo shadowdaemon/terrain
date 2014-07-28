@@ -241,8 +241,6 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   GLfloat clear[4]   = {0.5f, 0.5f, 0.5f, 1.0f};
   GLfloat ambient[4] = {0.49f, 0.45f, 0.47f, 1.0f};
   GLubyte skyColor[3] = {117, 132, 215};
-  GLfloat skyColorB[4] = {0.47f, 0.53f, 0.9f, 1.0f};
-  int i;
 
   materialColor[3] = 1.0f;
   materialColor[0] = materialColor[1] = materialColor[2] = 0.8f;
@@ -269,7 +267,7 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   updateFogLights(clear, ambient, camheight, *squaresize, fogend);
   glEnableClientState(GL_VERTEX_ARRAY);
   glEnableClientState(GL_NORMAL_ARRAY);
-  //glEnableClientState(GL_TEXTURE_COORD_ARRAY); /* this does not currently work */
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glBindTexture(GL_TEXTURE_2D, textures[1]);
   renderFoliage(scene, camerapos, camerarot, *sector, camheight);
   glBindTexture(GL_TEXTURE_2D, textures[3]);
@@ -286,8 +284,6 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-  //glEnable(GL_FOG);
-  //glFogfv(GL_FOG_COLOR, (const GLfloat *) skyColorB);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
   renderCloud(camerapos, camerarot, squaresize);
   if (*swapb)
