@@ -170,7 +170,7 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
 {
   int xpos, zpos, xshift, zshift, xgrid, zgrid, size = *squaresize * 16;
   const int height = 4500;
-  float /*dist, */scale = 0.00005f;
+  float scale = 0.00005f;
 
   glMateriali(GL_FRONT, GL_SHININESS, 111);
   glDisable(GL_CULL_FACE);
@@ -189,18 +189,6 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
     xpos = (xgrid - TERRAIN_GRID_SIZE_QUARTER) * xshift;
     zpos = (zgrid - TERRAIN_GRID_SIZE_QUARTER) * zshift;
     xshift = zshift = size / 2;
-    /*glTexCoord2i(xpos + xshift, zpos + zshift);
-    dist = distance2d(mv3f(0, 0, 0), mv3f(xpos + xshift, 0.0f, zpos + zshift));
-    glVertex3i(xpos + xshift, height - dist * 0.1f, zpos + zshift);
-    glTexCoord2i(xpos - xshift, zpos + zshift);
-    dist = distance2d(mv3f(0, 0, 0), mv3f(xpos - xshift, 0.0f, zpos + zshift));
-    glVertex3i(xpos - xshift, height - dist * 0.1f, zpos + zshift);
-    glTexCoord2i(xpos - xshift, zpos - zshift);
-    dist = distance2d(mv3f(0, 0, 0), mv3f(xpos - xshift, 0.0f, zpos - zshift));
-    glVertex3i(xpos - xshift, height - dist * 0.1f, zpos - zshift);
-    glTexCoord2i(xpos + xshift, zpos - zshift);
-    dist = distance2d(mv3f(0, 0, 0), mv3f(xpos + xshift, 0.0f, zpos - zshift));
-    glVertex3i(xpos + xshift, height - dist * 0.1f, zpos - zshift);*/
     glTexCoord2i(xpos + xshift, zpos + zshift);
     glVertex3i(xpos + xshift, height, zpos + zshift);
     glTexCoord2i(xpos - xshift, zpos + zshift);
