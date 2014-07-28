@@ -168,10 +168,12 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize)
 
 void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
 {
-  int xpos, zpos, xshift, zshift, xgrid, zgrid, size = *squaresize * 16;
+  int i, size;
+  float rot, x, z;
   const int height = 4500;
-  float scale = 0.00005f;
+  const float scale = 0.00005f;
 
+  size = TERRAIN_GRID_SIZE * *squaresize;
   glMateriali(GL_FRONT, GL_SHININESS, 111);
   glDisable(GL_CULL_FACE);
   glEnable(GL_TEXTURE_2D);
@@ -181,26 +183,18 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   glPushMatrix();
   glTranslatef(camerapos.x*scale, 0.0f, camerapos.z*scale);
   glScalef(scale, scale, scale);
-  glBegin(GL_QUADS);
   glColor4ub(128, 128, 128, 120);
   glNormal3i(0, -1, 0);
-  for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE_HALF && zgrid < TERRAIN_GRID_SIZE_HALF; xgrid++) {
-    xshift = zshift = size;
-    xpos = (xgrid - TERRAIN_GRID_SIZE_QUARTER) * xshift;
-    zpos = (zgrid - TERRAIN_GRID_SIZE_QUARTER) * zshift;
-    xshift = zshift = size / 2;
-    glTexCoord2i(xpos + xshift, zpos + zshift);
-    glVertex3i(xpos + xshift, height, zpos + zshift);
-    glTexCoord2i(xpos - xshift, zpos + zshift);
-    glVertex3i(xpos - xshift, height, zpos + zshift);
-    glTexCoord2i(xpos - xshift, zpos - zshift);
-    glVertex3i(xpos - xshift, height, zpos - zshift);
-    glTexCoord2i(xpos + xshift, zpos - zshift);
-    glVertex3i(xpos + xshift, height, zpos - zshift);
-    if (xgrid >= TERRAIN_GRID_SIZE_HALF - 1) {
-      zgrid++;
-      xgrid = -1;
-    }
+  glBegin(GL_TRIANGLE_FAN);
+  glTexCoord2f(0.0f, 0.0f);
+  glVertex3f(0.0f, height, 0.0f);
+  glColor4ub(128, 128, 128, 0);
+  for (i = 0; i <= 360; i += 30) {
+    rot = i / PIx180;
+    x = -size * sinf(rot);
+    z = size * cosf(rot);
+    glTexCoord2f(x, z);
+    glVertex3f(x, height, z);
   }
   glEnd();
   glPopMatrix();
