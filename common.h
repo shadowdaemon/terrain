@@ -53,6 +53,7 @@
 #define glUseProgramARB _UseProgramARB
 #define glUniform1iARB _Uniform1iARB
 #define glUniform1fARB _Uniform1fARB
+#define glUniform2fARB _Uniform2fARB
 #define glUniform2fvARB _Uniform2fvARB
 #define glUniformMatrix4fvARB _UniformMatrix4fvARB
 #define glGetUniformLocationARB _GetUniformLocationARB
@@ -73,6 +74,7 @@ PFNGLLINKPROGRAMARBPROC _LinkProgramARB;
 PFNGLUSEPROGRAMPROC _UseProgramARB;
 PFNGLUNIFORM1IARBPROC _Uniform1iARB;
 PFNGLUNIFORM1FARBPROC _Uniform1fARB;
+PFNGLUNIFORM2FARBPROC _Uniform2fARB;
 PFNGLUNIFORM2FVARBPROC _Uniform2fvARB;
 PFNGLUNIFORMMATRIX4FVARBPROC _UniformMatrix4fvARB;
 PFNGLGETUNIFORMLOCATIONARBPROC _GetUniformLocationARB;
