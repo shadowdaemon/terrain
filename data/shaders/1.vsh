@@ -1,9 +1,10 @@
 #version 120
-varying vec2 myTexCoord;
+varying vec2 coords;
 void main()
 {
-  // gl_Position = ftransform();
+  //gl_Position = ftransform();
   gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-  gl_TexCoord[0] = gl_MultiTexCoord0;
-  myTexCoord = vec2(gl_MultiTexCoord0);
+  coords = gl_MultiTexCoord4.st;
 }
+
+

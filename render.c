@@ -215,6 +215,37 @@ void beam(struct v3f start, struct v3f end)
 }
 
 
+void sceneQuad(void)
+{
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  glOrtho(0, 1366, 0, 768, -1, 1);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_FOG);
+  glColor3ub(255, 255, 255);
+  glBegin(GL_QUADS);
+  glMultiTexCoord2i(4, 0, 0);
+  glVertex3i(0, 0, -1);
+  glMultiTexCoord2i(4, 1, 0);
+  glVertex3i(1366, 0, -1);
+  glMultiTexCoord2i(4, 1, 1);
+  glVertex3i(1366, 768, -1);
+  glMultiTexCoord2i(4, 0, 1);
+  glVertex3i(0, 768, -1);
+  glEnd();
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_FOG);
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
+}
+
+
 void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint *shaders,
             int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
             float camheight, int *squaresize, float *fogend, struct airunit *airunits)
@@ -231,7 +262,6 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   glMaterialfv(GL_FRONT, GL_SPECULAR, materialColor);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glShadeModel(GL_SMOOTH);
-  glUseProgramARB(0);
   renderSky(camerapos, camerarot, clear, skyColor, *fogend);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
@@ -239,10 +269,7 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_LIGHTING);
   glEnable(GL_NORMALIZE);
-  //glUseProgramARB(shaders[0]);
-  //glActiveTextureARB(GL_TEXTURE0_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
-  //glUniform1iARB(glGetUniformLocationARB(shaders[0], "scene"), 0);
   drawTerrain(camerapos, camerarot, sector, camheight, swapb, squaresize);
   renderWater(camerapos, camerarot, squaresize);
   clear[2] += fabs(sinf(camheight*0.00067f)) * 0.23f;
@@ -268,6 +295,20 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
   renderCloud(camerapos, camerarot, squaresize);
+
+  glReadBuffer(GL_BACK);
+  glBindTexture(GL_TEXTURE_2D, textures[4]);
+  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 1366, 768, 0);
+  glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glUseProgramARB(shaders[0]);
+  glUniform1iARB(glGetUniformLocationARB(shaders[0], "scene"), 4);
+  glUniform1fARB(glGetUniformLocationARB(shaders[0], "gamma"), 0.6f);
+  glUniform1fARB(glGetUniformLocationARB(shaders[0], "numColors"), 8.0f);
+  sceneQuad();
+  glUseProgramARB(0);
+
   if (*swapb)
     glfwSwapBuffers(window);
   *swapb = 1;

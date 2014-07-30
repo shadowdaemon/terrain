@@ -150,16 +150,21 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   FreeImage_SetOutputMessage(errorFreeImage);
   glEnable(GL_TEXTURE_2D);
   glGenTextures(5, textures);
+  glActiveTextureARB(GL_TEXTURE0_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
   loadTexture2D("data/textures/terrain.tga", 'y');
+  glActiveTextureARB(GL_TEXTURE1_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[1]);
   loadTexture2D("data/textures/foliage.tga", 'n');
+  glActiveTextureARB(GL_TEXTURE2_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
   loadTexture2D("data/textures/cloud_alpha.tga", 'n');
+  glActiveTextureARB(GL_TEXTURE3_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[3]);
   loadTexture2D("data/textures/fighter.png", 'n');
+  glActiveTextureARB(GL_TEXTURE4_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[4]);
-  loadTexture2D("data/textures/house1.tga", 'n');
+  glActiveTextureARB(GL_TEXTURE0_ARB);
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
@@ -226,20 +231,20 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   loadGLSL(vertSrc, filelen, "data/shaders/1.vsh");
   printf("%s\n", vertSrc);
   glShaderSourceARB(vertShader, 1, (const GLchar **) &vertSrc, NULL);
-  free(vertSrc);
   glCompileShaderARB(vertShader);
+  free(vertSrc);
   glGetShaderInfoLogARB(vertShader, 500, &logSize, log);
   if (logSize)
     printf("GLSL vertex: %s\n", log);
   glAttachShaderARB(shaders[0], vertShader);
   fragShader = glCreateShaderARB(GL_FRAGMENT_SHADER);
-  filelen = fileLength("data/shaders/2.fsh");
+  filelen = fileLength("data/shaders/1.fsh");
   fragSrc = (GLchar *) malloc(sizeof(GLchar) * filelen);
-  loadGLSL(fragSrc, filelen, "data/shaders/2.fsh");
+  loadGLSL(fragSrc, filelen, "data/shaders/1.fsh");
   printf("%s\n", fragSrc);
   glShaderSourceARB(fragShader, 1, (const GLchar **) &fragSrc, NULL);
-  free(fragSrc);
   glCompileShaderARB(fragShader);
+  free(fragSrc);
   glGetShaderInfoLogARB(fragShader, 500, &logSize, log);
   if (logSize)
     printf("GLSL fragment: %s\n", log);
@@ -636,7 +641,7 @@ void updateAirPositions(struct airunit *airunits)
 
 int main(int argc, char *argv[])
 {
-  GLuint textures[5], shaders[5];
+  GLuint textures[7], shaders[5];
   GLFWwindow *window = NULL;
   int swapb = 1, squaresize = 0, i;
   char direction;
