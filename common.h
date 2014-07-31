@@ -1,5 +1,7 @@
 #include <GLFW/glfw3.h>
 
+#define RESX                   1366
+#define RESY                   768
 #define PI                     3.14159265358979323846f
 #define PIx180                 180.0f*PI
 #define VIEW_DISTANCE                       4000

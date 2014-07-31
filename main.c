@@ -147,8 +147,8 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   glfwWindowHint(GLFW_STENCIL_BITS, 8);
   glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
-  width = 1366;
-  height = 768;
+  width = RESX;
+  height = RESY;
   window = glfwCreateWindow(width, height, "test", glfwGetPrimaryMonitor(), NULL);
   if (window == NULL)
     return NULL;
