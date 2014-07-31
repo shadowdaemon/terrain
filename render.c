@@ -18,12 +18,12 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squa
     *fogend -= (*fogend - temp) * 0.1f;
   else
     *fogend -= (*fogend - temp) * 0.04f;
-  temp = *fogend * 0.35f;
+  temp = *fogend * 0.9f;
   if (fogstart > temp)
     fogstart -= (fogstart - temp) * 0.1f;
   else
     fogstart -= (fogstart - temp) * 0.02f;
-  fogstart = fogstart > 37000 ? 37000 : fogstart;
+  //fogstart = fogstart > 37000 ? 37000 : fogstart;
   glFogfv(GL_FOG_COLOR, clear);
   glFogf(GL_FOG_START, fogstart);
   glFogf(GL_FOG_END, *fogend);
@@ -287,10 +287,10 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   //glUseProgramARB(0);
   //glDisable(GL_TEXTURE_2D);
   //glShadeModel(GL_FLAT);
-  int i;
+  /*int i;
   drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 1, 255);
   for (i = 1; i < 15; i++)
-    drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 1, 255);
+  drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 1, 255);*/
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -305,7 +305,7 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 1366, 768, 0);
   glUseProgramARB(shaders[1]);
   glUniform1iARB(glGetUniformLocationARB(shaders[1], "scene"), 4);
-  glUniform2fARB(glGetUniformLocationARB(shaders[1], "steps"), 2500.0f, 2500.0f);
+  glUniform2fARB(glGetUniformLocationARB(shaders[1], "steps"), 2000.0f, 2000.0f);
   glUniform4fvARB(glGetUniformLocationARB(shaders[1], "clear"), 0, clear);
   sceneQuad();
   glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 1366, 768, 0);

@@ -679,13 +679,13 @@ int main(int argc, char *argv[])
     while (!glfwWindowShouldClose(window)) {
       camheight = cameraHeight(camerapos);
       keyboardInput(window, &direction);
-      //mouseLook(window, &camerarot);
-      mouseLook(window, &airunits[0].rot);
+      mouseLook(window, &camerarot);
+      //mouseLook(window, &airunits[0].rot);
       render(window, scene, textures, shaders, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend, airunits);
-      //movement(&camerapos, camerarot, direction, 70);
-      flyMovement(&airunits[0], direction);
-      updateAirPositions(airunits);
-      cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot);
+      movement(&camerapos, camerarot, direction, 10);
+      //flyMovement(&airunits[0], direction);
+      //updateAirPositions(airunits);
+      //cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot);
       updateCamera(camerarot);
       glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
     }

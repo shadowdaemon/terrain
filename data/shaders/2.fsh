@@ -6,8 +6,8 @@ varying vec2 offset;
 void main()
 {
   vec2 mod = offset;
-  if (all(greaterThan(texture2D(scene, coords), clear + 0.2)))
-    mod = offset * 5.0;
+  if (all(greaterThan(texture2D(scene, coords), clear + 0.1)))
+    mod = offset * 2.0;
   vec4 c  = texture2D(scene, coords);
   vec4 u1 = texture2D(scene, coords + vec2(0.0, -mod.y));
   vec4 u2 = texture2D(scene, coords + vec2(0.0, -mod.y * 2.0));
