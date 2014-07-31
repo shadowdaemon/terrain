@@ -143,8 +143,8 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   glTranslatef(camerapos.x, 0.0f, camerapos.z);
   glRotatef(-camerarot.y, 0.0f, 1.0f, 0.0f);
   glBegin(GL_QUADS);
-  glColor4ub(32, 112, 255, 110);
-  glNormal3i(0, -1, 0);
+  glColor4ub(32, 112, 255, 210);
+  glNormal3i(0, 1, 0);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE_HALF && zgrid < TERRAIN_GRID_SIZE_HALF; xgrid++) {
     xshift = zshift = size;
     xpos = (-TERRAIN_GRID_SIZE_QUARTER + xgrid) * xshift;
@@ -229,16 +229,16 @@ void sceneQuad(void)
   glColor3ub(255, 255, 255);
   glBegin(GL_QUADS);
   glMultiTexCoord2i(4, 0, 0);
-  glVertex3i(0, 0, -1);
+  glVertex3i(0, 0, 0);
   glMultiTexCoord2i(4, 1, 0);
-  glVertex3i(1366, 0, -1);
+  glVertex3i(1366, 0, 0);
   glMultiTexCoord2i(4, 1, 1);
-  glVertex3i(1366, 768, -1);
+  glVertex3i(1366, 768, 0);
   glMultiTexCoord2i(4, 0, 1);
-  glVertex3i(0, 768, -1);
+  glVertex3i(0, 768, 0);
   glEnd();
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_FOG);
+  //glEnable(GL_DEPTH_TEST);
+  //glEnable(GL_FOG);
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
@@ -287,9 +287,10 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   //glUseProgramARB(0);
   //glDisable(GL_TEXTURE_2D);
   //glShadeModel(GL_FLAT);
-  drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 1, 255);  
-  //for (i = 1; i < 15; i++)
-  //drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 1, 255);  
+  int i;
+  drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 1, 255);
+  for (i = 1; i < 15; i++)
+    drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 1, 255);
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -298,14 +299,21 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
 
   glReadBuffer(GL_BACK);
   glBindTexture(GL_TEXTURE_2D, textures[4]);
-  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 1366, 768, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 1366, 768, 0);
+  glUseProgramARB(shaders[1]);
+  glUniform1iARB(glGetUniformLocationARB(shaders[1], "scene"), 4);
+  glUniform2fARB(glGetUniformLocationARB(shaders[1], "steps"), 2500.0f, 2500.0f);
+  glUniform4fvARB(glGetUniformLocationARB(shaders[1], "clear"), 0, clear);
+  sceneQuad();
+  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 1366, 768, 0);
   glUseProgramARB(shaders[0]);
   glUniform1iARB(glGetUniformLocationARB(shaders[0], "scene"), 4);
   glUniform1fARB(glGetUniformLocationARB(shaders[0], "gamma"), 0.6f);
-  glUniform1fARB(glGetUniformLocationARB(shaders[0], "numColors"), 8.0f);
+  glUniform1fARB(glGetUniformLocationARB(shaders[0], "numColors"), 64.0f);
+  glUniform4fvARB(glGetUniformLocationARB(shaders[0], "clear"), 0, clear);
   sceneQuad();
   glUseProgramARB(0);
 

@@ -55,6 +55,7 @@
 #define glUniform1fARB _Uniform1fARB
 #define glUniform2fARB _Uniform2fARB
 #define glUniform2fvARB _Uniform2fvARB
+#define glUniform4fvARB _Uniform4fvARB
 #define glUniformMatrix4fvARB _UniformMatrix4fvARB
 #define glGetUniformLocationARB _GetUniformLocationARB
 #define glGetAttribLocationARB _GetAttribLocationARB
@@ -76,6 +77,7 @@ PFNGLUNIFORM1IARBPROC _Uniform1iARB;
 PFNGLUNIFORM1FARBPROC _Uniform1fARB;
 PFNGLUNIFORM2FARBPROC _Uniform2fARB;
 PFNGLUNIFORM2FVARBPROC _Uniform2fvARB;
+PFNGLUNIFORM4FVARBPROC _Uniform4fvARB;
 PFNGLUNIFORMMATRIX4FVARBPROC _UniformMatrix4fvARB;
 PFNGLGETUNIFORMLOCATIONARBPROC _GetUniformLocationARB;
 PFNGLGETATTRIBLOCATIONARBPROC _GetAttribLocationARB;

@@ -82,6 +82,46 @@ void loadGLSL(GLchar *src, long len, const char *file)
 }
 
 
+void linkShader(GLuint *shader, const char *v_file, const char *f_file)
+{
+  GLuint fragShader, vertShader;
+  GLchar *fragSrc = NULL, *vertSrc = NULL;
+  long filelen;
+  GLsizei logSize;
+  GLchar log[5000];
+
+  *shader = glCreateProgramARB();
+  vertShader = glCreateShaderARB(GL_VERTEX_SHADER);
+  filelen = fileLength(v_file);
+  vertSrc = (GLchar *) malloc(sizeof(GLchar) * filelen);
+  loadGLSL(vertSrc, filelen, v_file);
+  printf("%s\n", vertSrc);
+  glShaderSourceARB(vertShader, 1, (const GLchar **) &vertSrc, NULL);
+  glCompileShaderARB(vertShader);
+  free(vertSrc);
+  glGetShaderInfoLogARB(vertShader, 500, &logSize, log);
+  if (logSize)
+    printf("GLSL vertex: %s\n", log);
+  glAttachShaderARB(*shader, vertShader);
+  fragShader = glCreateShaderARB(GL_FRAGMENT_SHADER);
+  filelen = fileLength(f_file);
+  fragSrc = (GLchar *) malloc(sizeof(GLchar) * filelen);
+  loadGLSL(fragSrc, filelen, f_file);
+  printf("%s\n", fragSrc);
+  glShaderSourceARB(fragShader, 1, (const GLchar **) &fragSrc, NULL);
+  glCompileShaderARB(fragShader);
+  free(fragSrc);
+  glGetShaderInfoLogARB(fragShader, 500, &logSize, log);
+  if (logSize)
+    printf("GLSL fragment: %s\n", log);
+  glAttachShaderARB(*shader, fragShader);
+  glLinkProgramARB(*shader);
+  glGetProgramInfoLogARB(*shader, 500, &logSize, log);
+  if (logSize)
+    printf("%s\n", log);
+}
+
+
 GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
 {
   GLFWwindow *window = NULL;
@@ -91,11 +131,6 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   float lightspec[] = {0.15f, 0.18f, 0.17f, 1.0f};
   float lightamb[]  = {0.1f, 0.07f, 0.08f, 1.0f};
   float lightdiff[] = {0.82f, 0.77f, 0.75f, 1.0f};
-  GLuint fragShader, vertShader;
-  GLchar *fragSrc = NULL, *vertSrc = NULL;
-  long filelen;
-  GLsizei logSize;
-  GLchar log[5000];
 
   glfwSetErrorCallback(errorGLFW);
   if (glfwInit() == GL_FALSE)
@@ -218,41 +253,15 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   glUniform1fARB = (PFNGLUNIFORM1FARBPROC) glfwGetProcAddress("glUniform1fARB");
   glUniform2fARB = (PFNGLUNIFORM2FARBPROC) glfwGetProcAddress("glUniform2fARB");
   glUniform2fvARB = (PFNGLUNIFORM2FVARBPROC) glfwGetProcAddress("glUniform2fvARB");
+  glUniform4fvARB = (PFNGLUNIFORM4FVARBPROC) glfwGetProcAddress("glUniform4fvARB");
   glUniformMatrix4fvARB = (PFNGLUNIFORMMATRIX4FVARBPROC) glfwGetProcAddress("glUniformMatrix4fvARB");
   glGetUniformLocationARB = (PFNGLGETUNIFORMLOCATIONARBPROC) glfwGetProcAddress("glGetUniformLocationARB");
   glGetAttribLocationARB = (PFNGLGETATTRIBLOCATIONARBPROC) glfwGetProcAddress("glGetAttribLocationARB");
   glBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC) glfwGetProcAddress("glBindAttribLocationARB");
   glVertexAttrib3fvARB = (PFNGLVERTEXATTRIB3FVARBPROC) glfwGetProcAddress("glVertexAttrib3fvARB");
 
-  shaders[0] = glCreateProgramARB();
-  vertShader = glCreateShaderARB(GL_VERTEX_SHADER);
-  filelen = fileLength("data/shaders/1.vsh");
-  vertSrc = (GLchar *) malloc(sizeof(GLchar) * filelen);
-  loadGLSL(vertSrc, filelen, "data/shaders/1.vsh");
-  printf("%s\n", vertSrc);
-  glShaderSourceARB(vertShader, 1, (const GLchar **) &vertSrc, NULL);
-  glCompileShaderARB(vertShader);
-  free(vertSrc);
-  glGetShaderInfoLogARB(vertShader, 500, &logSize, log);
-  if (logSize)
-    printf("GLSL vertex: %s\n", log);
-  glAttachShaderARB(shaders[0], vertShader);
-  fragShader = glCreateShaderARB(GL_FRAGMENT_SHADER);
-  filelen = fileLength("data/shaders/1.fsh");
-  fragSrc = (GLchar *) malloc(sizeof(GLchar) * filelen);
-  loadGLSL(fragSrc, filelen, "data/shaders/1.fsh");
-  printf("%s\n", fragSrc);
-  glShaderSourceARB(fragShader, 1, (const GLchar **) &fragSrc, NULL);
-  glCompileShaderARB(fragShader);
-  free(fragSrc);
-  glGetShaderInfoLogARB(fragShader, 500, &logSize, log);
-  if (logSize)
-    printf("GLSL fragment: %s\n", log);
-  glAttachShaderARB(shaders[0], fragShader);
-  glLinkProgramARB(shaders[0]);
-  glGetProgramInfoLogARB(shaders[0], 500, &logSize, log);
-  if (logSize)
-    printf("%s\n", log);
+  linkShader(&shaders[0], "data/shaders/1.vsh", "data/shaders/1.fsh");
+  linkShader(&shaders[1], "data/shaders/2.vsh", "data/shaders/2.fsh");
 
   return window;
 }
@@ -665,17 +674,17 @@ int main(int argc, char *argv[])
     scene[4] = *loadFromOBJFile("data/models/mtree1.obj");
     scene[5] = *loadFromOBJFile("data/models/stump1.obj");
     scene[6] = *loadFromOBJFile("data/models/fighter1.obj");
-    scene[7] = *loadFromOBJFile("data/models/fighter2.obj");
-    scene[8] = *loadFromOBJFile("data/models/house1.obj");
+    //scene[7] = *loadFromOBJFile("data/models/fighter2.obj");
+    //scene[8] = *loadFromOBJFile("data/models/md3-rx78.pk3");
     while (!glfwWindowShouldClose(window)) {
       camheight = cameraHeight(camerapos);
       keyboardInput(window, &direction);
       //mouseLook(window, &camerarot);
       mouseLook(window, &airunits[0].rot);
       render(window, scene, textures, shaders, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend, airunits);
-      //movement(&camerapos, camerarot, direction, 7);
+      //movement(&camerapos, camerarot, direction, 70);
       flyMovement(&airunits[0], direction);
-      //updateAirPositions(airunits);
+      updateAirPositions(airunits);
       cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot);
       updateCamera(camerarot);
       glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);

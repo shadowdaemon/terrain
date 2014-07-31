@@ -2,15 +2,22 @@
 uniform sampler2D scene;
 uniform float gamma;
 uniform float numColors;
+uniform vec4 clear;
 varying vec2 coords;
+varying float mod;
 void main() 
 {
+  float mod2 = mod;
   vec3 c = texture2D(scene, coords).rgb;
+  if (all(greaterThan(texture2D(scene, coords), clear + 0.3)))
+    mod2 = mod + 28;
+  if (mod2 > numColors - 8)
+    mod2 = numColors - 8;
   c = pow(c, vec3(gamma, gamma, gamma));
-  c = c * numColors;
+  c = c * (numColors - mod2);
   c = floor(c);
-  c = c / numColors;
-  c = pow(c, vec3(1.0/gamma));
+  c = c / (numColors - mod2);
+  c = pow(c, vec3(1.0 / gamma));
   gl_FragColor = vec4(c, 1.0);
   //gl_FragColor = texture2D(scene, coords);
   //gl_FragColor = vec4(texture2D(scene, coords).rgb, 1);
