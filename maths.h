@@ -10,3 +10,4 @@ struct v3f degreestovector2d(struct v3f pos_self, float rot_self, float rot, flo
 void degreestovector3d(struct v3f *pos_self, struct v3f rot_self, struct v3f rot, float dist);
 float vectorstodegree2d(struct v3f pos_self, struct v3f pos_b);
 struct v3f calcNormal(float in_v1[3], float in_v2[3], float in_v3[3]);
+float plane1(float in_p[2], float in_v1[3], float in_v2[3], float in_v3[3]);

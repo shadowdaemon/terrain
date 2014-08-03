@@ -109,3 +109,17 @@ struct v3f calcNormal(float in_v1[3], float in_v2[3], float in_v3[3])
 
   return temp;
 }
+
+
+float plane1(float in_p[2], float in_v1[3], float in_v2[3], float in_v3[3])
+{
+  struct v3f temp = calcNormal(in_v1, in_v2, in_v3);
+  float p;
+
+  p = temp.x * in_v1[0] + temp.x * in_v2[0] + temp.x * in_v3[0] +
+      temp.y * in_v1[1] + temp.y * in_v2[1] + temp.y * in_v3[1] +
+      temp.z * in_v1[2] + temp.z * in_v2[2] + temp.z * in_v3[2];
+  return (p - temp.x * in_v1[0] - temp.x * in_v2[0] - temp.x * in_p[0] -
+              temp.y * in_v1[1] - temp.y * in_v2[1] - temp.z * in_v1[2] -
+              temp.z * in_v2[2] - temp.z * in_p[1]) / temp.y;
+}
