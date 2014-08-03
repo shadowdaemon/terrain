@@ -1,16 +1,16 @@
 #include <GLFW/glfw3.h>
 
-#define RESX                   1366
-#define RESY                   768
-#define PI                     3.14159265358979323846f
-#define PIx180                 180.0f*PI
+#define RESX                                1366
+#define RESY                                768
+#define PI                                  3.14159265358979323846f
+#define PIx180                              180.0f*PI
 #define VIEW_DISTANCE                       4000
 #define VIEW_DISTANCE_HALF                  2000
 #define WORLD_SIZE                          50000
 #define WORLD_GRAVITY                       0.98f
-#define TERRAIN_GRID_SIZE                   120
-#define TERRAIN_GRID_SIZE_HALF              60
-#define TERRAIN_GRID_SIZE_QUARTER           30
+#define TERRAIN_GRID_SIZE                   100
+#define TERRAIN_GRID_SIZE_HALF              50
+#define TERRAIN_GRID_SIZE_QUARTER           25
 #define TERRAIN_SQUARE_SIZE                 300
 #define TERRAIN_SQUARE_SIZE_HALF            150
 // #define TERRAIN_CENTRE_DISTANCE             (TERRAIN_SQUARE_SIZE*TERRAIN_GRID_SIZE*0.1f)
@@ -63,6 +63,7 @@
 #define glGetAttribLocationARB _GetAttribLocationARB
 #define glBindAttribLocationARB _BindAttribLocationARB
 #define glVertexAttrib3fvARB _VertexAttrib3fvARB
+#define glMultiTexCoordPointerEXT _MultiTexCoordPointerEXT
 PFNGLACTIVETEXTUREARBPROC _ActiveTexureARB;
 PFNGLCREATEPROGRAMPROC _CreateProgramARB;
 PFNGLCREATESHADERPROC _CreateShaderARB;
@@ -85,6 +86,7 @@ PFNGLGETUNIFORMLOCATIONARBPROC _GetUniformLocationARB;
 PFNGLGETATTRIBLOCATIONARBPROC _GetAttribLocationARB;
 PFNGLBINDATTRIBLOCATIONARBPROC _BindAttribLocationARB;
 PFNGLVERTEXATTRIB3FVARBPROC _VertexAttrib3fvARB;
+PFNGLMULTITEXCOORDPOINTEREXTPROC _MultiTexCoordPointerEXT;
 
 
 struct v2i {
@@ -113,7 +115,6 @@ struct v3f {
 struct terrain
 {
   float height;
-  float diff;
   char type;
 };
 
@@ -139,8 +140,8 @@ struct airunit {
 
 float algorithmicTerrainHeight(float x, float z);
 struct terrain readTerrain(float x, float y);
-struct terrain readTerrainB(float x, float y);
 float readTerrainHeight(float x, float y);
+float readTerrainHeightB(float x, float z, int squaresize);
 void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int *swapb, int squaresize);
 void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *swapb, int *squaresize);
 const struct aiScene *loadFromOBJFile(const char *name);

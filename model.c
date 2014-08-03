@@ -33,6 +33,7 @@ void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfl
     glVertexPointer(3, GL_FLOAT, 0, mesh->mVertices);
     glNormalPointer(GL_FLOAT, 0, mesh->mNormals);
     glTexCoordPointer(3, GL_FLOAT, 0, mesh->mTextureCoords[0]);
+    //glMultiTexCoordPointerEXT(1, 3, GL_FLOAT, 0, mesh->mTextureCoords[0]);
     glDrawArrays(GL_TRIANGLES, 0, mesh->mNumFaces * 3/*mesh->mFaces[0].mNumIndices*/);
   }
   glPopMatrix();

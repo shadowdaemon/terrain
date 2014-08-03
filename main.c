@@ -91,11 +91,12 @@ void linkShader(GLuint *shader, const char *v_file, const char *f_file)
   GLchar log[5000];
 
   *shader = glCreateProgramARB();
+  if (strlen(v_file) > 0) {
   vertShader = glCreateShaderARB(GL_VERTEX_SHADER);
   filelen = fileLength(v_file);
   vertSrc = (GLchar *) malloc(sizeof(GLchar) * filelen);
   loadGLSL(vertSrc, filelen, v_file);
-  printf("%s\n", vertSrc);
+  // printf("%s\n", vertSrc);
   glShaderSourceARB(vertShader, 1, (const GLchar **) &vertSrc, NULL);
   glCompileShaderARB(vertShader);
   free(vertSrc);
@@ -103,11 +104,13 @@ void linkShader(GLuint *shader, const char *v_file, const char *f_file)
   if (logSize)
     printf("GLSL vertex: %s\n", log);
   glAttachShaderARB(*shader, vertShader);
+  }
+  if (strlen(f_file)) {
   fragShader = glCreateShaderARB(GL_FRAGMENT_SHADER);
   filelen = fileLength(f_file);
   fragSrc = (GLchar *) malloc(sizeof(GLchar) * filelen);
   loadGLSL(fragSrc, filelen, f_file);
-  printf("%s\n", fragSrc);
+  // printf("%s\n", fragSrc);
   glShaderSourceARB(fragShader, 1, (const GLchar **) &fragSrc, NULL);
   glCompileShaderARB(fragShader);
   free(fragSrc);
@@ -115,6 +118,7 @@ void linkShader(GLuint *shader, const char *v_file, const char *f_file)
   if (logSize)
     printf("GLSL fragment: %s\n", log);
   glAttachShaderARB(*shader, fragShader);
+  }
   glLinkProgramARB(*shader);
   glGetProgramInfoLogARB(*shader, 500, &logSize, log);
   if (logSize)
@@ -259,9 +263,11 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   glGetAttribLocationARB = (PFNGLGETATTRIBLOCATIONARBPROC) glfwGetProcAddress("glGetAttribLocationARB");
   glBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC) glfwGetProcAddress("glBindAttribLocationARB");
   glVertexAttrib3fvARB = (PFNGLVERTEXATTRIB3FVARBPROC) glfwGetProcAddress("glVertexAttrib3fvARB");
+  glMultiTexCoordPointerEXT = (PFNGLMULTITEXCOORDPOINTEREXTPROC) glfwGetProcAddress("glMultiTexCoordPointerEXT");
 
   linkShader(&shaders[0], "data/shaders/1.vsh", "data/shaders/1.fsh");
   linkShader(&shaders[1], "data/shaders/2.vsh", "data/shaders/2.fsh");
+  linkShader(&shaders[2], "data/shaders/3.vsh", "data/shaders/1.fsh");
 
   return window;
 }
@@ -470,15 +476,16 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
     break;
   default: break;
   }
-  ground = readTerrainHeight(camerapos->x, camerapos->z);
-  temp = readTerrainHeight(camerapos->x + offset, camerapos->z + offset);
+  /*ground = readTerrainHeightB(camerapos->x, camerapos->z, TERRAIN_SQUARE_SIZE);
+  temp = readTerrainHeightB(camerapos->x + offset, camerapos->z + offset, TERRAIN_SQUARE_SIZE);
   ground = ground > temp ? ground : temp;
-  temp = readTerrainHeight(camerapos->x + offset, camerapos->z - offset);
+  temp = readTerrainHeightB(camerapos->x + offset, camerapos->z - offset, TERRAIN_SQUARE_SIZE);
   ground = ground > temp ? ground : temp;
-  temp = readTerrainHeight(camerapos->x - offset, camerapos->z + offset);
+  temp = readTerrainHeightB(camerapos->x - offset, camerapos->z + offset, TERRAIN_SQUARE_SIZE);
   ground = ground > temp ? ground : temp;
-  temp = readTerrainHeight(camerapos->x - offset, camerapos->z - offset);
-  ground = ground > temp ? ground : temp;
+  temp = readTerrainHeightB(camerapos->x - offset, camerapos->z - offset, TERRAIN_SQUARE_SIZE);
+  ground = ground > temp ? ground : temp;*/
+  ground = readTerrainHeightB(camerapos->x, camerapos->z, TERRAIN_SQUARE_SIZE);
   ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
   ground += TERRAIN_SQUARE_SIZE * 0.02f;
   //camerapos->y = camerapos->y < ground ? ground : camerapos->y;
@@ -682,7 +689,7 @@ int main(int argc, char *argv[])
       mouseLook(window, &camerarot);
       //mouseLook(window, &airunits[0].rot);
       render(window, scene, textures, shaders, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend, airunits);
-      movement(&camerapos, camerarot, direction, 10);
+      movement(&camerapos, camerarot, direction, 30);
       //flyMovement(&airunits[0], direction);
       //updateAirPositions(airunits);
       //cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot);

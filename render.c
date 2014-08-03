@@ -46,20 +46,21 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squa
 }
 
 
-void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camerarot, struct v2f sector, float camheight)
+void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camerarot, struct v2f sector, int squaresize)
 {
   int xgrid, zgrid, x1, z1, cull;
-  int squaresize = TERRAIN_SQUARE_SIZE * 0.4f;
+  int size = TERRAIN_SQUARE_SIZE * 0.4f;
   float x, z, xpos = 0.0f, zpos = 0.0f, dist;
-  struct terrain temp;
+  //struct terrain temp;
+  float height;
   GLubyte alpha;
 
   glMateriali(GL_FRONT, GL_SHININESS, 37);
-  x = (int) (sector.x / squaresize);
-  z = (int) (sector.y / squaresize);
+  x = (int) (sector.x / size);
+  z = (int) (sector.y / size);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
-    xpos = (xgrid - TERRAIN_GRID_SIZE_HALF + x) * squaresize;
-    zpos = (zgrid - TERRAIN_GRID_SIZE_HALF + z) * squaresize;
+    xpos = (xgrid - TERRAIN_GRID_SIZE_HALF + x) * size;
+    zpos = (zgrid - TERRAIN_GRID_SIZE_HALF + z) * size;
     x1 = (int) xpos % 297;
     z1 = (int) zpos % 153;
     xpos += z1;
@@ -68,19 +69,19 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
     while (cull >= 360)
       cull -= 360;
     if (cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) {
-      temp = readTerrainB(xpos, zpos);
-      dist = distance3d(camerapos, mv3f(xpos, temp.height, zpos));
+      height = readTerrainHeightB(xpos, zpos, squaresize);
+      dist = distance3d(camerapos, mv3f(xpos, height, zpos));
       x1 = x1 * x1 + z1 * z1;
       x1 = x1 % 3176;
       if (((dist < VIEW_DISTANCE) || dist < TERRAIN_SQUARE_SIZE * 10) && (x1 < 587)) {
-        if (temp.height > TERRAIN_WATER_LEVEL + 50 && temp.height < 3750 && temp.diff < 200.0f && temp.type != T_TYPE_DIRT) {
+        if (height > TERRAIN_WATER_LEVEL + 50 && height < 3750/* && temp.type != T_TYPE_DIRT*/) {
           if (dist < VIEW_DISTANCE_HALF)
             alpha = 255;
           else if (dist < VIEW_DISTANCE)
             alpha = (GLubyte) (255 - ((dist - VIEW_DISTANCE_HALF) / (float) VIEW_DISTANCE_HALF) * 255);
           else
             alpha = 0;
-          drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, temp.height, zpos), mv3f(0, x1, 0), 1, alpha);
+          drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 1, alpha);
         }
       }
     }
@@ -251,10 +252,13 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
             float camheight, int *squaresize, float *fogend, struct airunit *airunits)
 {
   GLfloat materialColor[4];
-  GLfloat clear[4]   = {0.5f, 0.5f, 0.5f, 1.0f};
-  GLfloat ambient[4] = {0.49f, 0.45f, 0.47f, 1.0f};
+  GLfloat clear[4]    = {0.5f, 0.5f, 0.5f, 1.0f};
+  GLfloat ambient[4]  = {0.49f, 0.45f, 0.47f, 1.0f};
   GLubyte skyColor[3] = {117, 132, 215};
 
+  clear[0] = 117 / 255.0f;
+  clear[1] = 132 / 255.0f;
+  clear[2] = 215 / 255.0f;
   materialColor[3] = 1.0f;
   materialColor[0] = materialColor[1] = materialColor[2] = 0.8f;
   glMaterialfv(GL_FRONT, GL_DIFFUSE, materialColor);
@@ -278,8 +282,8 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   glEnableClientState(GL_NORMAL_ARRAY);
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glBindTexture(GL_TEXTURE_2D, textures[1]);
-  renderFoliage(scene, camerapos, camerarot, *sector, camheight);
-  glBindTexture(GL_TEXTURE_2D, textures[3]);
+  renderFoliage(scene, camerapos, camerarot, *sector, *squaresize);
+  //glBindTexture(GL_TEXTURE_2D, textures[3]);
   //struct v3f pos = airunits[0].pos;
   //degreestovector3d(&pos, airunits[0].rot, mv3f(180, 180, 0), 15000);
   //glUseProgramARB(shaders[0]);
