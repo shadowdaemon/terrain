@@ -10,7 +10,7 @@ void main()
   float mod2 = mod;
   vec3 c = texture2D(scene, coords).rgb;
   if (all(greaterThan(texture2D(scene, coords), clear + 0.3)))
-    mod2 = mod + 28;
+    mod2 = mod + 16;
   if (mod2 > numColors - 8)
     mod2 = numColors - 8;
   c = pow(c, vec3(gamma, gamma, gamma));
@@ -19,8 +19,6 @@ void main()
   c = c / (numColors - mod2);
   c = pow(c, vec3(1.0 / gamma));
   gl_FragColor = vec4(c, 1.0);
-  //gl_FragColor = texture2D(scene, coords);
-  //gl_FragColor = vec4(texture2D(scene, coords).rgb, 1);
 }
 
 
