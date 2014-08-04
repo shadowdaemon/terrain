@@ -124,6 +124,17 @@ float algorithmicTerrainHeight3(float x, float z, float height)
 }
 
 
+float algorithmicTerrainHeight4(float x, float z, float height)
+{
+  float h1, h2;
+
+  h1 = 1000 - fabs(1000 - (int)(fabs(x*0.3f)) % 2000);
+  h2 = 1000 - fabs(1000 - (int)(fabs(z*0.3f)) % 2000);
+
+  return h1 + h2;
+}
+
+
 float algorithmicTerrainHeight(float x, float z)
 {
   float height = 0.0f, dist = 0.0f;
@@ -206,25 +217,28 @@ float readTerrainHeightB(float x, float z, int squaresize)
 {
   int xgrid, zgrid;
   float x1, z1, x2, z2, x3, z3;
-  float height, xpos, zpos, p[2] = {x, z}, v1[3], v2[3], v3[3];
+  float height, p[2] = {x, z}, v1[3], v2[3], v3[3];
 
-  x3 = x / (float)squaresize;
-  z3 = z / (float)squaresize;
-  for (xgrid = 0, xpos = 5000000; xgrid < 4; xgrid++) {
-    x1 = (xgrid - 2) * squaresize + x3 * squaresize;
-    xpos = fabs(x - x1) < xpos ? fabs(x - x1) : xpos;
+  for (xgrid = 0, x2 = 5000000; xgrid < 4; xgrid++) {
+    x1 = (xgrid - 2) * squaresize + snap(x, squaresize);
+    x2 = fabs(x - x1) < x2 ? fabs(x - x1) : x2;
+    if (fabs(x - x1) > x2)
+      break;
+    else
+      x3 = x1;
   }
-  xpos += x;
-  for (zgrid = 0, zpos = 5000000; zgrid < 4; zgrid++) {
-    z1 = (zgrid - 2) * squaresize + z3 * squaresize;
-    zpos = fabs(z - z1) < zpos ? fabs(z - z1) : zpos;
+  for (zgrid = 0, z2 = 5000000; zgrid < 4; zgrid++) {
+    z1 = (zgrid - 2) * squaresize + snap(z, squaresize);
+    z2 = fabs(z - z1) < z2 ? fabs(z - z1) : z2;
+    if (fabs(z - z1) > z2)
+      break;
+    else
+      z3 = z1;
   }
-  zpos += z;
-  x1 = xpos + squaresize / 2;
-  x2 = xpos - squaresize / 2;
-  z1 = zpos + squaresize / 2;
-  z2 = zpos - squaresize / 2;
-  //if (x1 - x + z1 - z < x - x2 + z - z2) {
+  x1 = x3 + squaresize / 2;
+  x2 = x3 - squaresize / 2;
+  z1 = z3 - squaresize / 2;
+  z2 = z3 + squaresize / 2;
   if (distance2d(mv3f(x, 0, z), mv3f(x1, 0, z1)) < distance2d(mv3f(x, 0, z), mv3f(x2, 0, z2))) {
     v1[0] = x2; v1[1] = algorithmicTerrainHeight(x2, z1); v1[2] = z1;
     v2[0] = x1; v2[1] = algorithmicTerrainHeight(x1, z1); v2[2] = z1;
@@ -386,7 +400,7 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
     cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
     while (cull >= 360)
       cull -= 360;
-    if (/*camerarot.x > 27.0f || */cull <= 75 || cull >= 285 || dist < *squaresize * 3.5f) {
+    if (camerarot.x > 47.0f || cull <= 75 || cull >= 285 || dist < *squaresize * 3.5f) {
       NEx[xgrid][zgrid] = x1;
       NEz[xgrid][zgrid] = z2;
       temp1 = readTerrain (NEx[xgrid][zgrid], NEz[xgrid][zgrid]); // color read here
