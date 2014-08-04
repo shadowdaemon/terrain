@@ -5,7 +5,7 @@
 void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squaresize, float *fogend)
 {
   static float fogstart = 10.0f;
-  float fstart = 0.5;
+  const float fstart = 0.25f;
   float temp = 0.0f;
   float lightspec[4];
   float lightamb[4];
