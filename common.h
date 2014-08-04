@@ -145,7 +145,5 @@ float readTerrainHeightB(float x, float z, int squaresize);
 void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int *swapb, int squaresize);
 void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *swapb, int *squaresize);
 const struct aiScene *loadFromOBJFile(const char *name);
-// void loadFromOBJFile(const char *name, struct model *model);
 void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfloat size, GLuint alpha);
-//void drawModel(struct model model, struct v3f pos, struct v3f rot, GLfloat size, GLuint alpha);
 void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint *shaders, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *squaresize, float *fogend, struct airunit *airunits);

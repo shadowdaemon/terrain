@@ -444,8 +444,7 @@ void keyboardInput(GLFWwindow *window, char *direction)
 
 void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float speed)
 {
-  float ground, temp;
-  const int offset = TERRAIN_SQUARE_SIZE / 4;
+  float ground;
 
   switch (direction) {
   case INPUT_UP:
@@ -476,19 +475,9 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
     break;
   default: break;
   }
-  /*ground = readTerrainHeightB(camerapos->x, camerapos->z, TERRAIN_SQUARE_SIZE);
-  temp = readTerrainHeightB(camerapos->x + offset, camerapos->z + offset, TERRAIN_SQUARE_SIZE);
-  ground = ground > temp ? ground : temp;
-  temp = readTerrainHeightB(camerapos->x + offset, camerapos->z - offset, TERRAIN_SQUARE_SIZE);
-  ground = ground > temp ? ground : temp;
-  temp = readTerrainHeightB(camerapos->x - offset, camerapos->z + offset, TERRAIN_SQUARE_SIZE);
-  ground = ground > temp ? ground : temp;
-  temp = readTerrainHeightB(camerapos->x - offset, camerapos->z - offset, TERRAIN_SQUARE_SIZE);
-  ground = ground > temp ? ground : temp;*/
   ground = readTerrainHeightB(camerapos->x, camerapos->z, TERRAIN_SQUARE_SIZE);
   ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
   ground += TERRAIN_SQUARE_SIZE * 0.02f;
-  //camerapos->y = camerapos->y < ground ? ground : camerapos->y;
   camerapos->y = ground;
 }
 
