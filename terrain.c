@@ -191,12 +191,27 @@ float algorithmicTerrainHeightOld(float x, float z)
 
   return height;
 }
+
+
 float algorithmicTerrainHeight(float x, float z)
 {
   float height = 0.0f, x1, z1;
 
-  height = algorithmicTerrainHeight3(z*0.67, x*0.67, height) * 1.1f - 1500;
-  if (height > 500) {
+  height = algorithmicTerrainHeight3(z*0.34f, x*0.3f, height) * 1.7f - 2500;
+  if (height > 1500 && height < 3000) {
+    x1 = 1.1f - sinf(x * 0.00027f - 9500);
+    if (x1 < 0)
+      x1 = 0;
+    else if (x1 > 1)
+      x1 = 1;
+    z1 = 0.87f - sinf(z * 0.00024f);
+    if (z1 < 0)
+      z1 = 0;
+    else if (z1 > 1)
+      z1 = 1;
+    height += (750 - fabs(2250 - height)) * x1 * z1 * 0.6f;
+  }
+  if (height > 2500 && height < 4000) {
     x1 = 0.5f - sinf(x * 0.0003f + 11000);
     if (x1 < 0)
       x1 = 0;
@@ -207,8 +222,24 @@ float algorithmicTerrainHeight(float x, float z)
       z1 = 0;
     else if (z1 > 1)
       z1 = 1;
-    height += (500.0f - height) * x1 * z1;
+    height += (750 - fabs(3250 - height)) * x1 * z1 * 0.85f;
   }
+  if (height > 500 && height < 2000) {
+    x1 = 0.7f - sinf(x * 0.00042f);
+    if (x1 < 0)
+      x1 = 0;
+    else if (x1 > 1)
+      x1 = 1;
+    z1 = 0.63f - sinf(z * 0.00037f - 7700);
+    if (z1 < 0)
+      z1 = 0;
+    else if (z1 > 1)
+      z1 = 1;
+    height += algorithmicTerrainHeight1(x*0.43, z*0.39, height) * (1 - fabs(1250 - height)/750.0f) * x1 * z1 * 0.37f;
+  }
+  height -= height < 1500 ? (height - 1500) * 0.32f : 0;
+  height -= height < 3000 ? (height - 3000) * 0.46f : 0;
+  height -= height > 8000 ? (height - 8000) * 0.61f : 0;
 
   return height;
 }
