@@ -258,20 +258,14 @@ float readTerrainHeightB(float x, float z, int squaresize)
 
 void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int *swapb, int squaresize)
 {
-  //float rot;
-  struct v3f center;
-
-  //rot = camerarot.x < 75.0f ? camerarot.x : 75.0f;
-  //center = degreestovector2d (camerapos, camerarot.y, 0.0f, TERRAIN_CENTRE_DISTANCE * cosf (rot / PIx180));
-  center = camerapos;
-  if (center.x > (sector->x + TERRAIN_STEP_SIZE * squaresize) ||
-       center.x < (sector->x - TERRAIN_STEP_SIZE * squaresize)) {
-    sector->x = center.x;
+  if (camerapos.x > (sector->x + TERRAIN_STEP_SIZE * squaresize) ||
+       camerapos.x < (sector->x - TERRAIN_STEP_SIZE * squaresize)) {
+    sector->x = camerapos.x;
     *swapb = 0;
   }
-  if (center.z > (sector->y + TERRAIN_STEP_SIZE * squaresize) ||
-       center.z < (sector->y - TERRAIN_STEP_SIZE * squaresize)) {
-    sector->y = center.z;
+  if (camerapos.z > (sector->y + TERRAIN_STEP_SIZE * squaresize) ||
+       camerapos.z < (sector->y - TERRAIN_STEP_SIZE * squaresize)) {
+    sector->y = camerapos.z;
     *swapb = 0;
   }
 }
