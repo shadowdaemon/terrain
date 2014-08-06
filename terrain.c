@@ -193,58 +193,6 @@ float algorithmicTerrainHeightOld(float x, float z)
 }
 
 
-float algorithmicTerrainHeight(float x, float z)
-{
-  float height = 0.0f, x1, z1;
-
-  height = algorithmicTerrainHeight3(z*0.34f, x*0.3f, height) * 1.7f - 2500;
-  if (height > 1500 && height < 3000) {
-    x1 = 1.1f - sinf(x * 0.00027f - 9500);
-    if (x1 < 0)
-      x1 = 0;
-    else if (x1 > 1)
-      x1 = 1;
-    z1 = 0.87f - sinf(z * 0.00024f);
-    if (z1 < 0)
-      z1 = 0;
-    else if (z1 > 1)
-      z1 = 1;
-    height += (750 - fabs(2250 - height)) * x1 * z1 * 0.6f;
-  }
-  if (height > 2500 && height < 4000) {
-    x1 = 0.5f - sinf(x * 0.0003f + 11000);
-    if (x1 < 0)
-      x1 = 0;
-    else if (x1 > 1)
-      x1 = 1;
-    z1 = 0.5f - sinf(z * 0.0002f);
-    if (z1 < 0)
-      z1 = 0;
-    else if (z1 > 1)
-      z1 = 1;
-    height += (750 - fabs(3250 - height)) * x1 * z1 * 0.85f;
-  }
-  if (height > 500 && height < 2000) {
-    x1 = 0.7f - sinf(x * 0.00042f);
-    if (x1 < 0)
-      x1 = 0;
-    else if (x1 > 1)
-      x1 = 1;
-    z1 = 0.63f - sinf(z * 0.00037f - 7700);
-    if (z1 < 0)
-      z1 = 0;
-    else if (z1 > 1)
-      z1 = 1;
-    height += algorithmicTerrainHeight1(x*0.43, z*0.39, height) * (1 - fabs(1250 - height)/750.0f) * x1 * z1 * 0.37f;
-  }
-  height -= height < 1500 ? (height - 1500) * 0.32f : 0;
-  height -= height < 3000 ? (height - 3000) * 0.46f : 0;
-  height -= height > 8000 ? (height - 8000) * 0.61f : 0;
-
-  return height;
-}
-
-
 char calculateTerrainType(float height)
 {
   char type = T_TYPE_DIRT;
@@ -268,25 +216,77 @@ char calculateTerrainType(float height)
 }
 
 
-float readTerrainHeight(float x, float z)
-{
-  struct terrain temp = readTerrain(x, z);
-  return temp.height;
-}
-
-
-struct terrain readTerrain(float x, float z)
+struct terrain algorithmicTerrain(float x, float z)
 {
   struct terrain temp;
+  float dist, x1, z1;
 
-  temp.height = algorithmicTerrainHeight(x, z);
-  temp.type = calculateTerrainType(temp.height);
+  temp.height = 0.0f;
+  temp.height = algorithmicTerrainHeight3(z * 0.34f, x * 0.3f, temp.height) * 1.7f - 2500;
+  temp.type = T_TYPE_NULL;
+  if (temp.height > 1500 && temp.height < 3000) {
+    x1 = 1.1f - sinf(x * 0.00027f - 9500);
+    if (x1 < 0)
+      x1 = 0;
+    else if (x1 > 1)
+      x1 = 1;
+    z1 = 0.87f - sinf(z * 0.00024f);
+    if (z1 < 0)
+      z1 = 0;
+    else if (z1 > 1)
+      z1 = 1;
+    temp.height += (750 - fabs(2250 - temp.height)) * x1 * z1 * 0.6f;
+  }
+  if (temp.height > 2500 && temp.height < 4000) {
+    x1 = 0.5f - sinf(x * 0.0003f + 11000);
+    if (x1 < 0)
+      x1 = 0;
+    else if (x1 > 1)
+      x1 = 1;
+    z1 = 0.5f - sinf(z * 0.0002f);
+    if (z1 < 0)
+      z1 = 0;
+    else if (z1 > 1)
+      z1 = 1;
+    temp.height += (750 - fabs(3250 - temp.height)) * x1 * z1 * 0.85f;
+  }
+  if (temp.height > 0 && temp.height < 2000) {
+    x1 = 0.7f - sinf(x * 0.00012f);
+    if (x1 < 0)
+      x1 = 0;
+    else if (x1 > 1)
+      x1 = 1;
+    z1 = 0.63f - sinf(z * 0.00017f - 7700);
+    if (z1 < 0)
+      z1 = 0;
+    else if (z1 > 1)
+      z1 = 1;
+    temp.height += algorithmicTerrainHeight1(x * 0.037f, z * 0.041f, temp.height) * (1 - fabs(1000 - temp.height) / 1000.0f) * x1 * z1 * 0.27f;
+  }
+  dist = distance2d(mv3f(0, 0, 0), mv3f(x, 0, z));
+  if (dist < 20000) {
+    dist = (20000 - dist) / 9000;
+    dist = dist < 0 ? 0 : dist > 1 ? 1 : dist;
+    temp.height += (3070.0f - temp.height) * dist * 0.9f;
+  }
+  temp.height -= temp.height < 1500 ? (temp.height - 1500) * 0.32f : 0;
+  temp.height -= temp.height < 3000 ? (temp.height - 3000) * 0.46f : 0;
+  temp.height -= temp.height > 8000 ? (temp.height - 8000) * 0.61f : 0;
+  if (temp.type == T_TYPE_NULL)
+    temp.type = calculateTerrainType(temp.height);
 
   return temp;
 }
 
 
-float readTerrainHeightB(float x, float z, int squaresize)
+float readTerrainHeight(float x, float z)
+{
+  struct terrain temp = algorithmicTerrain(x, z);
+  return temp.height;
+}
+
+
+float readTerrainHeightPlane(float x, float z, int squaresize)
 {
   int xgrid, zgrid;
   float x1, z1, x2, z2, x3, z3;
@@ -313,15 +313,15 @@ float readTerrainHeightB(float x, float z, int squaresize)
   z1 = z3 - squaresize / 2;
   z2 = z3 + squaresize / 2;
   if (distance2d(mv3f(x, 0, z), mv3f(x1, 0, z1)) < distance2d(mv3f(x, 0, z), mv3f(x2, 0, z2))) {
-    v1[0] = x2; v1[1] = algorithmicTerrainHeight(x2, z1); v1[2] = z1;
-    v2[0] = x1; v2[1] = algorithmicTerrainHeight(x1, z1); v2[2] = z1;
-    v3[0] = x1; v3[1] = algorithmicTerrainHeight(x1, z2); v3[2] = z2;
+    v1[0] = x2; v1[1] = readTerrainHeight(x2, z1); v1[2] = z1;
+    v2[0] = x1; v2[1] = readTerrainHeight(x1, z1); v2[2] = z1;
+    v3[0] = x1; v3[1] = readTerrainHeight(x1, z2); v3[2] = z2;
     height = plane1(p, v1, v2, v3);
   }
   else {
-    v1[0] = x2; v1[1] = algorithmicTerrainHeight(x2, z2); v1[2] = z2;
-    v2[0] = x1; v2[1] = algorithmicTerrainHeight(x1, z2); v2[2] = z2;
-    v3[0] = x2; v3[1] = algorithmicTerrainHeight(x2, z1); v3[2] = z1;
+    v1[0] = x2; v1[1] = readTerrainHeight(x2, z2); v1[2] = z2;
+    v2[0] = x1; v2[1] = readTerrainHeight(x1, z2); v2[2] = z2;
+    v3[0] = x2; v3[1] = readTerrainHeight(x2, z1); v3[2] = z1;
     height = plane1(p, v1, v2, v3);
   }
 
@@ -470,14 +470,14 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
     if (camerarot.x > 47.0f || cull <= 75 || cull >= 285 || dist < *squaresize * 3.5f) {
       NEx[xgrid][zgrid] = x1;
       NEz[xgrid][zgrid] = z2;
-      temp1 = readTerrain (NEx[xgrid][zgrid], NEz[xgrid][zgrid]); // color read here
+      temp1 = algorithmicTerrain (NEx[xgrid][zgrid], NEz[xgrid][zgrid]); // color read here
       NEy[xgrid][zgrid] = (int) temp1.height;
       NWx[xgrid][zgrid] = x2;
       NWz[xgrid][zgrid] = z2;
       NWy[xgrid][zgrid] = (int) readTerrainHeight (NWx[xgrid][zgrid], NWz[xgrid][zgrid]);
       SEx[xgrid][zgrid] = x1;
       SEz[xgrid][zgrid] = z1;
-      temp2 = readTerrain (SEx[xgrid][zgrid], SEz[xgrid][zgrid]); // color read here too..
+      temp2 = algorithmicTerrain (SEx[xgrid][zgrid], SEz[xgrid][zgrid]); // color read here too..
       SEy[xgrid][zgrid] = (int) temp2.height;
       SWx[xgrid][zgrid] = x2;
       SWz[xgrid][zgrid] = z1;

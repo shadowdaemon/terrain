@@ -6,7 +6,7 @@
 #define PIx180                              180.0f*PI
 #define VIEW_DISTANCE                       4000
 #define VIEW_DISTANCE_HALF                  2000
-#define WORLD_SIZE                          50000
+#define WORLD_SIZE                          20000
 #define WORLD_GRAVITY                       0.98f
 #define TERRAIN_GRID_SIZE                   100
 #define TERRAIN_GRID_SIZE_HALF              50
@@ -16,6 +16,7 @@
 // #define TERRAIN_CENTRE_DISTANCE             (TERRAIN_SQUARE_SIZE*TERRAIN_GRID_SIZE*0.1f)
 #define TERRAIN_STEP_SIZE                   8
 #define TERRAIN_WATER_LEVEL                 0
+#define T_TYPE_NULL                         0
 #define T_TYPE_CRATER                       2
 #define T_TYPE_GRASS1                       3
 #define T_TYPE_GRASS2                       4
@@ -138,11 +139,9 @@ struct airunit {
   float height;
 };
 
-float algorithmicTerrainHeight(float x, float z);
-struct terrain readTerrain(float x, float y);
+struct terrain algorithmicTerrain(float x, float z);
 float readTerrainHeight(float x, float y);
-float readTerrainHeightB(float x, float z, int squaresize);
-void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int *swapb, int squaresize);
+float readTerrainHeightPlane(float x, float z, int squaresize);
 void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *swapb, int *squaresize);
 const struct aiScene *loadFromOBJFile(const char *name);
 void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfloat size, GLuint alpha);

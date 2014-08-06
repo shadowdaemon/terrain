@@ -69,7 +69,7 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
     while (cull >= 360)
       cull -= 360;
     if (cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) {
-      height = readTerrainHeightB(xpos, zpos, squaresize);
+      height = readTerrainHeightPlane(xpos, zpos, squaresize);
       dist = distance3d(camerapos, mv3f(xpos, height, zpos));
       x1 = x1 * x1 + z1 * z1;
       x1 = x1 % 3176;
@@ -144,7 +144,7 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   glTranslatef(camerapos.x, 0.0f, camerapos.z);
   glRotatef(-camerarot.y, 0.0f, 1.0f, 0.0f);
   glBegin(GL_QUADS);
-  glColor4ub(32, 112, 255, 210);
+  glColor4ub(32, 112, 255, 235);
   glNormal3i(0, 1, 0);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE_HALF && zgrid < TERRAIN_GRID_SIZE_HALF; xgrid++) {
     xshift = zshift = size;
@@ -291,10 +291,12 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   //glUseProgramARB(0);
   //glDisable(GL_TEXTURE_2D);
   //glShadeModel(GL_FLAT);
-  /*int i;
-  drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 1, 255);
-  for (i = 1; i < 15; i++)
-  drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 1, 255);*/
+  //int i;
+  //drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 1, 255);
+  //for (i = 1; i < 15; i++)
+  //drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 1, 255);
+  glBindTexture(GL_TEXTURE_2D, textures[5]);
+  drawModel((const struct aiScene *) &scene[7], mv3f(0, readTerrainHeightPlane(0, 0, *squaresize), 0), mv3f(0, 0, 0), 1, 255);
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
