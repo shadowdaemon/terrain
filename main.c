@@ -203,6 +203,9 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   loadTexture2D("data/textures/fighter.png", 'n');
   glActiveTextureARB(GL_TEXTURE4_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[4]);
+  glActiveTextureARB(GL_TEXTURE5_ARB);
+  glBindTexture(GL_TEXTURE_2D, textures[5]);
+  loadTexture2D("data/textures/building1.png", 'n');
   glActiveTextureARB(GL_TEXTURE0_ARB);
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
@@ -670,7 +673,7 @@ int main(int argc, char *argv[])
     scene[4] = *loadFromOBJFile("data/models/mtree1.obj");
     scene[5] = *loadFromOBJFile("data/models/stump1.obj");
     scene[6] = *loadFromOBJFile("data/models/fighter1.obj");
-    //scene[7] = *loadFromOBJFile("data/models/fighter2.obj");
+    scene[7] = *loadFromOBJFile("data/models/house1.obj");
     //scene[8] = *loadFromOBJFile("data/models/md3-rx78.pk3");
     while (!glfwWindowShouldClose(window)) {
       camheight = cameraHeight(camerapos);
