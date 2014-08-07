@@ -17,7 +17,8 @@
 #define TERRAIN_STEP_SIZE                   8
 #define TERRAIN_WATER_LEVEL                 0
 #define T_TYPE_NULL                         0
-#define T_TYPE_CRATER                       2
+#define T_TYPE_CRATER                       1
+#define T_TYPE_VILLAGE                      2
 #define T_TYPE_GRASS1                       3
 #define T_TYPE_GRASS2                       4
 #define T_TYPE_GRASS3                       5
@@ -116,7 +117,7 @@ struct v3f {
 struct terrain
 {
   float height;
-  char type;
+  unsigned char type;
 };
 
 struct model {
@@ -142,6 +143,7 @@ struct airunit {
 struct terrain algorithmicTerrain(float x, float z);
 float readTerrainHeight(float x, float y);
 float readTerrainHeightPlane(float x, float z, int squaresize);
+unsigned char readTerrainType(float x, float z);
 void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *swapb, int *squaresize);
 const struct aiScene *loadFromOBJFile(const char *name);
 void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfloat size, GLuint alpha);
