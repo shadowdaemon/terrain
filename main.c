@@ -447,6 +447,7 @@ void keyboardInput(GLFWwindow *window, char *direction)
 
 void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float speed)
 {
+  struct v3f normal;
   float ground;
 
   switch (direction) {
