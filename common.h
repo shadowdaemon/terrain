@@ -120,16 +120,6 @@ struct terrain
   unsigned char type;
 };
 
-struct model {
-  GLenum type;
-  GLuint num_indices;
-  GLfloat (*verts)[3];
-  GLfloat (*norms)[3];
-  GLuint *indices;
-  GLuint *tex_indices;
-  GLfloat (*tex_coords)[2];
-};
-
 struct airunit {
   int type;
   struct v3f pos;
