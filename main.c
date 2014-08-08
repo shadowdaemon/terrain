@@ -206,6 +206,9 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   glActiveTextureARB(GL_TEXTURE5_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[5]);
   loadTexture2D("data/textures/building1.png", 'n');
+  glActiveTextureARB(GL_TEXTURE6_ARB);
+  glBindTexture(GL_TEXTURE_2D, textures[6]);
+  loadTexture2D("data/textures/font_alpha.tga", 'n');
   glActiveTextureARB(GL_TEXTURE0_ARB);
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
@@ -659,6 +662,7 @@ int main(int argc, char *argv[])
   struct v3f camerarot = {0.0f, 0.0f, 0.0f};
   struct v3f camerapos = {0.0f, 0.0f, 0.0f};
   struct aiScene *scene = malloc(sizeof(struct aiScene) * 12);
+  struct aiScene *textquads = malloc(sizeof(struct aiScene) * 36);
   struct airunit *airunits = malloc(sizeof(struct airunit) * 16);
 
   if ((window = startGraphics(textures, shaders)) != NULL) {
@@ -676,6 +680,7 @@ int main(int argc, char *argv[])
     scene[6] = *loadFromOBJFile("data/models/fighter1.obj");
     scene[7] = *loadFromOBJFile("data/models/house1.obj");
     //scene[8] = *loadFromOBJFile("data/models/md3-rx78.pk3");
+    textquads[0] = *loadTextQuad("data/models/quads/0.obj");
     while (!glfwWindowShouldClose(window)) {
       camheight = cameraHeight(camerapos);
       keyboardInput(window, &direction);
@@ -690,6 +695,8 @@ int main(int argc, char *argv[])
       glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
     }
     free(scene);
+    free(airunits);
+    free(textquads);
     glfwDestroyWindow(window);
     glfwTerminate();
     return EXIT_SUCCESS;

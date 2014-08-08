@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -12,6 +11,13 @@
 const struct aiScene *loadFromOBJFile(const char *name)
 {
   const struct aiScene *foo = aiImportFile(name,  aiProcess_Triangulate | aiProcess_RemoveComponent | aiProcess_GenNormals);
+  return foo;
+}
+
+
+const struct aiScene *loadTextQuad(const char *name)
+{
+  const struct aiScene *foo = aiImportFile(name,  aiProcess_RemoveComponent);
   return foo;
 }
 
