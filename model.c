@@ -8,17 +8,17 @@
 #define AI_CONFIG_PP_RVC_FLAGS aiComponent_NORMALS
 #define AI_CONFIG_PP_SBP_REMOVE aiPrimitiveType_LINE | aiPrimitiveType_POINT
 
-const struct aiScene *loadModel(const char *name)
+const struct aiScene *loadModel(const char *file)
 {
-  const struct aiScene *foo = aiImportFile(name,  aiProcess_Triangulate | aiProcess_RemoveComponent | aiProcess_GenNormals);
-  return foo;
+  const struct aiScene *scene = aiImportFile(file,  aiProcess_Triangulate | aiProcess_RemoveComponent | aiProcess_GenNormals);
+  return scene;
 }
 
 
-const struct aiScene *loadTextQuad(const char *name)
+const struct aiScene *loadTextQuad(const char *file)
 {
-  const struct aiScene *foo = aiImportFile(name,  aiProcess_RemoveComponent);
-  return foo;
+  const struct aiScene *scene = aiImportFile(file,  aiProcess_RemoveComponent);
+  return scene;
 }
 
 
