@@ -16,6 +16,15 @@ int snap(float in, int snap)
 }
 
 
+struct v2f mv2f(float x, float y)
+{
+  struct v2f temp;
+  temp.x = x;
+  temp.y = y;
+  return temp;
+}
+
+
 struct v3f mv3f(float x, float y, float z)
 {
   struct v3f temp;
@@ -111,15 +120,15 @@ struct v3f calcNormal(float in_v1[3], float in_v2[3], float in_v3[3])
 }
 
 
-float plane1(float in_p[2], float in_v1[3], float in_v2[3], float in_v3[3])
+float planeHeight(float in_p[2], float in_v1[3], float in_v2[3], float in_v3[3], struct v3f *normal)
 {
-  struct v3f temp = calcNormal(in_v1, in_v2, in_v3);
   float p;
 
-  p = temp.x * in_v1[0] + temp.x * in_v2[0] + temp.x * in_v3[0] +
-      temp.y * in_v1[1] + temp.y * in_v2[1] + temp.y * in_v3[1] +
-      temp.z * in_v1[2] + temp.z * in_v2[2] + temp.z * in_v3[2];
-  return (p - temp.x * in_v1[0] - temp.x * in_v2[0] - temp.x * in_p[0] -
-              temp.y * in_v1[1] - temp.y * in_v2[1] - temp.z * in_v1[2] -
-              temp.z * in_v2[2] - temp.z * in_p[1]) / temp.y;
+  *normal = calcNormal(in_v1, in_v2, in_v3);
+  p = normal->x * in_v1[0] + normal->x * in_v2[0] + normal->x * in_v3[0] +
+      normal->y * in_v1[1] + normal->y * in_v2[1] + normal->y * in_v3[1] +
+      normal->z * in_v1[2] + normal->z * in_v2[2] + normal->z * in_v3[2];
+  return (p - normal->x * in_v1[0] - normal->x * in_v2[0] - normal->x * in_p[0] -
+              normal->y * in_v1[1] - normal->y * in_v2[1] - normal->z * in_v1[2] -
+              normal->z * in_v2[2] - normal->z * in_p[1]) / normal->y;
 }

@@ -295,7 +295,7 @@ unsigned char readTerrainType(float x, float z)
 }
 
 
-float readTerrainHeightPlane(float x, float z, int squaresize)
+float readTerrainHeightPlane(float x, float z, int squaresize, struct v3f *normal)
 {
   int xgrid, zgrid;
   float x1, z1, x2, z2, x3, z3;
@@ -325,13 +325,13 @@ float readTerrainHeightPlane(float x, float z, int squaresize)
     v1[0] = x2; v1[1] = readTerrainHeight(x2, z1); v1[2] = z1;
     v2[0] = x1; v2[1] = readTerrainHeight(x1, z1); v2[2] = z1;
     v3[0] = x1; v3[1] = readTerrainHeight(x1, z2); v3[2] = z2;
-    height = plane1(p, v1, v2, v3);
+    height = planeHeight(p, v1, v2, v3, normal);
   }
   else {
     v1[0] = x2; v1[1] = readTerrainHeight(x2, z2); v1[2] = z2;
     v2[0] = x1; v2[1] = readTerrainHeight(x1, z2); v2[2] = z2;
     v3[0] = x2; v3[1] = readTerrainHeight(x2, z1); v3[2] = z1;
-    height = plane1(p, v1, v2, v3);
+    height = planeHeight(p, v1, v2, v3, normal);
   }
 
   return height;

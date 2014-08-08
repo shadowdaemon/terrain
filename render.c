@@ -48,8 +48,9 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squa
 
 void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camerarot, struct v2f sector, int squaresize)
 {
-  int xgrid, zgrid, x1, z1, cull;
-  int size = TERRAIN_SQUARE_SIZE * 0.4f;
+  struct v3f normal;
+  int xgrid, zgrid, x1, z1, cull, density;
+  const int size = TERRAIN_SQUARE_SIZE * 0.4f;
   float x, z, xpos = 0.0f, zpos = 0.0f, height, dist;
   unsigned char type;
   GLubyte alpha;
@@ -68,13 +69,30 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
     while (cull >= 360)
       cull -= 360;
     if (cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) {
-      height = readTerrainHeightPlane(xpos, zpos, squaresize);
+      height = readTerrainHeightPlane(xpos, zpos, squaresize, &normal);
       type = readTerrainType(xpos, zpos);
       dist = distance3d(camerapos, mv3f(xpos, height, zpos));
       x1 = x1 * x1 + z1 * z1;
       x1 = x1 % 3176;
-      if (((dist < VIEW_DISTANCE) || dist < TERRAIN_SQUARE_SIZE * 10) && (x1 < 587)) {
-        if (height > TERRAIN_WATER_LEVEL + 50 && height < 3750 && type != T_TYPE_DIRT && type != T_TYPE_VILLAGE) {
+      switch (type) {
+      case T_TYPE_GRASS1:
+        density = 370;
+        break;
+      case T_TYPE_GRASS2:
+        density = 687;
+        //density += distance3d(mv3f(normal.x, fabs(normal.y), normal.z), mv3f(0, 1, 0)) < 1.0f ? 2000 : 0;
+        break;
+      case T_TYPE_GRASS3:
+        density = 251;
+        break;
+      case T_TYPE_VILLAGE:
+        density = 413;
+        break;
+      default:
+        density = 500;
+      }
+      if ((dist < VIEW_DISTANCE || dist < TERRAIN_SQUARE_SIZE * 10) && x1 < density) {
+        if (height > TERRAIN_WATER_LEVEL + 50 && height < 3750 && type != T_TYPE_DIRT) {
           if (dist < VIEW_DISTANCE_HALF)
             alpha = 255;
           else if (dist < VIEW_DISTANCE)
@@ -95,8 +113,9 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
 
 void renderBuildings(struct aiScene *scene, struct v3f camerapos, struct v3f camerarot, struct v2f sector, int squaresize)
 {
+  struct v3f normal;
   int xgrid, zgrid, x1, z1, cull;
-  int size = TERRAIN_SQUARE_SIZE * 0.4f;
+  const int size = TERRAIN_SQUARE_SIZE * 0.4f;
   float x, z, xpos = 0.0f, zpos = 0.0f, height, dist;
   unsigned char type;
   GLubyte alpha;
@@ -108,19 +127,19 @@ void renderBuildings(struct aiScene *scene, struct v3f camerapos, struct v3f cam
     xpos = (xgrid - TERRAIN_GRID_SIZE_HALF + x) * size;
     zpos = (zgrid - TERRAIN_GRID_SIZE_HALF + z) * size;
     x1 = (int) xpos % 197;
-    z1 = (int) zpos % 153;
+    z1 = (int) zpos % 163;
     xpos += z1;
     zpos += x1;
     cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
     while (cull >= 360)
       cull -= 360;
     if (cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) {
-      height = readTerrainHeightPlane(xpos, zpos, squaresize);
+      height = readTerrainHeightPlane(xpos, zpos, squaresize, &normal);
       type = readTerrainType(xpos, zpos);
       dist = distance3d(camerapos, mv3f(xpos, height, zpos));
       x1 = x1 * x1 + z1 * z1;
       x1 = x1 % 3176;
-      if (((dist < VIEW_DISTANCE) || dist < TERRAIN_SQUARE_SIZE * 10) && (x1 < 587)) {
+      if ((dist < VIEW_DISTANCE || dist < TERRAIN_SQUARE_SIZE * 10) && x1 < 587/* && distance3d(mv3f(normal.x, fabs(normal.y), normal.z), mv3f(0, 1, 0)) < 1.0f*/) {
         if (type == T_TYPE_VILLAGE) {
           if (dist < VIEW_DISTANCE_HALF)
             alpha = 255;

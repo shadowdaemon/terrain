@@ -478,7 +478,7 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
     break;
   default: break;
   }
-  ground = readTerrainHeightPlane(camerapos->x, camerapos->z, TERRAIN_SQUARE_SIZE);
+  ground = readTerrainHeightPlane(camerapos->x, camerapos->z, TERRAIN_SQUARE_SIZE, &normal);
   ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
   ground += TERRAIN_SQUARE_SIZE * 0.02f;
   camerapos->y = ground;
