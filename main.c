@@ -671,15 +671,15 @@ int main(int argc, char *argv[])
       airunits[i].type = UNIT_AIRFIGHTER;
       airunits[i].pos.x = (i - 5) * 50;
     }
-    scene[0] = *loadFromOBJFile("data/models/tree1.obj");
-    scene[1] = *loadFromOBJFile("data/models/tree2.obj");
-    scene[2] = *loadFromOBJFile("data/models/tree3.obj");
-    scene[3] = *loadFromOBJFile("data/models/tree4.obj");
-    scene[4] = *loadFromOBJFile("data/models/mtree1.obj");
-    scene[5] = *loadFromOBJFile("data/models/stump1.obj");
-    scene[6] = *loadFromOBJFile("data/models/fighter1.obj");
-    scene[7] = *loadFromOBJFile("data/models/house1.obj");
-    //scene[8] = *loadFromOBJFile("data/models/md3-rx78.pk3");
+    scene[0] = *loadModel("data/models/tree1.obj");
+    scene[1] = *loadModel("data/models/tree2.obj");
+    scene[2] = *loadModel("data/models/tree3.obj");
+    scene[3] = *loadModel("data/models/tree4.obj");
+    scene[4] = *loadModel("data/models/mtree1.obj");
+    scene[5] = *loadModel("data/models/stump1.obj");
+    scene[6] = *loadModel("data/models/fighter1.obj");
+    scene[7] = *loadModel("data/models/house1.obj");
+    //scene[8] = *loadModel("data/models/md3-rx78.pk3");
     textquads[0] = *loadTextQuad("data/models/quads/0.obj");
     while (!glfwWindowShouldClose(window)) {
       camheight = cameraHeight(camerapos);

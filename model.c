@@ -8,7 +8,7 @@
 #define AI_CONFIG_PP_RVC_FLAGS aiComponent_NORMALS
 #define AI_CONFIG_PP_SBP_REMOVE aiPrimitiveType_LINE | aiPrimitiveType_POINT
 
-const struct aiScene *loadFromOBJFile(const char *name)
+const struct aiScene *loadModel(const char *name)
 {
   const struct aiScene *foo = aiImportFile(name,  aiProcess_Triangulate | aiProcess_RemoveComponent | aiProcess_GenNormals);
   return foo;
