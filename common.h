@@ -138,6 +138,6 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
 const struct aiScene *loadModel(const char *file);
 const struct aiScene *loadTextQuad(const char *file);
 void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfloat size, GLuint alpha);
-void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint *shaders,
+void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads, GLuint *textures, GLuint *shaders,
   int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *squaresize,
   float *fogend, struct airunit *airunits);

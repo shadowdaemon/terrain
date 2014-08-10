@@ -184,6 +184,9 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   glMatrixMode(GL_MODELVIEW);
   glfwGetFramebufferSize(window, &width, &height);
   glViewport(0, 0, width, height);
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_NORMAL_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
   FreeImage_Initialise(GL_FALSE);
   FreeImage_SetOutputMessage(errorFreeImage);
@@ -681,13 +684,24 @@ int main(int argc, char *argv[])
     scene[7] = *loadModel("data/models/house1.obj");
     //scene[8] = *loadModel("data/models/md3-rx78.pk3");
     textquads[0] = *loadTextQuad("data/models/quads/0.obj");
+    textquads[1] = *loadTextQuad("data/models/quads/1.obj");
+    textquads[2] = *loadTextQuad("data/models/quads/2.obj");
+    textquads[3] = *loadTextQuad("data/models/quads/3.obj");
+    textquads[4] = *loadTextQuad("data/models/quads/4.obj");
+    textquads[5] = *loadTextQuad("data/models/quads/5.obj");
+    textquads[6] = *loadTextQuad("data/models/quads/6.obj");
+    textquads[7] = *loadTextQuad("data/models/quads/7.obj");
+    textquads[8] = *loadTextQuad("data/models/quads/8.obj");
+    textquads[9] = *loadTextQuad("data/models/quads/9.obj");
+    textquads[10] = *loadTextQuad("data/models/quads/minus.obj");
     while (!glfwWindowShouldClose(window)) {
       camheight = cameraHeight(camerapos);
       keyboardInput(window, &direction);
       mouseLook(window, &camerarot);
       //mouseLook(window, &airunits[0].rot);
-      render(window, scene, textures, shaders, &swapb, camerapos, camerarot, &sector, camheight, &squaresize, &fogend, airunits);
-      movement(&camerapos, camerarot, direction, 30);
+      render(window, scene, textquads, textures, shaders, &swapb, camerapos, camerarot,
+             &sector, camheight, &squaresize, &fogend, airunits);
+      movement(&camerapos, camerarot, direction, 0.3f);
       //flyMovement(&airunits[0], direction);
       //updateAirPositions(airunits);
       //cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot);

@@ -282,15 +282,24 @@ void beam(struct v3f start, struct v3f end)
 }
 
 
+void renderNumber(int num, struct aiScene *textquads, struct v2f pos)
+{
+  int i = 0, j = num;
+
+  num = fabs(num);
+  drawModel((const struct aiScene *) &textquads[num % 10], mv3f(pos.x, pos.y, 0), mv3f(0, 0, 0), 250, 255);
+  while (num > 9) {
+    num -= num % 10;
+    num /= 10;
+    drawModel((const struct aiScene *) &textquads[num % 10], mv3f(pos.x - 50 * ++i, pos.y, 0), mv3f(0, 0, 0), 250, 255);
+  }
+  if (j < 0)
+    drawModel((const struct aiScene *) &textquads[10], mv3f(pos.x - 50 * ++i, pos.y, 0), mv3f(0, 0, 0), 250, 255);
+}
+
+
 void sceneQuad(void)
 {
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  glOrtho(0, RESX, 0, RESY, -1, 1);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_FOG);
   glColor3ub(255, 255, 255);
@@ -304,17 +313,11 @@ void sceneQuad(void)
   glMultiTexCoord2i(4, 0, 1);
   glVertex3i(0, RESY, 0);
   glEnd();
-  //glEnable(GL_DEPTH_TEST);
-  //glEnable(GL_FOG);
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
-  glPopMatrix();
 }
 
 
-void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint *shaders,
-            int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
+void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads, GLuint *textures,
+            GLuint *shaders, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
             float camheight, int *squaresize, float *fogend, struct airunit *airunits)
 {
   GLfloat materialColor[4];
@@ -344,9 +347,6 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   renderWater(camerapos, camerarot, squaresize);
   clear[2] += fabs(sinf(camheight*0.00067f)) * 0.23f;
   updateFogLights(clear, ambient, camheight, *squaresize, fogend);
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glEnableClientState(GL_NORMAL_ARRAY);
-  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glBindTexture(GL_TEXTURE_2D, textures[1]);
   renderFoliage(scene, camerapos, camerarot, *sector, *squaresize);
   glBindTexture(GL_TEXTURE_2D, textures[5]);
@@ -363,11 +363,21 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   //drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 1, 255);
   //for (i = 1; i < 15; i++)
   //drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 1, 255);
-  glDisableClientState(GL_VERTEX_ARRAY);
-  glDisableClientState(GL_NORMAL_ARRAY);
-  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
   glBindTexture(GL_TEXTURE_2D, textures[2]);
   renderCloud(camerapos, camerarot, squaresize);
+
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  glOrtho(0, RESX, 0, RESY, -1, 1);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+
+  glBindTexture(GL_TEXTURE_2D, textures[6]);
+  renderNumber(camerapos.x, textquads, mv2f(RESX - 100, 70));
+  renderNumber(camerapos.z, textquads, mv2f(RESX - 100, 20));
 
   glReadBuffer(GL_BACK);
   glBindTexture(GL_TEXTURE_2D, textures[4]);
@@ -387,7 +397,12 @@ void render(GLFWwindow *window, struct aiScene *scene, GLuint *textures, GLuint 
   glUniform1fARB(glGetUniformLocationARB(shaders[0], "numColors"), 64.0f);
   glUniform4fvARB(glGetUniformLocationARB(shaders[0], "clear"), 0, clear);
   sceneQuad();
+
   glUseProgramARB(0);
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
 
   if (*swapb)
     glfwSwapBuffers(window);
