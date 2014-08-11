@@ -351,7 +351,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   renderFoliage(scene, camerapos, camerarot, *sector, *squaresize);
   glBindTexture(GL_TEXTURE_2D, textures[5]);
   renderBuildings(scene, camerapos, camerarot, *sector, *squaresize);
-  //glBindTexture(GL_TEXTURE_2D, textures[3]);
+  glBindTexture(GL_TEXTURE_2D, textures[3]);
   //struct v3f pos = airunits[0].pos;
   //degreestovector3d(&pos, airunits[0].rot, mv3f(180, 180, 0), 15000);
   //glUseProgramARB(shaders[0]);
@@ -360,9 +360,9 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   //glDisable(GL_TEXTURE_2D);
   //glShadeModel(GL_FLAT);
   //int i;
-  //drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 1, 255);
+  drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 1, 255);
   //for (i = 1; i < 15; i++)
-  //drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 1, 255);
+    //drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 1, 255);
 
   glBindTexture(GL_TEXTURE_2D, textures[2]);
   renderCloud(camerapos, camerarot, squaresize);

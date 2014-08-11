@@ -494,7 +494,7 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
 void flyMovement(struct airunit *unit, char input)
 {
   struct v3f temppos;
-  float ground, speed, temp1, temp2, maxthrust, drag, lift;
+  float ground, speed, temp1, maxthrust, drag, lift;
   const int offset = TERRAIN_SQUARE_SIZE / 4;
 
   switch (input & ~INPUT_SPACE) {
@@ -530,8 +530,8 @@ void flyMovement(struct airunit *unit, char input)
   }
   switch (unit->type) {
   case UNIT_AIRFIGHTER:
-    maxthrust = 4.0f;
-    drag = 0.002f;
+    maxthrust = 12.0f;
+    drag = 0.001f;
     lift = 0.017f;
   }
   ground = readTerrainHeight(unit->pos.x, unit->pos.z);
@@ -547,13 +547,11 @@ void flyMovement(struct airunit *unit, char input)
   ground = ground < TERRAIN_WATER_LEVEL + 20 ? TERRAIN_WATER_LEVEL + 20 : ground;
   temp1 = 1 - fabs(unit->pos.y - 9700) / 19000.0f;
   temp1 = temp1 < 0.0f ? 0.0f : temp1;
-  temp2 = 1 - unit->pos.y / 17000.0f;
-  temp2 = temp2 < 0.0f ? 0.0f : temp2;
   temppos = unit->pos;
   if ((input | INPUT_SPACE) == input)
     unit->vec.y += 2.0f * temp1;
   unit->thrust = unit->thrust > maxthrust ? maxthrust : unit->thrust < 0 ? 0 : unit->thrust;
-  degreestovector3d(&temppos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), unit->thrust * temp1);
+  degreestovector3d(&temppos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), unit->thrust);
   unit->vec.x += temppos.x - unit->pos.x;
   unit->vec.y += temppos.y - unit->pos.y;
   unit->vec.z += temppos.z - unit->pos.z;
@@ -561,7 +559,7 @@ void flyMovement(struct airunit *unit, char input)
   speed = unit->speed * 0.5f;
   speed = speed < 300 ? speed : 300;
   temppos = mv3f(0, 0, 0);
-  degreestovector3d(&temppos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), speed * temp2 * 0.7f);
+  degreestovector3d(&temppos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), speed * 0.7f);
   temp1 = (vectorstodegree2d(temppos, mv3f(0, 0, 0)) - vectorstodegree2d(unit->vec, mv3f(0, 0, 0))) * 0.05f;
   if (vectorstodegree2d(temppos, mv3f(0, 0, 0)) > vectorstodegree2d(unit->vec, mv3f(0, 0, 0)) + 0.8f)
     unit->rot.z += temp1 > 7 ? 0 : temp1;
@@ -572,15 +570,15 @@ void flyMovement(struct airunit *unit, char input)
   unit->pos.x += temppos.x + unit->vec.x;
   unit->pos.y += temppos.y + unit->vec.y;
   unit->pos.z += temppos.z + unit->vec.z;
-  unit->vec.y += speed * lift * temp2;
+  unit->vec.y += speed * lift;
   if (unit->vec.y > -WORLD_GRAVITY * 20)
     unit->vec.y -= WORLD_GRAVITY;
   temp1 = (1.5f - unit->vec.y) * 0.1f;
   temp1 = temp1 < 50 ? temp1 - 3 > 0 ? temp1 - 3 : 0 : 50;
-  degreestovector3d(&unit->vec, unit->rot, mv3f(180.0f, 180.0f, 0.0f), temp1 * temp2 > 0 ? temp1 * temp2 : 0);
-  unit->vec.x -= unit->vec.x * drag * speed * temp2;
-  unit->vec.y -= unit->vec.y * drag * speed * temp2;
-  unit->vec.z -= unit->vec.z * drag * speed * temp2;
+  degreestovector3d(&unit->vec, unit->rot, mv3f(180.0f, 180.0f, 0.0f), temp1 > 0 ? temp1 : 0);
+  unit->vec.x -= unit->vec.x * drag * speed;
+  unit->vec.y -= unit->vec.y * drag * speed;
+  unit->vec.z -= unit->vec.z * drag * speed;
   unit->height = fabs(unit->pos.y - ground);
   if (unit->height < 500)
     unit->vec.y += 0.2f * (500 - unit->height) / 500.0f;
@@ -696,14 +694,14 @@ int main(int argc, char *argv[])
     while (!glfwWindowShouldClose(window)) {
       camheight = cameraHeight(camerapos);
       keyboardInput(window, &direction);
-      mouseLook(window, &camerarot);
-      //mouseLook(window, &airunits[0].rot);
+      //mouseLook(window, &camerarot);
+      mouseLook(window, &airunits[0].rot);
       render(window, scene, textquads, textures, shaders, &swapb, camerapos, camerarot,
              &sector, camheight, &squaresize, &fogend, airunits);
-      movement(&camerapos, camerarot, direction, 0.3f);
-      //flyMovement(&airunits[0], direction);
+      //movement(&camerapos, camerarot, direction, 30);
+      flyMovement(&airunits[0], direction);
       //updateAirPositions(airunits);
-      //cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot);
+      cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot);
       updateCamera(camerarot);
       glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
     }

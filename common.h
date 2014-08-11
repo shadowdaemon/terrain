@@ -6,7 +6,7 @@
 #define PIx180                              180.0f*PI
 #define VIEW_DISTANCE                       4000
 #define VIEW_DISTANCE_HALF                  2000
-#define WORLD_SIZE                          20000
+#define WORLD_SIZE                          10000
 #define WORLD_GRAVITY                       0.98f
 #define TERRAIN_GRID_SIZE                   100
 #define TERRAIN_GRID_SIZE_HALF              50
