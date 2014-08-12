@@ -372,18 +372,18 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   unsigned char SEcolorR [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
   unsigned char SEcolorG [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
   unsigned char SEcolorB [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  int NEx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  int NEy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  int NEz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  int SEx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  int SEy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  int SEz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  int SWx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  int SWy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  int SWz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  int NWx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  int NWy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  int NWz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  double NEx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  double NEy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  double NEz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  double SEx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  double SEy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  double SEz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  double SWx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  double SWy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  double SWz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  double NWx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  double NWy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  double NWz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
   float Nnormx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
   float Nnormy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
   float Nnormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
@@ -669,28 +669,28 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
           glColor3ub(SEcolorR[xgrid-1][zgrid], SEcolorG[xgrid-1][zgrid], SEcolorB[xgrid-1][zgrid]);
         glNormal3f(SWnormx[xgrid][zgrid], SWnormy[xgrid][zgrid], SWnormz[xgrid][zgrid]);
         glTexCoord2i((SWx[xgrid][zgrid]), (SWz[xgrid][zgrid]));
-        glVertex3i(SWx[xgrid][zgrid], SWy[xgrid][zgrid], SWz[xgrid][zgrid]);
+        glVertex3d(SWx[xgrid][zgrid], SWy[xgrid][zgrid], SWz[xgrid][zgrid]);
         if (xgrid >= TERRAIN_GRID_SIZE - 1)
           glColor3ub(122, 122, 122);
         else
           glColor3ub(SEcolorR[xgrid][zgrid], SEcolorG[xgrid][zgrid], SEcolorB[xgrid][zgrid]);
         glNormal3f(SEnormx[xgrid][zgrid], SEnormy[xgrid][zgrid], SEnormz[xgrid][zgrid]);
         glTexCoord2i((SEx[xgrid][zgrid]), (SEz[xgrid][zgrid]));
-        glVertex3i(SEx[xgrid][zgrid], SEy[xgrid][zgrid], SEz[xgrid][zgrid]);
+        glVertex3d(SEx[xgrid][zgrid], SEy[xgrid][zgrid], SEz[xgrid][zgrid]);
         if (xgrid <= 0)
           glColor3ub(122, 122, 122);
         else
           glColor3ub(NEcolorR[xgrid-1][zgrid], NEcolorG[xgrid-1][zgrid], NEcolorB[xgrid-1][zgrid]);
         glNormal3f(NWnormx[xgrid][zgrid], NWnormy[xgrid][zgrid], NWnormz[xgrid][zgrid]);
         glTexCoord2i((NWx[xgrid][zgrid]), (NWz[xgrid][zgrid]));
-        glVertex3i(NWx[xgrid][zgrid], NWy[xgrid][zgrid], NWz[xgrid][zgrid]);
+        glVertex3d(NWx[xgrid][zgrid], NWy[xgrid][zgrid], NWz[xgrid][zgrid]);
         if (xgrid >= TERRAIN_GRID_SIZE - 1)
           glColor3ub(122, 122, 122);
         else
           glColor3ub(NEcolorR[xgrid][zgrid], NEcolorG[xgrid][zgrid], NEcolorB[xgrid][zgrid]);
         glNormal3f(NEnormx[xgrid][zgrid], NEnormy[xgrid][zgrid], NEnormz[xgrid][zgrid]);
         glTexCoord2i((NEx[xgrid][zgrid]), (NEz[xgrid][zgrid]));
-        glVertex3i(NEx[xgrid][zgrid], NEy[xgrid][zgrid], NEz[xgrid][zgrid]);
+        glVertex3d(NEx[xgrid][zgrid], NEy[xgrid][zgrid], NEz[xgrid][zgrid]);
         glEnd();
       }
     }
