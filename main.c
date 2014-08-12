@@ -363,8 +363,7 @@ float cameraHeight(struct v3f camerapos)
 void cameraTrailMovement(struct v3f *camerapos, struct v3f *camerarot, struct v3f modelpos, struct v3f modelrot)
 {
   struct v3f temppos = modelpos;
-  float temp = 0.0f, ground = 0.0f;
-  const int offset = TERRAIN_SQUARE_SIZE / 4;
+  float ground = 0.0f;
 
   degreestovector3d(&temppos, modelrot, mv3f(0, 180, 0), 130);
   camerapos->x += (temppos.x - camerapos->x) * 0.27f;
@@ -373,15 +372,7 @@ void cameraTrailMovement(struct v3f *camerapos, struct v3f *camerarot, struct v3
   camerarot->x = modelrot.x;
   //camerarot->y = vectorstodegree2d(mv3f(modelpos.x, 0, modelpos.z), *camerapos) - 180;
   camerarot->y = vectorstodegree2d(modelpos, *camerapos);
-  ground = readTerrainHeight(camerapos->x, camerapos->z);
-  temp = readTerrainHeight(camerapos->x + offset, camerapos->z + offset);
-  ground = ground > temp ? ground : temp;
-  temp = readTerrainHeight(camerapos->x + offset, camerapos->z - offset);
-  ground = ground > temp ? ground : temp;
-  temp = readTerrainHeight(camerapos->x - offset, camerapos->z + offset);
-  ground = ground > temp ? ground : temp;
-  temp = readTerrainHeight(camerapos->x - offset, camerapos->z - offset);
-  ground = ground > temp ? ground : temp;
+  ground = readTerrainHeightPlane(camerapos->x, camerapos->z, TERRAIN_SQUARE_SIZE, &temppos);
   ground += TERRAIN_SQUARE_SIZE * 0.07f;
   ground = ground < TERRAIN_WATER_LEVEL + 10 ? TERRAIN_WATER_LEVEL + 10 : ground;
   camerapos->y = camerapos->y < ground ? ground : camerapos->y;
