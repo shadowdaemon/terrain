@@ -139,7 +139,7 @@ void renderBuildings(struct aiScene *scene, struct v3f camerapos, struct v3f cam
       dist = distance3d(camerapos, mv3f(xpos, height, zpos));
       x1 = x1 * x1 + z1 * z1;
       x1 = x1 % 3176;
-      if ((dist < VIEW_DISTANCE || dist < TERRAIN_SQUARE_SIZE * 10) && x1 < 587/* && distance3d(mv3f(normal.x, fabs(normal.y), normal.z), mv3f(0, 1, 0)) < 1.0f*/) {
+      if ((dist < VIEW_DISTANCE || dist < TERRAIN_SQUARE_SIZE * 10) && x1 < 267/* && distance3d(mv3f(normal.x, fabs(normal.y), normal.z), mv3f(0, 1, 0)) < 1.0f*/) {
         if (type == T_TYPE_VILLAGE) {
           if (dist < VIEW_DISTANCE_HALF)
             alpha = 255;
@@ -324,7 +324,11 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   GLfloat clear[4]    = {0.5f, 0.5f, 0.5f, 1.0f};
   GLfloat ambient[4]  = {0.49f, 0.45f, 0.47f, 1.0f};
   GLubyte skyColor[3] = {117, 132, 215};
+  static double time = 0;
+  double fps = 0;
 
+  fps = 1 / (glfwGetTime() - time);
+  time = glfwGetTime();
   clear[0] = 117 / 255.0f;
   clear[1] = 132 / 255.0f;
   clear[2] = 215 / 255.0f;
@@ -376,8 +380,9 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glLoadIdentity();
 
   glBindTexture(GL_TEXTURE_2D, textures[6]);
-  renderNumber(camerapos.x, textquads, mv2f(RESX - 100, 70));
-  renderNumber(camerapos.z, textquads, mv2f(RESX - 100, 20));
+  renderNumber(camerapos.x, textquads, mv2f(RESX - 100, 120));
+  renderNumber(camerapos.z, textquads, mv2f(RESX - 100, 70));
+  renderNumber(fps, textquads, mv2f(RESX - 100, 20));
 
   glReadBuffer(GL_BACK);
   glBindTexture(GL_TEXTURE_2D, textures[4]);
