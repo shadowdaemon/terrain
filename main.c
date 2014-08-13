@@ -687,7 +687,7 @@ int main(int argc, char *argv[])
       keyboardInput(window, &direction);
       //mouseLook(window, &camerarot);
       mouseLook(window, &airunits[0].rot);
-      render(window, scene, textquads, textures, shaders, &swapb, camerapos, camerarot,
+      render(window, scene, textquads, textures, shaders, &swapb, &camerapos, camerarot,
              &sector, camheight, &squaresize, &fogend, airunits);
       //movement(&camerapos, camerarot, direction, 30);
       flyMovement(&airunits[0], direction);
