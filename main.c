@@ -365,10 +365,10 @@ void cameraTrailMovement(struct v3f *camerapos, struct v3f *camerarot, struct v3
   struct v3f temppos = modelpos;
   float ground = 0.0f;
 
-  degreestovector3d(&temppos, modelrot, mv3f(0, 180, 0), 130);
-  camerapos->x += (temppos.x - camerapos->x) * 0.27f;
-  camerapos->y += (temppos.y - camerapos->y) * 0.27f;
-  camerapos->z += (temppos.z - camerapos->z) * 0.27f;
+  degreestovector3d(&temppos, modelrot, mv3f(0, 180, 0), 20);
+  camerapos->x += (temppos.x - camerapos->x) * 0.37f;
+  camerapos->y += (temppos.y - camerapos->y) * 0.37f;
+  camerapos->z += (temppos.z - camerapos->z) * 0.37f;
   camerarot->x = modelrot.x;
   //camerarot->y = vectorstodegree2d(mv3f(modelpos.x, 0, modelpos.z), *camerapos) - 180;
   camerarot->y = vectorstodegree2d(modelpos, *camerapos);
@@ -486,14 +486,13 @@ void flyMovement(struct airunit *unit, char input)
 {
   struct v3f temppos;
   float ground, speed, temp1, maxthrust, drag, lift;
-  const int offset = TERRAIN_SQUARE_SIZE / 4;
 
   switch (input & ~INPUT_SPACE) {
   case INPUT_UP:
-    unit->thrust = unit->thrust + 0.05f;
+    unit->thrust = unit->thrust + 0.01f;
     break;
   case INPUT_DOWN:
-    unit->thrust = unit->thrust - 0.05f;
+    unit->thrust = unit->thrust - 0.01f;
     break;
   case INPUT_LEFT:
     unit->rot.z -= 5.0f;
@@ -502,45 +501,36 @@ void flyMovement(struct airunit *unit, char input)
     unit->rot.z += 5.0f;
     break;
   case INPUT_UP_RIGHT:
-    unit->thrust = unit->thrust + 0.05f;
+    unit->thrust = unit->thrust + 0.01f;
     unit->rot.z += 5.0f;
     break;
   case INPUT_UP_LEFT:
-    unit->thrust = unit->thrust + 0.05f;
+    unit->thrust = unit->thrust + 0.01f;
     unit->rot.z -= 5.0f;
     break;
   case INPUT_DOWN_RIGHT:
-    unit->thrust = unit->thrust - 0.05f;
+    unit->thrust = unit->thrust - 0.01f;
     unit->rot.z += 5.0f;
     break;
   case INPUT_DOWN_LEFT:
-    unit->thrust = unit->thrust - 0.05f;
+    unit->thrust = unit->thrust - 0.01f;
     unit->rot.z -= 5.0f;
     break;
   default: break;
   }
   switch (unit->type) {
   case UNIT_AIRFIGHTER:
-    maxthrust = 12.0f;
-    drag = 0.001f;
-    lift = 0.017f;
+    maxthrust = 1.0f;
+    drag = 0.0015f;
+    lift = 0.0171f;
   }
-  ground = readTerrainHeight(unit->pos.x, unit->pos.z);
-  temp1 = readTerrainHeight(unit->pos.x + offset, unit->pos.z + offset);
-  ground = ground > temp1 ? ground : temp1;
-  temp1 = readTerrainHeight(unit->pos.x + offset, unit->pos.z - offset);
-  ground = ground > temp1 ? ground : temp1;
-  temp1 = readTerrainHeight(unit->pos.x - offset, unit->pos.z + offset);
-  ground = ground > temp1 ? ground : temp1;
-  temp1 = readTerrainHeight(unit->pos.x - offset, unit->pos.z - offset);
-  ground = ground > temp1 ? ground : temp1;
-  //ground += TERRAIN_SQUARE_SIZE * 0.02f;
-  ground = ground < TERRAIN_WATER_LEVEL + 20 ? TERRAIN_WATER_LEVEL + 20 : ground;
-  temp1 = 1 - fabs(unit->pos.y - 9700) / 19000.0f;
-  temp1 = temp1 < 0.0f ? 0.0f : temp1;
+  ground = readTerrainHeightPlane(unit->pos.x, unit->pos.z, TERRAIN_SQUARE_SIZE, &temppos);
+  ground = ground < TERRAIN_WATER_LEVEL + 7 ? TERRAIN_WATER_LEVEL + 7 : ground;
+  //temp1 = 1 - fabs(unit->pos.y - 9700) / 19000.0f;
+  //temp1 = temp1 < 0.0f ? 0.0f : temp1;
   temppos = unit->pos;
   if ((input | INPUT_SPACE) == input)
-    unit->vec.y += 2.0f * temp1;
+    unit->vec.y += 0.75f;
   unit->thrust = unit->thrust > maxthrust ? maxthrust : unit->thrust < 0 ? 0 : unit->thrust;
   degreestovector3d(&temppos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), unit->thrust);
   unit->vec.x += temppos.x - unit->pos.x;
@@ -551,7 +541,7 @@ void flyMovement(struct airunit *unit, char input)
   speed = speed < 300 ? speed : 300;
   temppos = mv3f(0, 0, 0);
   degreestovector3d(&temppos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), speed * 0.7f);
-  temp1 = (vectorstodegree2d(temppos, mv3f(0, 0, 0)) - vectorstodegree2d(unit->vec, mv3f(0, 0, 0))) * 0.05f;
+  temp1 = (vectorstodegree2d(temppos, mv3f(0, 0, 0)) - vectorstodegree2d(unit->vec, mv3f(0, 0, 0))) * 0.12f;
   if (vectorstodegree2d(temppos, mv3f(0, 0, 0)) > vectorstodegree2d(unit->vec, mv3f(0, 0, 0)) + 0.8f)
     unit->rot.z += temp1 > 7 ? 0 : temp1;
   else if (vectorstodegree2d(unit->vec, mv3f(0, 0, 0)) > vectorstodegree2d(temppos, mv3f(0, 0, 0)) + 0.8f)
@@ -571,10 +561,10 @@ void flyMovement(struct airunit *unit, char input)
   unit->vec.y -= unit->vec.y * drag * speed;
   unit->vec.z -= unit->vec.z * drag * speed;
   unit->height = fabs(unit->pos.y - ground);
-  if (unit->height < 500)
+  /*if (unit->height < 500)
     unit->vec.y += 0.2f * (500 - unit->height) / 500.0f;
   if (unit->height < 1250)
-    unit->vec.y += 0.5f * (1250 - unit->height) / 1250.0f;
+    unit->vec.y += 0.5f * (1250 - unit->height) / 1250.0f;*/
   if (unit->pos.y < ground) {
     unit->vec.y = 0.0f;
     unit->pos.y = ground;
@@ -689,7 +679,7 @@ int main(int argc, char *argv[])
       mouseLook(window, &airunits[0].rot);
       render(window, scene, textquads, textures, shaders, &swapb, &camerapos, camerarot,
              &sector, camheight, &squaresize, &fogend, airunits);
-      //movement(&camerapos, camerarot, direction, 30);
+      //movement(&camerapos, camerarot, direction, 10);
       flyMovement(&airunits[0], direction);
       //updateAirPositions(airunits);
       cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot);

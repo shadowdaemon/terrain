@@ -222,15 +222,15 @@ struct terrain algorithmicTerrain(float x, float z)
   float dist, x1, z1;
 
   temp.height = 0.0f;
-  temp.height = algorithmicTerrainHeight3(z * 0.34f, x * 0.3f, temp.height) * 1.7f - 2500;
+  temp.height = algorithmicTerrainHeight1(z, x, temp.height) - 2500;
   temp.type = T_TYPE_NULL;
   if (temp.height > 2500 && temp.height < 4000) {
-    x1 = 0.5f - sinf(x * 0.0003f + 11000);
+    x1 = 0.5f - sinf(x * 0.0009f + 11000);
     if (x1 < 0)
       x1 = 0;
     else if (x1 > 1)
       x1 = 1;
-    z1 = 0.5f - sinf(z * 0.0002f);
+    z1 = 0.5f - sinf(z * 0.0006f);
     if (z1 < 0)
       z1 = 0;
     else if (z1 > 1)
@@ -238,17 +238,17 @@ struct terrain algorithmicTerrain(float x, float z)
     temp.height += (750 - fabs(3250 - temp.height)) * x1 * z1 * 0.85f;
   }
   if (temp.height > 0 && temp.height < 2000) {
-    x1 = 0.7f - sinf(x * 0.00012f);
+    x1 = 0.7f - sinf(x * 0.00036f);
     if (x1 < 0)
       x1 = 0;
     else if (x1 > 1)
       x1 = 1;
-    z1 = 0.63f - sinf(z * 0.00017f - 7700);
+    z1 = 0.63f - sinf(z * 0.00039f - 7700);
     if (z1 < 0)
       z1 = 0;
     else if (z1 > 1)
       z1 = 1;
-    temp.height += algorithmicTerrainHeight1(x * 0.037f, z * 0.041f, temp.height) * (1 - fabs(1000 - temp.height) / 1000.0f) * x1 * z1 * 0.27f;
+    temp.height += algorithmicTerrainHeight1(x * 0.11f, z * 0.12f, temp.height) * (1 - fabs(1000 - temp.height) / 1000.0f) * x1 * z1 * 0.27f;
   }
   dist = distance2d(mv3f(0, 0, 0), mv3f(x, 0, z));
   if (dist < 20000) {
@@ -260,12 +260,12 @@ struct terrain algorithmicTerrain(float x, float z)
   temp.height -= temp.height < 3000 ? (temp.height - 3000) * 0.46f : 0;
   temp.height -= temp.height > 8000 ? (temp.height - 8000) * 0.61f : 0;
   if (temp.height > 0 && temp.height < 1300) {
-    x1 = 0.071f - sinf(x * 0.00017f - 9500);
+    x1 = 0.071f - sinf(x * 0.00047f - 9500);
     if (x1 < 0)
       x1 = 0;
     else if (x1 > 1)
       x1 = 1;
-    z1 = 0.087f - sinf(z * 0.00014f);
+    z1 = 0.087f - sinf(z * 0.00034f);
     if (z1 < 0)
       z1 = 0;
     else if (z1 > 1)
@@ -298,7 +298,7 @@ unsigned char readTerrainType(float x, float z)
 float readTerrainHeightPlane(float x, float z, int squaresize, struct v3f *normal)
 {
   int xgrid, zgrid;
-  float x1, z1, x2, z2, x3, z3;
+  float x1, z1, x2, z2, x3 = 0, z3 = 0;
   float height, p[2] = {x, z}, v1[3], v2[3], v3[3];
 
   for (xgrid = 0, x2 = 5000000; xgrid < 4; xgrid++) {
@@ -340,15 +340,19 @@ float readTerrainHeightPlane(float x, float z, int squaresize, struct v3f *norma
 
 void moveTerrain(struct v3f *camerapos, struct v3f camerarot, struct v2f *sector, int *swapb, int squaresize)
 {
+  if (camerapos->x > WORLD_SIZE)
+    camerapos->x = WORLD_SIZE;
+  else if (camerapos->x < -WORLD_SIZE)
+    camerapos->x = -WORLD_SIZE;
   if (camerapos->x > (sector->x + TERRAIN_STEP_SIZE * squaresize) ||
        camerapos->x < (sector->x - TERRAIN_STEP_SIZE * squaresize)) {
-    /*if (camerapos->x > WORLD_SIZE)
-      camerapos->x -= WORLD_SIZE;
-    else if (camerapos->x < -WORLD_SIZE)
-      camerapos->x += WORLD_SIZE;*/
     sector->x = camerapos->x;
     *swapb = 0;
   }
+  if (camerapos->z > WORLD_SIZE)
+    camerapos->z = WORLD_SIZE;
+  else if (camerapos->z < -WORLD_SIZE)
+    camerapos->z = -WORLD_SIZE;
   if (camerapos->z > (sector->y + TERRAIN_STEP_SIZE * squaresize) ||
        camerapos->z < (sector->y - TERRAIN_STEP_SIZE * squaresize)) {
     sector->y = camerapos->z;
@@ -361,7 +365,8 @@ void selectPosition(void)
 {}
 
 
-void drawTerrain(struct v3f *camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *swapb, int *squaresize)
+void drawTerrain(struct v3f *camerapos, struct v3f camerarot, struct v2f *sector,
+                 float camheight, int *swapb, int *squaresize)
 {
   struct terrain temp1, temp2;
   struct v3f temp3f;
@@ -433,33 +438,33 @@ void drawTerrain(struct v3f *camerapos, struct v3f camerarot, struct v2f *sector
   z = (int) (sector->y / (*squaresize));
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
-  glScalef(0.0005f, 0.0005f, 0.0005f);
+  glScalef(0.0015f, 0.0015f, 0.0015f);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
     if (alt < 5) {
-      x3 = fabs(TERRAIN_GRID_SIZE_HALF - xgrid) - 20; x3 = x3 < 0 ? 0 : (x3 + 20) * 8;
-      z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) - 20; z3 = z3 < 0 ? 0 : (z3 + 20) * 8;
+      x3 = fabs(TERRAIN_GRID_SIZE_HALF - xgrid) - 40; x3 = x3 < 0 ? 0 : (x3 + 40) * 8;
+      z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) - 40; z3 = z3 < 0 ? 0 : (z3 + 40) * 8;
       xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) * (x3 + *squaresize) + x * *squaresize;
       zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) * (z3 + *squaresize) + z * *squaresize;
       dist = distance2d(*camerapos, mv3f(xpos, 0.0f, zpos));
-      if (xgrid > TERRAIN_GRID_SIZE_HALF + 19) {
-        x1 = xpos + x3 - 3040.0f + *squaresize / 2;
-        x2 = xpos - x3 - 3040.0f - *squaresize / 2;
+      if (xgrid > TERRAIN_GRID_SIZE_HALF + 39) {
+        x1 = xpos + x3 - 12480.0f + *squaresize / 2;
+        x2 = xpos - x3 - 12480.0f - *squaresize / 2;
       }
-      else if (xgrid < TERRAIN_GRID_SIZE_HALF - 19) {
-        x1 = xpos + x3 + 3040.0f + *squaresize / 2;
-        x2 = xpos - x3 + 3040.0f - *squaresize / 2;
+      else if (xgrid < TERRAIN_GRID_SIZE_HALF - 39) {
+        x1 = xpos + x3 + 12480.0f + *squaresize / 2;
+        x2 = xpos - x3 + 12480.0f - *squaresize / 2;
       }
       else {
         x1 = xpos + x3 + *squaresize / 2;
         x2 = xpos - x3 - *squaresize / 2;
       }
-      if (zgrid > TERRAIN_GRID_SIZE_HALF + 19) {
-        z1 = zpos + z3 - 3040.0f + *squaresize / 2;
-        z2 = zpos - z3 - 3040.0f - *squaresize / 2;
+      if (zgrid > TERRAIN_GRID_SIZE_HALF + 39) {
+        z1 = zpos + z3 - 12480.0f + *squaresize / 2;
+        z2 = zpos - z3 - 12480.0f - *squaresize / 2;
       }
-      else if (zgrid < TERRAIN_GRID_SIZE_HALF - 19) {
-        z1 = zpos + z3 + 3040.0f + *squaresize / 2;
-        z2 = zpos - z3 + 3040.0f - *squaresize / 2;
+      else if (zgrid < TERRAIN_GRID_SIZE_HALF - 39) {
+        z1 = zpos + z3 + 12480.0f + *squaresize / 2;
+        z2 = zpos - z3 + 12480.0f - *squaresize / 2;
       }
       else {
         z1 = zpos + z3 + *squaresize / 2;

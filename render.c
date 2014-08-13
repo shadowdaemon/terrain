@@ -5,7 +5,7 @@
 void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squaresize, float *fogend)
 {
   static float fogstart = 10.0f;
-  const float fstart = 0.25f;
+  const float fstart = 0.08f;
   float temp = 0.0f;
   float lightspec[4];
   float lightamb[4];
@@ -13,7 +13,7 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squa
 
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
   glClearColor(clear[0], clear[1], clear[2], clear[3]);
-  temp = squaresize * TERRAIN_GRID_SIZE * 0.6f;
+  temp = squaresize * TERRAIN_GRID_SIZE * 0.9f;
   if (*fogend > temp)
     *fogend -= (*fogend - temp) * 0.1f;
   else
@@ -23,7 +23,7 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squa
     fogstart -= (fogstart - temp) * 0.1f;
   else
     fogstart -= (fogstart - temp) * 0.02f;
-  fogstart = fogstart > 37000 ? 37000 : fogstart;
+  fogstart = fogstart > 3000 ? 3000 : fogstart;
   glFogfv(GL_FOG_COLOR, clear);
   glFogf(GL_FOG_START, fogstart);
   glFogf(GL_FOG_END, *fogend);
@@ -61,8 +61,8 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
     xpos = (xgrid - TERRAIN_GRID_SIZE_HALF + x) * size;
     zpos = (zgrid - TERRAIN_GRID_SIZE_HALF + z) * size;
-    x1 = (int) xpos % 147;
-    z1 = (int) zpos % 133;
+    x1 = (int) xpos % 47;
+    z1 = (int) zpos % 43;
     xpos += z1;
     zpos += x1;
     cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
@@ -73,23 +73,23 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
       type = readTerrainType(xpos, zpos);
       dist = distance3d(camerapos, mv3f(xpos, height, zpos));
       x1 = x1 * x1 + z1 * z1;
-      x1 = x1 % 3176;
+      x1 = x1 % 1076;
       switch (type) {
       case T_TYPE_GRASS1:
-        density = 370;
+        density = 110;
         break;
       case T_TYPE_GRASS2:
-        density = 687;
+        density = 127;
         //density += distance3d(mv3f(normal.x, fabs(normal.y), normal.z), mv3f(0, 1, 0)) < 1.0f ? 2000 : 0;
         break;
       case T_TYPE_GRASS3:
-        density = 251;
+        density = 101;
         break;
       case T_TYPE_VILLAGE:
-        density = 413;
+        density = 103;
         break;
       default:
-        density = 500;
+        density = 120;
       }
       if ((dist < VIEW_DISTANCE || dist < TERRAIN_SQUARE_SIZE * 10) && x1 < density) {
         if (height > TERRAIN_WATER_LEVEL + 50 && height < 3750 && type != T_TYPE_DIRT) {
@@ -99,7 +99,7 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
             alpha = (GLubyte) (255 - ((dist - VIEW_DISTANCE_HALF) / (float) VIEW_DISTANCE_HALF) * 255);
           else
             alpha = 0;
-          drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 1, alpha);
+          drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
         }
       }
     }
@@ -126,8 +126,8 @@ void renderBuildings(struct aiScene *scene, struct v3f camerapos, struct v3f cam
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
     xpos = (xgrid - TERRAIN_GRID_SIZE_HALF + x) * size;
     zpos = (zgrid - TERRAIN_GRID_SIZE_HALF + z) * size;
-    x1 = (int) xpos % 197;
-    z1 = (int) zpos % 163;
+    x1 = (int) xpos % 71;
+    z1 = (int) zpos % 63;
     xpos += z1;
     zpos += x1;
     cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
@@ -139,7 +139,7 @@ void renderBuildings(struct aiScene *scene, struct v3f camerapos, struct v3f cam
       dist = distance3d(camerapos, mv3f(xpos, height, zpos));
       x1 = x1 * x1 + z1 * z1;
       x1 = x1 % 3176;
-      if ((dist < VIEW_DISTANCE || dist < TERRAIN_SQUARE_SIZE * 10) && x1 < 267/* && distance3d(mv3f(normal.x, fabs(normal.y), normal.z), mv3f(0, 1, 0)) < 1.0f*/) {
+      if ((dist < VIEW_DISTANCE || dist < TERRAIN_SQUARE_SIZE * 10) && x1 < 77/* && distance3d(mv3f(normal.x, fabs(normal.y), normal.z), mv3f(0, 1, 0)) < 1.0f*/) {
         if (type == T_TYPE_VILLAGE) {
           if (dist < VIEW_DISTANCE_HALF)
             alpha = 255;
@@ -147,7 +147,7 @@ void renderBuildings(struct aiScene *scene, struct v3f camerapos, struct v3f cam
             alpha = (GLubyte) (255 - ((dist - VIEW_DISTANCE_HALF) / (float) VIEW_DISTANCE_HALF) * 255);
           else
             alpha = 0;
-          drawModel((const struct aiScene *) &scene[7], mv3f(xpos, height, zpos), mv3f(0, snap(x1, 90), 0), 1, alpha);
+          drawModel((const struct aiScene *) &scene[7], mv3f(xpos, height, zpos), mv3f(0, snap(x1, 90), 0), 0.35f, alpha);
         }
       }
     }
@@ -364,7 +364,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   //glDisable(GL_TEXTURE_2D);
   //glShadeModel(GL_FLAT);
   //int i;
-  drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 1, 255);
+  drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 0.35f, 255);
   //for (i = 1; i < 15; i++)
     //drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 1, 255);
 

@@ -4,15 +4,15 @@
 #define RESY                                768
 #define PI                                  3.14159265358979323846f
 #define PIx180                              180.0f*PI
-#define VIEW_DISTANCE                       4000
-#define VIEW_DISTANCE_HALF                  2000
-#define WORLD_SIZE                          10000
-#define WORLD_GRAVITY                       0.98f
+#define VIEW_DISTANCE                       1250
+#define VIEW_DISTANCE_HALF                  625
+#define WORLD_SIZE                          100000
+#define WORLD_GRAVITY                       0.3f
 #define TERRAIN_GRID_SIZE                   100
 #define TERRAIN_GRID_SIZE_HALF              50
 #define TERRAIN_GRID_SIZE_QUARTER           25
-#define TERRAIN_SQUARE_SIZE                 300
-#define TERRAIN_SQUARE_SIZE_HALF            150
+#define TERRAIN_SQUARE_SIZE                 100
+#define TERRAIN_SQUARE_SIZE_HALF            50
 // #define TERRAIN_CENTRE_DISTANCE             (TERRAIN_SQUARE_SIZE*TERRAIN_GRID_SIZE*0.1f)
 #define TERRAIN_STEP_SIZE                   8
 #define TERRAIN_WATER_LEVEL                 0
@@ -134,7 +134,8 @@ struct terrain algorithmicTerrain(float x, float z);
 float readTerrainHeight(float x, float y);
 float readTerrainHeightPlane(float x, float z, int squaresize, struct v3f *normal);
 unsigned char readTerrainType(float x, float z);
-void drawTerrain(struct v3f *camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *swapb, int *squaresize);
+void drawTerrain(struct v3f *camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *swapb,
+                 int *squaresize);
 const struct aiScene *loadModel(const char *file);
 const struct aiScene *loadTextQuad(const char *file);
 void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfloat size, GLuint alpha);
