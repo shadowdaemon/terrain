@@ -68,7 +68,7 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
     cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
     while (cull >= 360)
       cull -= 360;
-    if (cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) {
+    if (cull <= 85 || cull >= 275 || camerarot.x > 27.0f) {
       height = readTerrainHeightPlane(xpos, zpos, squaresize, &normal);
       type = readTerrainType(xpos, zpos);
       dist = distance3d(camerapos, mv3f(xpos, height, zpos));
@@ -133,7 +133,7 @@ void renderBuildings(struct aiScene *scene, struct v3f camerapos, struct v3f cam
     cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
     while (cull >= 360)
       cull -= 360;
-    if (cull <= 85 || cull >= 275 || fabs(camerarot.x) > 27.0f) {
+    if (cull <= 85 || cull >= 275 || camerarot.x > 27.0f) {
       height = readTerrainHeightPlane(xpos, zpos, squaresize, &normal);
       type = readTerrainType(xpos, zpos);
       dist = distance3d(camerapos, mv3f(xpos, height, zpos));
