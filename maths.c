@@ -1,21 +1,6 @@
 #include "maths.h"
 
 
-int snap(float in, int snap)
-{
-  int i = 0, j;
-
-  j = in > 0 ? 1 : -1;
-  in *= j;
-  while ((i * snap) < in)
-    i++;
-  if (in - i * snap < (i + 1) * snap - in)
-    return i * snap * j;
-  else
-    return (i + 1) * snap * j;
-}
-
-
 struct v2f mv2f(float x, float y)
 {
   struct v2f temp;

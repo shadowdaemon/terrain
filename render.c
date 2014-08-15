@@ -147,7 +147,7 @@ void renderBuildings(struct aiScene *scene, struct v3f camerapos, struct v3f cam
             alpha = (GLubyte) (255 - ((dist - VIEW_DISTANCE_HALF) / (float) VIEW_DISTANCE_HALF) * 255);
           else
             alpha = 0;
-          drawModel((const struct aiScene *) &scene[7], mv3f(xpos, height, zpos), mv3f(0, snap(x1, 90), 0), 0.35f, alpha);
+          drawModel((const struct aiScene *) &scene[7], mv3f(xpos, height, zpos), mv3f(0, x1 % 90, 0), 0.35f, alpha);
         }
       }
     }

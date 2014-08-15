@@ -2,7 +2,6 @@
 #include "common.h"
 
 
-int snap(float in, int snap);
 struct v2f mv2f(float x, float y);
 struct v3f mv3f(float x, float y, float z);
 float distance2d(struct v3f pos_a, struct v3f pos_b);
