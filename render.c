@@ -6,7 +6,7 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight,
                      int squaresize, float *fogend)
 {
   static float fogstart = 10.0f;
-  const float fstart = 0.08f;
+  float fstart = 0.08f;
   float temp = 0.0f;
   float lightspec[4];
   float lightamb[4];
@@ -25,6 +25,7 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight,
   else
     fogstart -= (fogstart - temp) * 0.02f;
   fogstart = fogstart > 3000 ? 3000 : fogstart;
+  fstart = *fogend * 0.0001f;
   glFogfv(GL_FOG_COLOR, clear);
   glFogf(GL_FOG_START, fogstart);
   glFogf(GL_FOG_END, *fogend);
@@ -382,9 +383,11 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glLoadIdentity();
 
   glBindTexture(GL_TEXTURE_2D, textures[6]);
-  renderNumber(camerapos->x, textquads, mv2f(RESX - 100, 120));
-  renderNumber(camerapos->z, textquads, mv2f(RESX - 100, 70));
-  renderNumber(fps2, textquads, mv2f(RESX - 100, 20));
+  //renderNumber(camerapos->x, textquads, mv2f(RESX - 100, 120));
+  //renderNumber(camerapos->z, textquads, mv2f(RESX - 100, 70));
+  //renderNumber(fps2, textquads, mv2f(RESX - 100, 20));
+  renderNumber(airunits[0].speed, textquads, mv2f(RESX - 100, 70));
+  renderNumber(airunits[0].thrust * 100, textquads, mv2f(RESX - 100, 20));
 
   glReadBuffer(GL_BACK);
   glBindTexture(GL_TEXTURE_2D, textures[4]);
