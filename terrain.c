@@ -340,19 +340,19 @@ float readTerrainHeightPlane(float x, float z, int squaresize, struct v3f *norma
 
 void moveTerrain(struct v3f *camerapos, struct v3f camerarot, struct v2f *sector, int *swapb, int squaresize)
 {
-  if (camerapos->x > WORLD_SIZE)
-    camerapos->x = WORLD_SIZE;
-  else if (camerapos->x < -WORLD_SIZE)
-    camerapos->x = -WORLD_SIZE;
+  /* if (camerapos->x > WORLD_SIZE) */
+  /*   camerapos->x = WORLD_SIZE; */
+  /* else if (camerapos->x < -WORLD_SIZE) */
+  /*   camerapos->x = -WORLD_SIZE; */
   if (camerapos->x > (sector->x + TERRAIN_STEP_SIZE * squaresize) ||
        camerapos->x < (sector->x - TERRAIN_STEP_SIZE * squaresize)) {
     sector->x = camerapos->x;
     *swapb = 0;
   }
-  if (camerapos->z > WORLD_SIZE)
-    camerapos->z = WORLD_SIZE;
-  else if (camerapos->z < -WORLD_SIZE)
-    camerapos->z = -WORLD_SIZE;
+  /* if (camerapos->z > WORLD_SIZE) */
+  /*   camerapos->z = WORLD_SIZE; */
+  /* else if (camerapos->z < -WORLD_SIZE) */
+  /*   camerapos->z = -WORLD_SIZE; */
   if (camerapos->z > (sector->y + TERRAIN_STEP_SIZE * squaresize) ||
        camerapos->z < (sector->y - TERRAIN_STEP_SIZE * squaresize)) {
     sector->y = camerapos->z;
