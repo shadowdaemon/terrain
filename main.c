@@ -530,7 +530,7 @@ void flyMovement(struct airunit *unit, char input)
   //temp1 = temp1 < 0.0f ? 0.0f : temp1;
   temppos = unit->pos;
   if ((input | INPUT_SPACE) == input)
-    unit->vec.y += 0.75f;
+    unit->vec.y += 0.65f;
   unit->thrust = unit->thrust > maxthrust ? maxthrust : unit->thrust < 0 ? 0 : unit->thrust;
   degreestovector3d(&temppos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), unit->thrust);
   unit->vec.x += temppos.x - unit->pos.x;
@@ -541,7 +541,7 @@ void flyMovement(struct airunit *unit, char input)
   speed = speed < 300 ? speed : 300;
   temppos = mv3f(0, 0, 0);
   degreestovector3d(&temppos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), speed * 0.7f);
-  temp1 = (vectorstodegree2d(temppos, mv3f(0, 0, 0)) - vectorstodegree2d(unit->vec, mv3f(0, 0, 0))) * 0.12f;
+  temp1 = (vectorstodegree2d(temppos, mv3f(0, 0, 0)) - vectorstodegree2d(unit->vec, mv3f(0, 0, 0))) * 0.09f;
   if (vectorstodegree2d(temppos, mv3f(0, 0, 0)) > vectorstodegree2d(unit->vec, mv3f(0, 0, 0)) + 0.8f)
     unit->rot.z += temp1 > 7 ? 0 : temp1;
   else if (vectorstodegree2d(unit->vec, mv3f(0, 0, 0)) > vectorstodegree2d(temppos, mv3f(0, 0, 0)) + 0.8f)
@@ -575,18 +575,18 @@ void flyMovement(struct airunit *unit, char input)
 }
 
 
-void updateAirPositions(struct airunit *airunits)
+/*void updateAirPositions(struct airunit *airunits)
 {
   int i;
   float dist;
 
   for (i = 1; i < 15; i++) {
-    airunits[i].rot.y += 3 + i * 0.1f;
+    //airunits[i].rot.y += 3 + i * 0.1f;
     if (airunits[i].height < 100)
       flyMovement(&airunits[i], INPUT_SPACE);
     else
       flyMovement(&airunits[i], INPUT_UP);
-    /*dist = distance2d(airunits[i].pos, airunits[i-1].pos);
+    dist = distance2d(airunits[i].pos, airunits[i-1].pos);
     if (airunits[i].height < 1200) {
       airunits[i].rot.y += (vectorstodegree2d(airunits[i].pos, airunits[i-1].pos) - airunits[i].rot.y) * 0.05f;
       if (dist < 1200) {
@@ -627,9 +627,9 @@ void updateAirPositions(struct airunit *airunits)
         flyMovement(&airunits[i], INPUT_UP);
       else
         flyMovement(&airunits[i], INPUT_DOWN);
-        }*/
+    }
   }
-}
+}*/
 
 
 int main(int argc, char *argv[])
@@ -638,7 +638,7 @@ int main(int argc, char *argv[])
   GLFWwindow *window = NULL;
   int swapb = 1, squaresize = 0, i;
   char direction;
-  float camheight = 0.0f, fogend = 20.0f;
+  float fps = 0.0f, camheight = 0.0f, fogend = 20.0f;
   struct v2f sector    = {0.0f, 0.0f};
   struct v3f camerarot = {0.0f, 0.0f, 0.0f};
   struct v3f camerapos = {0.0f, 0.0f, 0.0f};
@@ -678,7 +678,7 @@ int main(int argc, char *argv[])
       //mouseLook(window, &camerarot);
       mouseLook(window, &airunits[0].rot);
       render(window, scene, textquads, textures, shaders, &swapb, &camerapos, camerarot,
-             &sector, camheight, &squaresize, &fogend, airunits);
+             &sector, camheight, &squaresize, &fogend, &fps, airunits);
       //movement(&camerapos, camerarot, direction, 10);
       flyMovement(&airunits[0], direction);
       //updateAirPositions(airunits);

@@ -2,7 +2,8 @@
 #include "maths.h"
 
 
-void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squaresize, float *fogend)
+void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight,
+                     int squaresize, float *fogend)
 {
   static float fogstart = 10.0f;
   const float fstart = 0.08f;
@@ -15,12 +16,12 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight, int squa
   glClearColor(clear[0], clear[1], clear[2], clear[3]);
   temp = squaresize * TERRAIN_GRID_SIZE * 0.9f;
   if (*fogend > temp)
-    *fogend -= (*fogend - temp) * 0.1f;
+    *fogend -= (*fogend - temp) * 0.31f;
   else
     *fogend -= (*fogend - temp) * 0.04f;
   temp = *fogend * 0.75f;
   if (fogstart > temp)
-    fogstart -= (fogstart - temp) * 0.1f;
+    fogstart -= (fogstart - temp) * 0.17f;
   else
     fogstart -= (fogstart - temp) * 0.02f;
   fogstart = fogstart > 3000 ? 3000 : fogstart;
@@ -70,6 +71,7 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
       cull -= 360;
     if (cull <= 85 || cull >= 275 || camerarot.x > 27.0f) {
       height = readTerrainHeightPlane(xpos, zpos, squaresize, &normal);
+      //height = readTerrainHeight(xpos, zpos);
       type = readTerrainType(xpos, zpos);
       dist = distance3d(camerapos, mv3f(xpos, height, zpos));
       x1 = x1 * x1 + z1 * z1;
@@ -80,7 +82,6 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
         break;
       case T_TYPE_GRASS2:
         density = 127;
-        //density += distance3d(mv3f(normal.x, fabs(normal.y), normal.z), mv3f(0, 1, 0)) < 1.0f ? 2000 : 0;
         break;
       case T_TYPE_GRASS3:
         density = 101;
@@ -318,16 +319,17 @@ void sceneQuad(void)
 
 void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads, GLuint *textures,
             GLuint *shaders, int *swapb, struct v3f *camerapos, struct v3f camerarot, struct v2f *sector,
-            float camheight, int *squaresize, float *fogend, struct airunit *airunits)
+            float camheight, int *squaresize, float *fogend, float *fps, struct airunit *airunits)
 {
   GLfloat materialColor[4];
   GLfloat clear[4]    = {0.5f, 0.5f, 0.5f, 1.0f};
   GLfloat ambient[4]  = {0.49f, 0.45f, 0.47f, 1.0f};
   GLubyte skyColor[3] = {117, 132, 215};
   static double time = 0;
-  double fps = 0;
+  static float fps2 = 0;
 
-  fps = 1 / (glfwGetTime() - time);
+  *fps = 1 / (glfwGetTime() - time);
+  fps2 += (*fps - fps2) * 0.05f;
   time = glfwGetTime();
   clear[0] = 117 / 255.0f;
   clear[1] = 132 / 255.0f;
@@ -382,7 +384,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glBindTexture(GL_TEXTURE_2D, textures[6]);
   renderNumber(camerapos->x, textquads, mv2f(RESX - 100, 120));
   renderNumber(camerapos->z, textquads, mv2f(RESX - 100, 70));
-  renderNumber(fps, textquads, mv2f(RESX - 100, 20));
+  renderNumber(fps2, textquads, mv2f(RESX - 100, 20));
 
   glReadBuffer(GL_BACK);
   glBindTexture(GL_TEXTURE_2D, textures[4]);

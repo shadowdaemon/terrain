@@ -8,9 +8,9 @@
 #define VIEW_DISTANCE_HALF                  625
 #define WORLD_SIZE                          100000
 #define WORLD_GRAVITY                       0.3f
-#define TERRAIN_GRID_SIZE                   100
-#define TERRAIN_GRID_SIZE_HALF              50
-#define TERRAIN_GRID_SIZE_QUARTER           25
+#define TERRAIN_GRID_SIZE                   120
+#define TERRAIN_GRID_SIZE_HALF              60
+#define TERRAIN_GRID_SIZE_QUARTER           30
 #define TERRAIN_SQUARE_SIZE                 100
 #define TERRAIN_SQUARE_SIZE_HALF            50
 // #define TERRAIN_CENTRE_DISTANCE             (TERRAIN_SQUARE_SIZE*TERRAIN_GRID_SIZE*0.1f)
@@ -141,4 +141,4 @@ const struct aiScene *loadTextQuad(const char *file);
 void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfloat size, GLuint alpha);
 void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads, GLuint *textures, GLuint *shaders,
   int *swapb, struct v3f *camerapos, struct v3f camerarot, struct v2f *sector, float camheight, int *squaresize,
-  float *fogend, struct airunit *airunits);
+  float *fogend, float *fps, struct airunit *airunits);
