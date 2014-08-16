@@ -222,7 +222,8 @@ struct terrain algorithmicTerrain(float x, float z)
   float dist, x1, z1;
 
   temp.height = 0.0f;
-  temp.height = algorithmicTerrainHeight1(z, x, temp.height) - 2500;
+  temp.height = algorithmicTerrainHeight4(x * 0.2f, z * 0.2f, temp.height) * 3.35f;
+  temp.height = algorithmicTerrainHeight2(z, x, temp.height) * 0.25f - 3000;
   temp.type = T_TYPE_NULL;
   if (temp.height > 2500 && temp.height < 4000) {
     x1 = 0.5f - sinf(x * 0.0009f + 11000);
@@ -235,7 +236,7 @@ struct terrain algorithmicTerrain(float x, float z)
       z1 = 0;
     else if (z1 > 1)
       z1 = 1;
-    temp.height += (750 - fabs(3250 - temp.height)) * x1 * z1 * 0.85f;
+    temp.height += (750 - fabs(3250 - temp.height)) * x1 * z1 * 0.25f;
   }
   if (temp.height > 0 && temp.height < 2000) {
     x1 = 0.7f - sinf(x * 0.00036f);
@@ -248,29 +249,29 @@ struct terrain algorithmicTerrain(float x, float z)
       z1 = 0;
     else if (z1 > 1)
       z1 = 1;
-    temp.height += algorithmicTerrainHeight1(x * 0.11f, z * 0.12f, temp.height) * (1 - fabs(1000 - temp.height) / 1000.0f) * x1 * z1 * 0.27f;
+    temp.height += algorithmicTerrainHeight3(x * 0.11f, z * 0.12f, temp.height) * (1 - fabs(1000 - temp.height) / 1000.0f) * x1 * z1 * 0.57f;
   }
   dist = distance2d(mv3f(0, 0, 0), mv3f(x, 0, z));
   if (dist < 20000) {
     dist = (20000 - dist) / 9000;
     dist = dist < 0 ? 0 : dist > 1 ? 1 : dist;
-    temp.height += (3070.0f - temp.height) * dist * 0.9f;
+    temp.height += (470.0f - temp.height) * dist * 0.8f;
   }
   temp.height -= temp.height < 1500 ? (temp.height - 1500) * 0.32f : 0;
   temp.height -= temp.height < 3000 ? (temp.height - 3000) * 0.46f : 0;
   temp.height -= temp.height > 8000 ? (temp.height - 8000) * 0.61f : 0;
   if (temp.height > 0 && temp.height < 1300) {
-    x1 = 0.071f - sinf(x * 0.00047f - 9500);
+    x1 = 0.571f - sinf(x * 0.00047f - 9500);
     if (x1 < 0)
       x1 = 0;
     else if (x1 > 1)
       x1 = 1;
-    z1 = 0.087f - sinf(z * 0.00034f);
+    z1 = 0.587f - sinf(z * 0.00034f);
     if (z1 < 0)
       z1 = 0;
     else if (z1 > 1)
       z1 = 1;
-    temp.height += (650 - fabs(650 - temp.height)) * x1 * z1;
+    temp.height += (650 - fabs(650 - temp.height)) * x1 * z1 * 0.51f;
     if (temp.height > 1200)
       temp.type = T_TYPE_VILLAGE;
   }

@@ -343,8 +343,8 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   time = glfwGetTime();
   glEnable(GL_LIGHT0);
   glEnable(GL_LIGHT1);
-  lpos[0] = -1000 * sinf(time * 0.1f);
-  lpos[1] = 1000 * cosf(time * 0.1f);
+  lpos[0] = -1000 * sinf(time * 0.01f);
+  lpos[1] = 1000 * cosf(time * 0.01f);
   lpos[2] = 0;
   lpos[3] = 0;
   glLightiv(GL_LIGHT0, GL_POSITION, lpos);
@@ -387,9 +387,9 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   color[1] = lpos[1] > -300 ? (lpos[1] + 300) / 1300.0f : 0;
   color[2] = lpos[1] > -100 ? (lpos[1] + 100) / 1100.0f : 0;
   glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
-  color[0] = 0.31f;
-  color[1] = 0.3f;
-  color[2] = 0.32f;
+  color[0] = 0.2f;
+  color[1] = 0.2f;
+  color[2] = 0.22f;
   glLightfv(GL_LIGHT1, GL_DIFFUSE, color);
   color[0] = 0.8f;
   color[1] = 0.8f;
@@ -397,9 +397,9 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glMaterialfv(GL_FRONT, GL_DIFFUSE, color);
   glMaterialfv(GL_FRONT, GL_AMBIENT, color);
   glMaterialfv(GL_FRONT, GL_SPECULAR, color);
-  color[0] = 117 / 255.0f * temp;
-  color[1] = 132 / 255.0f * lpos[1] > -300 ? (lpos[1] + 300) / 1300.0f : 0;
-  color[2] = 215 / 255.0f * lpos[1] > -100 ? 0.05f + (lpos[1] + 100) / 1100.0f : 0.05f;
+  color[0] = 0.4588235294117647f * temp;
+  color[1] = 0.5176470588235295f * lpos[1] > -300 ? (lpos[1] + 300) / 1300.0f : 0;
+  color[2] = 0.8431372549019608f * lpos[1] > -100 ? 0.05f + (lpos[1] + 100) / 1100.0f : 0.05f;
   updateFog(color, *squaresize, fogend);
   glClearColor(color[0], color[1], color[2], color[3]);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
