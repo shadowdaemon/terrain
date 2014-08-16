@@ -271,6 +271,30 @@ void renderSun(struct v3f camerapos, GLint sunpos[4], float size)
 }
 
 
+void renderMoon(struct v3f camerapos, GLint pos[4], float size)
+{
+  int i;
+  float r, x, z;
+
+  glPushMatrix();
+  glTranslatef(camerapos.x + pos[0], camerapos.y + pos[1], camerapos.z + pos[2]);
+  r = atan2(pos[0], pos[1]) * -180 / PI;
+  glRotatef(r, 0.0f, 0.0f, 1.0f);
+  glColor3ub(227, 227, 230);
+  glBegin(GL_TRIANGLE_FAN);
+  glVertex3f(0.0f, 0.0f, 0.0f);
+  glColor4ub(210, 210, 212, 80);
+  for (i = 0; i <= 360; i += 15) {
+    r = i / PIx180;
+    x = -size * sinf(r);
+    z = size * cosf(r);
+    glVertex3f(x, 0.0f, z);
+  }
+  glEnd();
+  glPopMatrix();
+}
+
+
 void renderNumber(int num, struct aiScene *textquads, struct v2f pos)
 {
   int i = 0, j = num;
@@ -310,7 +334,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
             float camheight, int *squaresize, float *fogend, float *fps, struct airunit *airunits)
 {
   GLfloat color[4], temp;
-  GLint lpos[4];
+  GLint lpos[4], mpos[4];
   static double time = 0;
   static float fps2 = 0;
 
@@ -318,11 +342,17 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   fps2 += (*fps - fps2) * 0.05f;
   time = glfwGetTime();
   glEnable(GL_LIGHT0);
+  glEnable(GL_LIGHT1);
   lpos[0] = -1000 * sinf(time * 0.1f);
   lpos[1] = 1000 * cosf(time * 0.1f);
   lpos[2] = 0;
   lpos[3] = 0;
   glLightiv(GL_LIGHT0, GL_POSITION, lpos);
+  mpos[0] = 400;
+  mpos[1] = 800;
+  mpos[2] = 300;
+  mpos[3] = 0;
+  glLightiv(GL_LIGHT1, GL_POSITION, mpos);
   if (lpos[1] > 300)
     temp = 0.3f * (lpos[1] - 300) / 700.0f;
   else
@@ -332,6 +362,10 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   color[2] = temp;
   color[3] = 1.0f;
   glLightfv(GL_LIGHT0, GL_SPECULAR, color);
+  color[0] = 0.1f;
+  color[1] = 0.1f;
+  color[2] = 0.12f;
+  glLightfv(GL_LIGHT1, GL_SPECULAR, color);
   if (lpos[1] < -300)
     temp = 0.15f * (1 - (-300 - lpos[1]) / 700.0f);
   else
@@ -340,6 +374,10 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   color[1] = temp;
   color[2] = temp;
   glLightfv(GL_LIGHT0, GL_AMBIENT, color);
+  color[0] = 0.03f;
+  color[1] = 0.03f;
+  color[2] = 0.04f;
+  glLightfv(GL_LIGHT1, GL_AMBIENT, color);
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, color);
   if (lpos[1] > -500)
     temp = (lpos[1] + 500) / 1500.0f;
@@ -349,6 +387,10 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   color[1] = lpos[1] > -300 ? (lpos[1] + 300) / 1300.0f : 0;
   color[2] = lpos[1] > -100 ? (lpos[1] + 100) / 1100.0f : 0;
   glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
+  color[0] = 0.31f;
+  color[1] = 0.3f;
+  color[2] = 0.32f;
+  glLightfv(GL_LIGHT1, GL_DIFFUSE, color);
   color[0] = 0.8f;
   color[1] = 0.8f;
   color[2] = 0.8f;
@@ -364,6 +406,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glShadeModel(GL_SMOOTH);
   renderSky(*camerapos, camerarot, color, *fogend);
   renderSun(*camerapos, lpos, 120);
+  renderMoon(*camerapos, mpos, 70);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
   glEnable(GL_FOG);
