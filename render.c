@@ -247,14 +247,27 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
 }
 
 
-void beam(struct v3f start, struct v3f end)
+void renderSun(struct v3f camerapos, GLint sunpos[4], float size)
 {
-  glBegin(GL_LINES);
-  glColor4ub(255, 25, 5, 175);
-  glVertex3f(-start.x, start.y, -start.z);
-  glColor4ub(205, 25, 5, 0);
-  glVertex3f(-end.x, end.y, -end.z);
+  int i;
+  float r, x, z;
+
+  glPushMatrix();
+  glTranslatef(camerapos.x + sunpos[0], camerapos.y + sunpos[1], camerapos.z + sunpos[2]);
+  r = atan2(sunpos[0], sunpos[1]) * -180 / PI;
+  glRotatef(r, 0.0f, 0.0f, 1.0f);
+  glColor3ub(235, 215, 30);
+  glBegin(GL_TRIANGLE_FAN);
+  glVertex3f(0.0f, 0.0f, 0.0f);
+  glColor4ub(235, 200, 60, 0);
+  for (i = 0; i <= 360; i += 10) {
+    r = i / PIx180;
+    x = -size * sinf(r);
+    z = size * cosf(r);
+    glVertex3f(x, 0.0f, z);
+  }
   glEnd();
+  glPopMatrix();
 }
 
 
@@ -296,7 +309,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
             GLuint *shaders, int *swapb, struct v3f *camerapos, struct v3f camerarot, struct v2f *sector,
             float camheight, int *squaresize, float *fogend, float *fps, struct airunit *airunits)
 {
-  GLfloat color[4];
+  GLfloat color[4], temp;
   GLint lpos[4];
   static double time = 0;
   static float fps2 = 0;
@@ -305,24 +318,36 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   fps2 += (*fps - fps2) * 0.05f;
   time = glfwGetTime();
   glEnable(GL_LIGHT0);
-  lpos[0] = 1000;
-  lpos[1] = 1000;
+  lpos[0] = -1000 * sinf(time * 0.1f);
+  lpos[1] = 1000 * cosf(time * 0.1f);
   lpos[2] = 0;
   lpos[3] = 0;
   glLightiv(GL_LIGHT0, GL_POSITION, lpos);
-  color[0] = 0.3f;
-  color[1] = 0.3f;
-  color[2] = 0.3f;
+  if (lpos[1] > 0)
+    temp = 0.3f * lpos[1] / 1000.0f;
+  else
+    temp = 0.0f;
+  color[0] = temp;
+  color[1] = temp;
+  color[2] = temp;
   color[3] = 1.0f;
   glLightfv(GL_LIGHT0, GL_SPECULAR, color);
-  color[0] = 0.15f;
-  color[1] = 0.15f;
-  color[2] = 0.15f;
+  if (lpos[1] < -600)
+    temp = 0.15f * (1 - (-600 - lpos[1]) / 400.0f);
+  else
+    temp = 0.15f;
+  color[0] = temp;
+  color[1] = temp;
+  color[2] = temp;
   glLightfv(GL_LIGHT0, GL_AMBIENT, color);
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, color);
-  color[0] = 1.0f;
-  color[1] = 1.0f;
-  color[2] = 1.0f;
+  if (lpos[1] > -500)
+    temp = (lpos[1] + 500) / 1500.0f;
+  else
+    temp = 0.0f;
+  color[0] = temp;
+  color[1] = temp;
+  color[2] = temp;
   glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
   color[0] = 0.8f;
   color[1] = 0.8f;
@@ -330,14 +355,15 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glMaterialfv(GL_FRONT, GL_DIFFUSE, color);
   glMaterialfv(GL_FRONT, GL_AMBIENT, color);
   glMaterialfv(GL_FRONT, GL_SPECULAR, color);
-  color[0] = 117 / 255.0f;
-  color[1] = 132 / 255.0f;
-  color[2] = 215 / 255.0f;
+  color[0] = 117 / 255.0f * temp;
+  color[1] = 132 / 255.0f * temp;
+  color[2] = 215 / 255.0f * temp;
   updateFog(color, *squaresize, fogend);
   glClearColor(color[0], color[1], color[2], color[3]);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glShadeModel(GL_SMOOTH);
   renderSky(*camerapos, camerarot, color, *fogend);
+  renderSun(*camerapos, lpos, 120);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
   glEnable(GL_FOG);
@@ -352,7 +378,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glBindTexture(GL_TEXTURE_2D, textures[5]);
   renderBuildings(scene, *camerapos, camerarot, *sector, *squaresize);
   glBindTexture(GL_TEXTURE_2D, textures[3]);
-  drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 0.35f, 255);
+  //drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 0.35f, 255);
   //for (i = 1; i < 15; i++)
     //drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 1, 255);
   glBindTexture(GL_TEXTURE_2D, textures[2]);

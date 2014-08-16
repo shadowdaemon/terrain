@@ -4,8 +4,8 @@
 #define RESY                                768
 #define PI                                  3.14159265358979323846f
 #define PIx180                              180.0f*PI
-#define VIEW_DISTANCE                       1250
-#define VIEW_DISTANCE_HALF                  625
+#define VIEW_DISTANCE                       1500
+#define VIEW_DISTANCE_HALF                  750
 #define WORLD_SIZE                          100000
 #define WORLD_GRAVITY                       0.3f
 #define TERRAIN_GRID_SIZE                   120
