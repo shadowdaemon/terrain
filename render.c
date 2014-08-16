@@ -192,7 +192,7 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize, GL
   glBegin(GL_QUADS);
   color[3] = 0.7f;
   glColor4fv(color);
-  glNormal3i(0, 1, 0);
+  glNormal3i(0, -1, 0);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE_HALF && zgrid < TERRAIN_GRID_SIZE_HALF; xgrid++) {
     xshift = zshift = size;
     xpos = (-TERRAIN_GRID_SIZE_QUARTER + xgrid) * xshift;
@@ -353,8 +353,8 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   time = glfwGetTime();
   glEnable(GL_LIGHT0);
   glEnable(GL_LIGHT1);
-  lpos[0] = -1000 * sinf(time * 0.03f);
-  lpos[1] = 1000 * cosf(time * 0.03f);
+  lpos[0] = -1000 * sinf(time * 0.08f);
+  lpos[1] = 1000 * cosf(time * 0.08f);
   lpos[2] = 0;
   lpos[3] = 0;
   glLightiv(GL_LIGHT0, GL_POSITION, lpos);
@@ -408,8 +408,9 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glMaterialfv(GL_FRONT, GL_AMBIENT, color);
   glMaterialfv(GL_FRONT, GL_SPECULAR, color);
   color[0] = 0.4588235294117647f * temp;
-  color[1] = 0.5176470588235295f * lpos[1] > -400 ? (lpos[1] + 400) / 1400.0f : 0;
-  color[2] = 0.8431372549019608f * lpos[1] > -200 ? 0.05f + (lpos[1] + 200) / 1200.0f : 0.05f;
+  color[0] += lpos[0] > 800 ? (lpos[0] - 800) * 0.005f * 0.1f : 0;
+  color[1] = 0.5176470588235295f * (lpos[1] > -400 ? (lpos[1] + 400) / 1400.0f : 0);
+  color[2] = 0.8431372549019608f * (lpos[1] > -200 ? 0.05f + (lpos[1] + 200) / 1200.0f : 0.05f);
   updateFog(color, *squaresize, fogend);
   glClearColor(color[0], color[1], color[2], color[3]);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
