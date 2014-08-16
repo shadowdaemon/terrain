@@ -266,10 +266,10 @@ void renderSun(struct v3f camerapos, GLint sunpos[4], float size)
   glTranslatef(camerapos.x + sunpos[0], camerapos.y + sunpos[1], camerapos.z + sunpos[2]);
   r = atan2(sunpos[0], sunpos[1]) * -180 / PI;
   glRotatef(r, 0.0f, 0.0f, 1.0f);
-  glColor3ub(235, 215, 30);
+  glColor4ub(235, 215, 30, 10 + (GLubyte) fabs(sunpos[1] * 0.244f));
   glBegin(GL_TRIANGLE_FAN);
   glVertex3f(0.0f, 0.0f, 0.0f);
-  glColor4ub(235, 200, 60, 0);
+  glColor4ub(235, 200, 60, 3);
   for (i = 0; i <= 360; i += 15) {
     r = i / PIx180;
     x = -size * sinf(r);
@@ -353,8 +353,8 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   time = glfwGetTime();
   glEnable(GL_LIGHT0);
   glEnable(GL_LIGHT1);
-  lpos[0] = -1000 * sinf(time * 0.1f);
-  lpos[1] = 1000 * cosf(time * 0.1f);
+  lpos[0] = -1000 * sinf(time * 0.03f);
+  lpos[1] = 1000 * cosf(time * 0.03f);
   lpos[2] = 0;
   lpos[3] = 0;
   glLightiv(GL_LIGHT0, GL_POSITION, lpos);
@@ -389,13 +389,13 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   color[2] = 0.04f;
   glLightfv(GL_LIGHT1, GL_AMBIENT, color);
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, color);
-  if (lpos[1] > -500)
-    temp = (lpos[1] + 500) / 1500.0f;
+  if (lpos[1] > -600)
+    temp = (lpos[1] + 600) / 1600.0f;
   else
     temp = 0.0f;
   color[0] = temp;
-  color[1] = lpos[1] > -300 ? (lpos[1] + 300) / 1300.0f : 0;
-  color[2] = lpos[1] > -100 ? (lpos[1] + 100) / 1100.0f : 0;
+  color[1] = lpos[1] > -400 ? (lpos[1] + 400) / 1400.0f : 0;
+  color[2] = lpos[1] > -200 ? (lpos[1] + 200) / 1200.0f : 0;
   glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
   color[0] = 0.2f;
   color[1] = 0.2f;
@@ -408,15 +408,15 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glMaterialfv(GL_FRONT, GL_AMBIENT, color);
   glMaterialfv(GL_FRONT, GL_SPECULAR, color);
   color[0] = 0.4588235294117647f * temp;
-  color[1] = 0.5176470588235295f * lpos[1] > -300 ? (lpos[1] + 300) / 1300.0f : 0;
-  color[2] = 0.8431372549019608f * lpos[1] > -100 ? 0.05f + (lpos[1] + 100) / 1100.0f : 0.05f;
+  color[1] = 0.5176470588235295f * lpos[1] > -400 ? (lpos[1] + 400) / 1400.0f : 0;
+  color[2] = 0.8431372549019608f * lpos[1] > -200 ? 0.05f + (lpos[1] + 200) / 1200.0f : 0.05f;
   updateFog(color, *squaresize, fogend);
   glClearColor(color[0], color[1], color[2], color[3]);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glShadeModel(GL_SMOOTH);
   renderSky(*camerapos, camerarot, color, *fogend);
-  renderSun(*camerapos, lpos, 120);
-  renderMoon(*camerapos, mpos, 70);
+  renderSun(*camerapos, lpos, 160);
+  renderMoon(*camerapos, mpos, 60);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
   glEnable(GL_FOG);
