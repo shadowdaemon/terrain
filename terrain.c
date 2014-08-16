@@ -373,7 +373,7 @@ void drawTerrain(struct v3f *camerapos, struct v3f camerarot, struct v2f *sector
   struct v3f temp3f;
   int xgrid, zgrid, x1, z1, x2, z2, x3, z3, alt, cull;
   static int alt2 = 0;
-  const int altstep = 11;
+  const int altstep = 7;
   float x, z, xpos = 0.0f, zpos = 0.0f, dist;
   float v1[3], v2[3], v3[3];
   unsigned char NEcolorR [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
