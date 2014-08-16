@@ -129,12 +129,7 @@ void linkShader(GLuint *shader, const char *v_file, const char *f_file)
 GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
 {
   GLFWwindow *window = NULL;
-  int lightpos[]  = {1, 0, 500, 0};
   int width, height;
-  // float lightdir[]  = {0.0f, -1.0f, 0.0f};
-  float lightspec[] = {0.15f, 0.18f, 0.17f, 1.0f};
-  float lightamb[]  = {0.1f, 0.07f, 0.08f, 1.0f};
-  float lightdiff[] = {0.82f, 0.77f, 0.75f, 1.0f};
 
   glfwSetErrorCallback(errorGLFW);
   if (glfwInit() == GL_FALSE)
@@ -171,7 +166,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_LIGHTING);
-  glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, 1.0f);
+  glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, 0.0f);
   glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1.0f);
   glEnable(GL_FOG);
   glFogi(GL_FOG_MODE, GL_LINEAR);
@@ -220,32 +215,6 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-  glEnable(GL_LIGHT0);
-  glLightiv(GL_LIGHT0, GL_POSITION, lightpos);
-  //glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 77.0f);
-  glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 10.0f);
-  //glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 100.0f);
-  //glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, lightdir);
-  glLightfv(GL_LIGHT0, GL_SPECULAR, lightspec);
-  glLightfv(GL_LIGHT0, GL_AMBIENT, lightamb);
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, lightdiff);
-  glEnable(GL_LIGHT1);
-  lightpos[1]  = 5000;
-  glLightiv(GL_LIGHT1, GL_POSITION, lightpos);
-  glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 10.0f);
-  lightspec[0] = 0.12f;
-  lightspec[1] = 0.1f;
-  lightspec[2] = 0.11f;
-  glLightfv(GL_LIGHT1, GL_SPECULAR, lightspec);
-  lightamb[0] = 0.0f;
-  lightamb[1] = 0.0f;
-  lightamb[2] = 0.0f;
-  glLightfv(GL_LIGHT1, GL_AMBIENT, lightamb);
-  lightdiff[0] = 0.15f;
-  lightdiff[1] = 0.17f;
-  lightdiff[2] = 0.19f;
-  glLightfv(GL_LIGHT1, GL_DIFFUSE, lightdiff);
 
   printf("%s\n", glGetString(GL_VERSION));
   printf("%s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));

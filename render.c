@@ -2,18 +2,12 @@
 #include "maths.h"
 
 
-void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight,
-                     int squaresize, float *fogend)
+void updateFog(GLfloat *clear, int squaresize, float *fogend)
 {
   static float fogstart = 10.0f;
   float fstart = 0.08f;
   float temp = 0.0f;
-  float lightspec[4];
-  float lightamb[4];
-  float lightdiff[4];
 
-  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
-  glClearColor(clear[0], clear[1], clear[2], clear[3]);
   temp = squaresize * TERRAIN_GRID_SIZE * 0.9f;
   if (*fogend > temp)
     *fogend -= (*fogend - temp) * 0.31f;
@@ -25,22 +19,10 @@ void updateFogLights(GLfloat *clear, GLfloat *ambient, float camheight,
   else
     fogstart -= (fogstart - temp) * 0.02f;
   fogstart = fogstart > 3000 ? 3000 : fogstart;
-  fstart = *fogend * 0.0001f;
+  fstart = *fogend * 0.00002f > 4.0f ? 4.0f : *fogend * 0.00002f;
   glFogfv(GL_FOG_COLOR, clear);
   glFogf(GL_FOG_START, fogstart);
   glFogf(GL_FOG_END, *fogend);
-  lightspec[0] = 0.12f;
-  lightspec[1] = 0.1f;
-  lightspec[2] = 0.11f;
-  glLightfv(GL_LIGHT1, GL_SPECULAR, lightspec);
-  lightamb[0] = 0.0f;
-  lightamb[1] = 0.0f;
-  lightamb[2] = 0.0f;
-  glLightfv(GL_LIGHT1, GL_AMBIENT, lightamb);
-  lightdiff[0] = 0.25f + sinf(camheight*0.00017f) * 0.15f;
-  lightdiff[1] = 0.17f;
-  lightdiff[2] = 0.19f;
-  glLightfv(GL_LIGHT1, GL_DIFFUSE, lightdiff);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glFrustum(-5.4f * fstart, 5.4f * fstart, -4.0f * fstart, 4.0f * fstart, 8.0f * fstart, *fogend * 1.1f);
@@ -161,7 +143,7 @@ void renderBuildings(struct aiScene *scene, struct v3f camerapos, struct v3f cam
 }
 
 
-void renderSky(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, GLubyte *skyColor, float fogend)
+void renderSky(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, float fogend)
 {
   glPushMatrix();
   glDisable(GL_DEPTH_TEST);
@@ -171,29 +153,22 @@ void renderSky(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, GLuby
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_LIGHTING);
   glBegin(GL_QUADS);
-  //glColor3fv(clear);
-  glColor3ubv(skyColor);
+  glColor3fv(clear);
   glVertex3f(7000.0f, 3000.0f, 50000.0f);
   glVertex3f(-7000.0f, 3000.0f, 50000.0f);
-  //glColor3ubv(skyColor);
   glVertex3f(-7000.0f, 3000.0f, -fogend);
   glVertex3f(7000.0f, 3000.0f, -fogend);
   glVertex3f(7000.0f, 3000.0f, -fogend);
   glVertex3f(-7000.0f, 3000.0f, -fogend);
-  glColor3fv(clear);
   glVertex3f(-7000.0f, -5000.0f, -fogend);
   glVertex3f(7000.0f, -5000.0f, -fogend);
   glEnd();
   glBegin(GL_TRIANGLES);
-  glColor3ubv(skyColor);
   glVertex3f(7000.0f, 3000.0f, 50000.0f);
   glVertex3f(7000.0f, 3000.0f, -fogend);
-  glColor3fv(clear);
   glVertex3f(7000.0f, -5000.0f, -fogend);
-  glColor3ubv(skyColor);
   glVertex3f(-7000.0f, 3000.0f, -fogend);
   glVertex3f(-7000.0f, 3000.0f, 50000.0f);
-  glColor3fv(clear);
   glVertex3f(-7000.0f, -5000.0f, -fogend);
   glEnd();
   glPopMatrix();
@@ -322,27 +297,47 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
             GLuint *shaders, int *swapb, struct v3f *camerapos, struct v3f camerarot, struct v2f *sector,
             float camheight, int *squaresize, float *fogend, float *fps, struct airunit *airunits)
 {
-  GLfloat materialColor[4];
-  GLfloat clear[4]    = {0.5f, 0.5f, 0.5f, 1.0f};
-  GLfloat ambient[4]  = {0.49f, 0.45f, 0.47f, 1.0f};
-  GLubyte skyColor[3] = {117, 132, 215};
+  GLfloat color[4];
+  GLint lpos[4];
   static double time = 0;
   static float fps2 = 0;
 
   *fps = 1 / (glfwGetTime() - time);
   fps2 += (*fps - fps2) * 0.05f;
   time = glfwGetTime();
-  clear[0] = 117 / 255.0f;
-  clear[1] = 132 / 255.0f;
-  clear[2] = 215 / 255.0f;
-  materialColor[3] = 1.0f;
-  materialColor[0] = materialColor[1] = materialColor[2] = 0.8f;
-  glMaterialfv(GL_FRONT, GL_DIFFUSE, materialColor);
-  glMaterialfv(GL_FRONT, GL_AMBIENT, materialColor);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, materialColor);
+  glEnable(GL_LIGHT0);
+  lpos[0] = 200;
+  lpos[1] = 1000;
+  lpos[2] = 0;
+  lpos[3] = 0;
+  glLightiv(GL_LIGHT0, GL_POSITION, lpos);
+  color[0] = 0.4f;
+  color[1] = 0.4f;
+  color[2] = 0.4f;
+  color[3] = 1.0f;
+  glLightfv(GL_LIGHT0, GL_SPECULAR, color);
+  color[0] = 0.15f;
+  color[1] = 0.15f;
+  color[2] = 0.15f;
+  color[3] = 1.0f;
+  glLightfv(GL_LIGHT0, GL_AMBIENT, color);
+  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, color);
+  color[0] = 0.8f;
+  color[1] = 0.8f;
+  color[2] = 0.8f;
+  color[3] = 1.0f;
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
+  glMaterialfv(GL_FRONT, GL_DIFFUSE, color);
+  glMaterialfv(GL_FRONT, GL_AMBIENT, color);
+  glMaterialfv(GL_FRONT, GL_SPECULAR, color);
+  color[0] = 117 / 255.0f;
+  color[1] = 132 / 255.0f;
+  color[2] = 215 / 255.0f;
+  updateFog(color, *squaresize, fogend);
+  glClearColor(color[0], color[1], color[2], color[3]);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glShadeModel(GL_SMOOTH);
-  renderSky(*camerapos, camerarot, clear, skyColor, *fogend);
+  renderSky(*camerapos, camerarot, color, *fogend);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
   glEnable(GL_FOG);
@@ -352,28 +347,16 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glBindTexture(GL_TEXTURE_2D, textures[0]);
   drawTerrain(camerapos, camerarot, sector, camheight, swapb, squaresize);
   renderWater(*camerapos, camerarot, squaresize);
-  clear[2] += fabs(sinf(camheight*0.00067f)) * 0.23f;
-  updateFogLights(clear, ambient, camheight, *squaresize, fogend);
   glBindTexture(GL_TEXTURE_2D, textures[1]);
   renderFoliage(scene, *camerapos, camerarot, *sector, *squaresize);
   glBindTexture(GL_TEXTURE_2D, textures[5]);
   renderBuildings(scene, *camerapos, camerarot, *sector, *squaresize);
   glBindTexture(GL_TEXTURE_2D, textures[3]);
-  //struct v3f pos = airunits[0].pos;
-  //degreestovector3d(&pos, airunits[0].rot, mv3f(180, 180, 0), 15000);
-  //glUseProgramARB(shaders[0]);
-  //beam(airunits[0].pos, pos);
-  //glUseProgramARB(0);
-  //glDisable(GL_TEXTURE_2D);
-  //glShadeModel(GL_FLAT);
-  //int i;
   drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 0.35f, 255);
   //for (i = 1; i < 15; i++)
     //drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 1, 255);
-
   glBindTexture(GL_TEXTURE_2D, textures[2]);
   renderCloud(*camerapos, camerarot, squaresize);
-
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
@@ -381,14 +364,12 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
-
   glBindTexture(GL_TEXTURE_2D, textures[6]);
   //renderNumber(camerapos->x, textquads, mv2f(RESX - 100, 120));
   //renderNumber(camerapos->z, textquads, mv2f(RESX - 100, 70));
   //renderNumber(fps2, textquads, mv2f(RESX - 100, 20));
   renderNumber(airunits[0].speed, textquads, mv2f(RESX - 100, 70));
   renderNumber(airunits[0].thrust * 100, textquads, mv2f(RESX - 100, 20));
-
   glReadBuffer(GL_BACK);
   glBindTexture(GL_TEXTURE_2D, textures[4]);
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
@@ -398,22 +379,20 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glUseProgramARB(shaders[1]);
   glUniform1iARB(glGetUniformLocationARB(shaders[1], "scene"), 4);
   glUniform2fARB(glGetUniformLocationARB(shaders[1], "steps"), 2000.0f, 2000.0f);
-  glUniform4fvARB(glGetUniformLocationARB(shaders[1], "clear"), 0, clear);
+  glUniform4fvARB(glGetUniformLocationARB(shaders[1], "clear"), 0, color);
   sceneQuad();
   glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0);
   glUseProgramARB(shaders[0]);
   glUniform1iARB(glGetUniformLocationARB(shaders[0], "scene"), 4);
   glUniform1fARB(glGetUniformLocationARB(shaders[0], "gamma"), 0.6f);
   glUniform1fARB(glGetUniformLocationARB(shaders[0], "numColors"), 64.0f);
-  glUniform4fvARB(glGetUniformLocationARB(shaders[0], "clear"), 0, clear);
+  glUniform4fvARB(glGetUniformLocationARB(shaders[0], "clear"), 0, color);
   sceneQuad();
-
   glUseProgramARB(0);
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
-
   if (*swapb)
     glfwSwapBuffers(window);
   *swapb = 1;

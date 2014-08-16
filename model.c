@@ -35,7 +35,7 @@ void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfl
   glRotatef(rot.x, 1.0f, 0.0f, 0.0f);
   glRotatef(rot.z, 0.0f, 0.0f, 1.0f);
   glScalef(size, size, size);
-  glColor4ub(125, 125, 125, alpha);
+  glColor4ub(225, 225, 225, alpha);
   switch (scene->mMeshes[0]->mFaces[0].mNumIndices) {
   case 3:
     mode = GL_TRIANGLES;
