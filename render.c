@@ -54,7 +54,6 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
       cull -= 360;
     if (cull <= 85 || cull >= 275 || camerarot.x > 27.0f) {
       height = readTerrainHeightPlane(xpos, zpos, squaresize, &normal);
-      //height = readTerrainHeight(xpos, zpos);
       type = readTerrainType(xpos, zpos);
       dist = distance3d(camerapos, mv3f(xpos, height, zpos));
       x1 = x1 * x1 + z1 * z1;
@@ -180,7 +179,7 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   int xshift, zshift, xgrid, zgrid, size = *squaresize * 8;
   float xpos, zpos;
 
-  glMateriali(GL_FRONT, GL_SHININESS, 17);
+  glMateriali(GL_FRONT, GL_SHININESS, 97);
   glDisable(GL_CULL_FACE);
   glDisable(GL_TEXTURE_2D);
   glPushMatrix();
@@ -218,7 +217,7 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   const float scale = 0.00005f;
 
   size = TERRAIN_GRID_SIZE * *squaresize;
-  glMateriali(GL_FRONT, GL_SHININESS, 111);
+  glMateriali(GL_FRONT, GL_SHININESS, 31);
   glDisable(GL_CULL_FACE);
   glEnable(GL_TEXTURE_2D);
   glPushMatrix();
@@ -306,27 +305,28 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   fps2 += (*fps - fps2) * 0.05f;
   time = glfwGetTime();
   glEnable(GL_LIGHT0);
-  lpos[0] = 200;
+  lpos[0] = 1000;
   lpos[1] = 1000;
   lpos[2] = 0;
   lpos[3] = 0;
   glLightiv(GL_LIGHT0, GL_POSITION, lpos);
-  color[0] = 0.4f;
-  color[1] = 0.4f;
-  color[2] = 0.4f;
+  color[0] = 0.3f;
+  color[1] = 0.3f;
+  color[2] = 0.3f;
   color[3] = 1.0f;
   glLightfv(GL_LIGHT0, GL_SPECULAR, color);
   color[0] = 0.15f;
   color[1] = 0.15f;
   color[2] = 0.15f;
-  color[3] = 1.0f;
   glLightfv(GL_LIGHT0, GL_AMBIENT, color);
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, color);
+  color[0] = 1.0f;
+  color[1] = 1.0f;
+  color[2] = 1.0f;
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
   color[0] = 0.8f;
   color[1] = 0.8f;
   color[2] = 0.8f;
-  color[3] = 1.0f;
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
   glMaterialfv(GL_FRONT, GL_DIFFUSE, color);
   glMaterialfv(GL_FRONT, GL_AMBIENT, color);
   glMaterialfv(GL_FRONT, GL_SPECULAR, color);

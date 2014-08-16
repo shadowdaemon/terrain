@@ -412,7 +412,7 @@ void drawTerrain(struct v3f *camerapos, struct v3f camerarot, struct v2f *sector
   float SWnormy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
   float SWnormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
 
-  glMateriali(GL_FRONT, GL_SHININESS, 97);
+  glMateriali(GL_FRONT, GL_SHININESS, 11);
   moveTerrain(camerapos, camerarot, sector, swapb, *squaresize);
   //selectPosition();
 

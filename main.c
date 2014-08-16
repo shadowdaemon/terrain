@@ -166,7 +166,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_LIGHTING);
-  glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, 0.0f);
+  glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, 1.0f);
   glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1.0f);
   glEnable(GL_FOG);
   glFogi(GL_FOG_MODE, GL_LINEAR);
