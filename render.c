@@ -174,28 +174,37 @@ void renderSky(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, float
 }
 
 
-void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize)
+void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize, GLfloat color[4])
 {
   int xshift, zshift, xgrid, zgrid, size = *squaresize * 8;
   float xpos, zpos;
+  const float scale = 0.00005f;
 
   glMateriali(GL_FRONT, GL_SHININESS, 97);
   glDisable(GL_CULL_FACE);
-  glDisable(GL_TEXTURE_2D);
   glPushMatrix();
   glTranslatef(camerapos.x, 0.0f, camerapos.z);
   glRotatef(-camerarot.y, 0.0f, 1.0f, 0.0f);
+  glMatrixMode(GL_TEXTURE);
+  glPushMatrix();
+  glTranslatef(-camerapos.x*scale, 0.0f, -camerapos.z*scale);
+  glScalef(scale, scale, scale);
   glBegin(GL_QUADS);
-  glColor4ub(32, 112, 255, 235);
+  color[3] = 0.7f;
+  glColor4fv(color);
   glNormal3i(0, 1, 0);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE_HALF && zgrid < TERRAIN_GRID_SIZE_HALF; xgrid++) {
     xshift = zshift = size;
     xpos = (-TERRAIN_GRID_SIZE_QUARTER + xgrid) * xshift;
     zpos = (-TERRAIN_GRID_SIZE_QUARTER + zgrid) * zshift;
     xshift = zshift = size / 2;
+    glTexCoord2f(xpos + xshift, zpos + zshift);
     glVertex3f(xpos + xshift, TERRAIN_WATER_LEVEL, zpos + zshift);
+    glTexCoord2f(xpos - xshift, zpos + zshift);
     glVertex3f(xpos - xshift, TERRAIN_WATER_LEVEL, zpos + zshift);
+    glTexCoord2f(xpos - xshift, zpos - zshift);
     glVertex3f(xpos - xshift, TERRAIN_WATER_LEVEL, zpos - zshift);
+    glTexCoord2f(xpos + xshift, zpos - zshift);
     glVertex3f(xpos + xshift, TERRAIN_WATER_LEVEL, zpos - zshift);
     if (xgrid >= TERRAIN_GRID_SIZE_HALF - 1) {
       zgrid++;
@@ -204,7 +213,8 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   }
   glEnd();
   glPopMatrix();
-  glEnable(GL_TEXTURE_2D);
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
   glEnable(GL_CULL_FACE);
 }
 
@@ -343,8 +353,8 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   time = glfwGetTime();
   glEnable(GL_LIGHT0);
   glEnable(GL_LIGHT1);
-  lpos[0] = -1000 * sinf(time * 0.01f);
-  lpos[1] = 1000 * cosf(time * 0.01f);
+  lpos[0] = -1000 * sinf(time * 0.1f);
+  lpos[1] = 1000 * cosf(time * 0.1f);
   lpos[2] = 0;
   lpos[3] = 0;
   glLightiv(GL_LIGHT0, GL_POSITION, lpos);
@@ -415,13 +425,14 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glEnable(GL_NORMALIZE);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
   drawTerrain(camerapos, camerarot, sector, camheight, swapb, squaresize);
-  renderWater(*camerapos, camerarot, squaresize);
+  glBindTexture(GL_TEXTURE_2D, textures[2]);
+  renderWater(*camerapos, camerarot, squaresize, color);
   glBindTexture(GL_TEXTURE_2D, textures[1]);
   renderFoliage(scene, *camerapos, camerarot, *sector, *squaresize);
   glBindTexture(GL_TEXTURE_2D, textures[5]);
   renderBuildings(scene, *camerapos, camerarot, *sector, *squaresize);
   glBindTexture(GL_TEXTURE_2D, textures[3]);
-  //drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 0.35f, 255);
+  drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 0.35f, 255);
   //for (i = 1; i < 15; i++)
     //drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 1, 255);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
@@ -454,7 +465,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glUseProgramARB(shaders[0]);
   glUniform1iARB(glGetUniformLocationARB(shaders[0], "scene"), 4);
   glUniform1fARB(glGetUniformLocationARB(shaders[0], "gamma"), 0.6f);
-  glUniform1fARB(glGetUniformLocationARB(shaders[0], "numColors"), 64.0f);
+  glUniform1fARB(glGetUniformLocationARB(shaders[0], "numColors"), 54.0f);
   glUniform4fvARB(glGetUniformLocationARB(shaders[0], "clear"), 0, color);
   sceneQuad();
   glUseProgramARB(0);
