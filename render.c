@@ -260,7 +260,7 @@ void renderSun(struct v3f camerapos, GLint sunpos[4], float size)
   glBegin(GL_TRIANGLE_FAN);
   glVertex3f(0.0f, 0.0f, 0.0f);
   glColor4ub(235, 200, 60, 0);
-  for (i = 0; i <= 360; i += 10) {
+  for (i = 0; i <= 360; i += 15) {
     r = i / PIx180;
     x = -size * sinf(r);
     z = size * cosf(r);
@@ -323,8 +323,8 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   lpos[2] = 0;
   lpos[3] = 0;
   glLightiv(GL_LIGHT0, GL_POSITION, lpos);
-  if (lpos[1] > 0)
-    temp = 0.3f * lpos[1] / 1000.0f;
+  if (lpos[1] > 300)
+    temp = 0.3f * (lpos[1] - 300) / 700.0f;
   else
     temp = 0.0f;
   color[0] = temp;
@@ -332,8 +332,8 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   color[2] = temp;
   color[3] = 1.0f;
   glLightfv(GL_LIGHT0, GL_SPECULAR, color);
-  if (lpos[1] < -600)
-    temp = 0.15f * (1 - (-600 - lpos[1]) / 400.0f);
+  if (lpos[1] < -300)
+    temp = 0.15f * (1 - (-300 - lpos[1]) / 700.0f);
   else
     temp = 0.15f;
   color[0] = temp;
@@ -346,8 +346,8 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   else
     temp = 0.0f;
   color[0] = temp;
-  color[1] = temp;
-  color[2] = temp;
+  color[1] = lpos[1] > -300 ? (lpos[1] + 300) / 1300.0f : 0;
+  color[2] = lpos[1] > -100 ? (lpos[1] + 100) / 1100.0f : 0;
   glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
   color[0] = 0.8f;
   color[1] = 0.8f;
@@ -356,8 +356,8 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glMaterialfv(GL_FRONT, GL_AMBIENT, color);
   glMaterialfv(GL_FRONT, GL_SPECULAR, color);
   color[0] = 117 / 255.0f * temp;
-  color[1] = 132 / 255.0f * temp;
-  color[2] = 215 / 255.0f * temp;
+  color[1] = 132 / 255.0f * lpos[1] > -300 ? (lpos[1] + 300) / 1300.0f : 0;
+  color[2] = 215 / 255.0f * lpos[1] > -100 ? 0.05f + (lpos[1] + 100) / 1100.0f : 0.05f;
   updateFog(color, *squaresize, fogend);
   glClearColor(color[0], color[1], color[2], color[3]);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
