@@ -322,7 +322,7 @@ void renderExhaust(struct v3f pos, struct v3f rot, float size)
   glColor4ub(195, 110, 30, 185);
   glVertex3f(0.5f, 0.5f, -size * 10.0f - 5.2f);
   glColor4ub(255, 225, 90, 30);
-  for (i = 0; i <= 360; i += 60) {
+  for (i = 0; i <= 360; i += 120) {
     r = i / PIx180;
     x = -size * sinf(r);
     y = size * cosf(r);
@@ -333,7 +333,7 @@ void renderExhaust(struct v3f pos, struct v3f rot, float size)
   glColor4ub(195, 110, 30, 185);
   glVertex3f(-0.5f, 0.5f, -size * 10.0f - 5.2f);
   glColor4ub(255, 225, 90, 30);
-  for (i = 0; i <= 360; i += 60) {
+  for (i = 0; i <= 360; i += 120) {
     r = i / PIx180;
     x = -size * sinf(r);
     y = size * cosf(r);
@@ -391,8 +391,8 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   *fps = 1 / (glfwGetTime() - time);
   fps2 += (*fps - fps2) * 0.05f;
   time = glfwGetTime();
-  glEnable(GL_LIGHT0);
-  glEnable(GL_LIGHT1);
+  glEnable(GL_LIGHT0); // sun
+  glEnable(GL_LIGHT1); // moon
   temp = time * 0.003f;
   lpos[0] = -1000 * sinf(temp);
   lpos[1] = 1000 * cosf(temp);
