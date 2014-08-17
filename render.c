@@ -290,10 +290,11 @@ void renderMoon(struct v3f camerapos, GLint pos[4], float size)
   glTranslatef(camerapos.x + pos[0], camerapos.y + pos[1], camerapos.z + pos[2]);
   r = atan2(pos[0], pos[1]) * -180 / PI;
   glRotatef(r, 0.0f, 0.0f, 1.0f);
-  glColor3ub(227, 227, 230);
+  glColor3ub(210, 210, 212);
   glBegin(GL_TRIANGLE_FAN);
-  glVertex3f(0.0f, 0.0f, 0.0f);
-  glColor4ub(210, 210, 212, 80);
+  //glVertex3f(0.0f, 0.0f, 0.0f);
+  glVertex3f(size*0.5f, 0.0f, size*0.4f);
+  glColor4ub(203, 203, 206, 200);
   for (i = 0; i <= 360; i += 15) {
     r = i / PIx180;
     x = -size * sinf(r);
@@ -302,6 +303,45 @@ void renderMoon(struct v3f camerapos, GLint pos[4], float size)
   }
   glEnd();
   glPopMatrix();
+}
+
+
+void renderExhaust(struct v3f pos, struct v3f rot, float size)
+{
+  int i;
+  float r, x, y;
+
+  glMateriali(GL_FRONT, GL_SHININESS, 110);
+  //glMateriali(GL_FRONT, GL_EMISSION, 78);
+  glPushMatrix();
+  glTranslatef(pos.x, pos.y, pos.z);
+  glRotatef(rot.y, 0.0f, 1.0f, 0.0f);
+  glRotatef(rot.x, 1.0f, 0.0f, 0.0f);
+  glRotatef(rot.z, 0.0f, 0.0f, 1.0f);
+  glBegin(GL_TRIANGLE_FAN);
+  glColor4ub(195, 110, 30, 185);
+  glVertex3f(0.5f, 0.5f, -size * 10.0f - 5.2f);
+  glColor4ub(255, 225, 90, 30);
+  for (i = 0; i <= 360; i += 60) {
+    r = i / PIx180;
+    x = -size * sinf(r);
+    y = size * cosf(r);
+    glVertex3f(x + 0.5f, y + 0.5f, -1.7f);
+  }
+  glEnd();
+  glBegin(GL_TRIANGLE_FAN);
+  glColor4ub(195, 110, 30, 185);
+  glVertex3f(-0.5f, 0.5f, -size * 10.0f - 5.2f);
+  glColor4ub(255, 225, 90, 30);
+  for (i = 0; i <= 360; i += 60) {
+    r = i / PIx180;
+    x = -size * sinf(r);
+    y = size * cosf(r);
+    glVertex3f(x - 0.5f, y + 0.5f, -1.7f);
+  }
+  glEnd();
+  glPopMatrix();
+  //glMateriali(GL_FRONT, GL_EMISSION, 0);
 }
 
 
@@ -353,8 +393,9 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   time = glfwGetTime();
   glEnable(GL_LIGHT0);
   glEnable(GL_LIGHT1);
-  lpos[0] = -1000 * sinf(time * 0.08f);
-  lpos[1] = 1000 * cosf(time * 0.08f);
+  temp = time * 0.003f;
+  lpos[0] = -1000 * sinf(temp);
+  lpos[1] = 1000 * cosf(temp);
   lpos[2] = 0;
   lpos[3] = 0;
   glLightiv(GL_LIGHT0, GL_POSITION, lpos);
@@ -407,6 +448,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glMaterialfv(GL_FRONT, GL_DIFFUSE, color);
   glMaterialfv(GL_FRONT, GL_AMBIENT, color);
   glMaterialfv(GL_FRONT, GL_SPECULAR, color);
+  //glMaterialfv(GL_FRONT, GL_EMISSION, color);
   color[0] = 0.4588235294117647f * temp;
   color[0] += lpos[0] > 800 ? (lpos[0] - 800) * 0.005f * 0.1f : 0;
   color[1] = 0.5176470588235295f * (lpos[1] > -400 ? (lpos[1] + 400) / 1400.0f : 0);
@@ -436,6 +478,11 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 0.35f, 255);
   //for (i = 1; i < 15; i++)
     //drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 1, 255);
+  glDisable(GL_TEXTURE_2D);
+  glDisable(GL_LIGHTING);
+  renderExhaust(airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), airunits[0].thrust * 0.35f);
+  glEnable(GL_LIGHTING);
+  glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
   renderCloud(*camerapos, camerarot, squaresize);
   glMatrixMode(GL_PROJECTION);
