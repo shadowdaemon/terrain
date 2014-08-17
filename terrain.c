@@ -115,8 +115,8 @@ float algorithmicTerrainHeight3(float x, float z, float height)
   if (height > 2000) {
     a2 = (height - 2000) * 0.0005f;
     a2 = a2 > 2 ? 2 : a2;
-    g1 = sinf(x * 0.0057f) * 53 * a2;
-    g2 = sinf(z * 0.0054f) * 60 * a2;
+    g1 = sinf(x * 0.0017f) * 53 * a2;
+    g2 = sinf(z * 0.0014f) * 60 * a2;
     height += - fabs(g1) - fabs(g2);
   }
 
@@ -156,43 +156,6 @@ float algorithmicTerrainHeight5(float x, float z)
 }
 
 
-float algorithmicTerrainHeightOld(float x, float z)
-{
-  float height = 0.0f, dist = 0.0f;
-
-  height = algorithmicTerrainHeight3(z*0.67, x*0.67, height) * 1.1f - 1500;
-  dist = distance2d(mv3f(-102000, 0, 131200), mv3f(x, 0, z));
-  if (dist < 186000) {
-    dist = (186000 - dist) / 186000;
-    dist = dist < 0 ? 0 : dist;
-    height += (algorithmicTerrainHeight3(x*0.11, z*0.11, height) - 2250) * dist * 2.2f;
-  }
-  dist = distance2d(mv3f(5000, 0, -102000), mv3f(x, 0, z));
-  if (dist < 120000) {
-    dist = (120000 - dist) / 120000;
-    dist = dist < 0 ? 0 : dist;
-    height += (algorithmicTerrainHeight1(x*0.3, z*0.3, height) - 1500) * dist * 0.71f;
-  }
-  dist = distance2d(mv3f(94000, 0, 17500), mv3f(x, 0, z));
-  if (dist < 107000) {
-    dist = (107000 - dist) / 107000;
-    dist = dist < 0 ? 0 : dist;
-    height += (algorithmicTerrainHeight2(x*0.4, z*0.4, height) - 750) * dist * 0.75f;
-  }
-  dist = distance2d(mv3f(0, 0, 0), mv3f(x, 0, z));
-  if (dist < 15000) {
-    dist = (15000 - dist) / 10000;
-    dist = dist < 0 ? 0 : dist > 1 ? 1 : dist;
-    height += (1070.0f - height) * dist;
-  }
-  height -= height < 1500 ? (height - 1500) * 0.32f : 0;
-  height -= height < 3000 ? (height - 3000) * 0.46f : 0;
-  height -= height > 8000 ? (height - 8000) * 0.61f : 0;
-
-  return height;
-}
-
-
 char calculateTerrainType(float height)
 {
   char type = T_TYPE_DIRT;
@@ -221,9 +184,9 @@ struct terrain algorithmicTerrain(float x, float z)
   struct terrain temp;
   float dist, x1, z1;
 
-  temp.height = 0.0f;
-  temp.height = algorithmicTerrainHeight4(x * 0.2f, z * 0.2f, temp.height) * 3.35f;
-  temp.height = algorithmicTerrainHeight2(z, x, temp.height) * 0.25f - 3000;
+  temp.height = -5000.0f;
+  //temp.height = algorithmicTerrainHeight4(x * 0.2f, z * 0.2f, temp.height) * 7.35f;
+  temp.height = algorithmicTerrainHeight3(z * 0.3f, x * 0.3f, temp.height) * 1.35f;
   temp.type = T_TYPE_NULL;
   if (temp.height > 2500 && temp.height < 4000) {
     x1 = 0.5f - sinf(x * 0.0009f + 11000);
@@ -249,7 +212,7 @@ struct terrain algorithmicTerrain(float x, float z)
       z1 = 0;
     else if (z1 > 1)
       z1 = 1;
-    temp.height += algorithmicTerrainHeight3(x * 0.11f, z * 0.12f, temp.height) * (1 - fabs(1000 - temp.height) / 1000.0f) * x1 * z1 * 0.57f;
+    temp.height += algorithmicTerrainHeight1(x * 0.11f, z * 0.12f, temp.height) * (1 - fabs(1000 - temp.height) / 1000.0f) * x1 * z1 * 0.57f;
   }
   dist = distance2d(mv3f(0, 0, 0), mv3f(x, 0, z));
   if (dist < 20000) {

@@ -39,7 +39,7 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
   unsigned char type;
   GLubyte alpha;
 
-  glMateriali(GL_FRONT, GL_SHININESS, 37);
+  glMateriali(GL_FRONT, GL_SHININESS, 92);
   x = (int) (sector.x / size);
   z = (int) (sector.y / size);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
@@ -187,7 +187,7 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize, GL
   glRotatef(-camerarot.y, 0.0f, 1.0f, 0.0f);
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
-  glTranslatef(-camerapos.x*scale, 0.0f, -camerapos.z*scale);
+  glTranslatef(-camerapos.x * scale, 0.0f, -camerapos.z * scale);
   glScalef(scale, scale, scale);
   glBegin(GL_QUADS);
   color[3] = 0.7f;
@@ -234,7 +234,7 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   glTranslatef(camerapos.x, 0.0f, camerapos.z);
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
-  glTranslatef(camerapos.x*scale, 0.0f, camerapos.z*scale);
+  glTranslatef(camerapos.x * scale, 0.0f, camerapos.z * scale);
   glScalef(scale, scale, scale);
   glColor4ub(128, 128, 128, 120);
   glNormal3i(0, -1, 0);
