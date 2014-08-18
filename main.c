@@ -518,7 +518,6 @@ void flyMovement(struct airunit *unit, char input)
     unit->rot.z += temp1 < -7 ? 0 : temp1;
   unit->rot.z -= unit->rot.z * 0.12f;
   unit->rot.z = unit->rot.z > 70 ? 70 : unit->rot.z < -70 ? -70 : unit->rot.z;
-  unit->rot.y -= unit->rot.z * 1.2f;
   //degreestovector3d(&unit->vec, mv3f(unit->rot.x, unit->rot.z, 0), mv3f(90.0f, 0.0f, 0.0f), speed * lift * temp2);
   //degreestovector3d(&unit->vec, unit->rot, mv3f(90.0f, 180.0f, 0.0f), speed * lift * temp2);
   unit->vec.y += speed * lift * temp2;
@@ -614,7 +613,7 @@ int main(int argc, char *argv[])
   GLuint textures[7], shaders[5];
   GLFWwindow *window = NULL;
   int swapb = 1, squaresize = 0, i;
-  char direction, state = 0;
+  char direction, state = 1;
   float fps = 0.0f, camheight = 0.0f, fogend = 20.0f;
   struct v2f sector    = {0.0f, 0.0f};
   struct v3f camerarot = {0.0f, 0.0f, 0.0f};
@@ -652,16 +651,20 @@ int main(int argc, char *argv[])
     while (!glfwWindowShouldClose(window)) {
       camheight = cameraHeight(camerapos);
       keyboardInput(window, &direction);
-      //mouseLook(window, &camerarot);
-      mouseLook(window, &airunits[0].rot);
-      render(window, scene, textquads, textures, shaders, &swapb, &camerapos, camerarot,
-             &sector, camheight, &squaresize, &fogend, &fps, airunits);
-      //movement(&camerapos, camerarot, direction, 5);
-      flyMovement(&airunits[0], direction);
-      //updateAirPositions(airunits);
-      cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot);
+      if (state == 0) {
+        mouseLook(window, &camerarot);
+        movement(&camerapos, camerarot, direction, 5);
+      }
+      else {
+        mouseLook(window, &airunits[0].rot);
+        flyMovement(&airunits[0], direction);
+        /* updateAirPositions(airunits); */
+        cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot);
+      }
       updateCamera(camerarot);
       glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
+      render(window, scene, textquads, textures, shaders, &swapb, &camerapos, camerarot,
+             &sector, camheight, &squaresize, &fogend, &fps, airunits);
     }
     free(scene);
     free(airunits);
