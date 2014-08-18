@@ -184,7 +184,7 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize, GL
 {
   int xshift, zshift, xgrid, zgrid, size = *squaresize * 8;
   float xpos, zpos;
-  const float scale = 0.00005f;
+  const float scale = 0.0001f;
 
   glMateriali(GL_FRONT, GL_SHININESS, 97);
   glDisable(GL_CULL_FACE);
@@ -193,8 +193,8 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize, GL
   glRotatef(-camerarot.y, 0.0f, 1.0f, 0.0f);
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
-  glTranslatef(-camerapos.x * scale, 0.0f, -camerapos.z * scale);
   glScalef(scale, scale, scale);
+  glTranslatef(camerapos.x, 0.0f, camerapos.z);
   glBegin(GL_QUADS);
   color[3] = 0.7f;
   glColor4fv(color);
@@ -240,8 +240,8 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   glTranslatef(camerapos.x, 0.0f, camerapos.z);
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
-  glTranslatef(camerapos.x * scale, 0.0f, camerapos.z * scale);
   glScalef(scale, scale, scale);
+  glTranslatef(camerapos.x, 0.0f, camerapos.z);
   glColor4ub(128, 128, 128, 120);
   glNormal3i(0, -1, 0);
   glBegin(GL_TRIANGLE_FAN);
