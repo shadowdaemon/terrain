@@ -186,7 +186,7 @@ struct terrain algorithmicTerrain(float x, float z)
 
   temp.height = -5000.0f;
   //temp.height = algorithmicTerrainHeight4(x * 0.2f, z * 0.2f, temp.height) * 7.35f;
-  temp.height = algorithmicTerrainHeight3(z * 0.3f, x * 0.3f, temp.height) * 1.35f;
+  temp.height = algorithmicTerrainHeight2(z * 0.8f, x * 0.8f, temp.height) * 1.35f;
   temp.type = T_TYPE_NULL;
   if (temp.height > 2500 && temp.height < 4000) {
     x1 = 0.5f - sinf(x * 0.0009f + 11000);
@@ -201,7 +201,7 @@ struct terrain algorithmicTerrain(float x, float z)
       z1 = 1;
     temp.height += (750 - fabs(3250 - temp.height)) * x1 * z1 * 0.25f;
   }
-  if (temp.height > 0 && temp.height < 2000) {
+  /*if (temp.height > 0 && temp.height < 2000) {
     x1 = 0.7f - sinf(x * 0.00036f);
     if (x1 < 0)
       x1 = 0;
@@ -212,7 +212,22 @@ struct terrain algorithmicTerrain(float x, float z)
       z1 = 0;
     else if (z1 > 1)
       z1 = 1;
-    temp.height += algorithmicTerrainHeight1(x * 0.11f, z * 0.12f, temp.height) * (1 - fabs(1000 - temp.height) / 1000.0f) * x1 * z1 * 0.57f;
+    temp.height += algorithmicTerrainHeight1(x * 0.11f, z * 0.12f, temp.height) * (1 - fabs(1000 - temp.height) / 1000.0f) * x1 * z1 * 0.17f;
+  }*/
+  if (temp.height > 0 && temp.height < 3000) {
+    x1 = 1.0f - fabs(sinf(x * 0.00056f + 9900));
+    if (x1 < 0)
+      x1 = 0;
+    else if (x1 > 1)
+      x1 = 1;
+    z1 = 1.0f - fabs(sinf(z * 0.00059f));
+    if (z1 < 0)
+      z1 = 0;
+    else if (z1 > 1)
+      z1 = 1;
+    temp.height += (1500 - fabs(1500 - temp.height)) * x1 * z1 * 0.37f;
+    if (x1 * z1 > 0.7f)
+      temp.type = T_TYPE_FOREST1;
   }
   dist = distance2d(mv3f(0, 0, 0), mv3f(x, 0, z));
   if (dist < 20000) {
@@ -235,7 +250,7 @@ struct terrain algorithmicTerrain(float x, float z)
     else if (z1 > 1)
       z1 = 1;
     temp.height += (650 - fabs(650 - temp.height)) * x1 * z1 * 0.51f;
-    if (temp.height > 1200)
+    if (temp.height > 1200 && x1 * z1 > 0.65f)
       temp.type = T_TYPE_VILLAGE;
   }
   if (temp.type == T_TYPE_NULL)
@@ -509,6 +524,11 @@ void drawTerrain(struct v3f *camerapos, struct v3f camerarot, struct v2f *sector
         SEcolorG[xgrid][zgrid] = 97;
         SEcolorB[xgrid][zgrid] = 25;
         break;
+      case T_TYPE_FOREST1:
+        SEcolorR[xgrid][zgrid] = 43;
+        SEcolorG[xgrid][zgrid] = 85;
+        SEcolorB[xgrid][zgrid] = 27;
+        break;
       default:
         SEcolorR[xgrid][zgrid] = 93;
         SEcolorG[xgrid][zgrid] = 87;
@@ -557,6 +577,11 @@ void drawTerrain(struct v3f *camerapos, struct v3f camerarot, struct v2f *sector
         NEcolorR[xgrid][zgrid] = 70 - z1;
         NEcolorG[xgrid][zgrid] = 97;
         NEcolorB[xgrid][zgrid] = 25;
+        break;
+      case T_TYPE_FOREST1:
+        NEcolorR[xgrid][zgrid] = 43;
+        NEcolorG[xgrid][zgrid] = 85;
+        NEcolorB[xgrid][zgrid] = 27;
         break;
       default:
         NEcolorR[xgrid][zgrid] = 93;

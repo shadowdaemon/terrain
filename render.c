@@ -45,8 +45,9 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
     xpos = (xgrid - TERRAIN_GRID_SIZE_HALF + x) * size;
     zpos = (zgrid - TERRAIN_GRID_SIZE_HALF + z) * size;
-    x1 = (int) xpos % 47;
-    z1 = (int) zpos % 43;
+    x1 = sqrt(fabs(xpos * zpos + 107)) * 123;
+    x1 = (int) (x1 + xpos) % 88;
+    z1 = (int) (x1 + zpos) % 85;
     xpos += z1;
     zpos += x1;
     cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
@@ -71,6 +72,9 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
       case T_TYPE_VILLAGE:
         density = 103;
         break;
+      case T_TYPE_FOREST1:
+        density = 470;
+        break;
       default:
         density = 120;
       }
@@ -83,6 +87,8 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
           else
             alpha = 0;
           drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
+          if (type == T_TYPE_FOREST1)
+            drawModel((const struct aiScene *) &scene[(x1 + 2) % 6], mv3f(xpos - 20, readTerrainHeightPlane(xpos - 20, zpos - 23, squaresize, &normal), zpos - 23), mv3f(0, x1, 0), 0.333f, alpha);
         }
       }
     }
