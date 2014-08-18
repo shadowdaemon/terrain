@@ -1,6 +1,17 @@
 #include "maths.h"
 
 
+int snap(float num, int snap)
+{
+  int temp = num - (int) num % snap;
+
+  if (fabs(temp - num) < fabs(temp + snap -num))
+    return temp;
+  else
+    return temp + snap;
+}
+
+
 struct v2f mv2f(float x, float y)
 {
   struct v2f temp;

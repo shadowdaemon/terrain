@@ -267,6 +267,7 @@ float readTerrainHeightPlane(float x, float z, int squaresize, struct v3f *norma
 
   for (xgrid = 0, x2 = 5000000; xgrid < 4; xgrid++) {
     x1 = (xgrid - 2) * squaresize + x - (int) x % squaresize;
+    //x1 = (xgrid - 2) * squaresize + snap(x, squaresize);
     x2 = fabs(x - x1) < x2 ? fabs(x - x1) : x2;
     if (fabs(x - x1) > x2)
       break;
@@ -275,6 +276,7 @@ float readTerrainHeightPlane(float x, float z, int squaresize, struct v3f *norma
   }
   for (zgrid = 0, z2 = 5000000; zgrid < 4; zgrid++) {
     z1 = (zgrid - 2) * squaresize + z - (int) z % squaresize;
+    //z1 = (zgrid - 2) * squaresize + snap(z, squaresize);
     z2 = fabs(z - z1) < z2 ? fabs(z - z1) : z2;
     if (fabs(z - z1) > z2)
       break;
