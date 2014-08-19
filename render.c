@@ -513,7 +513,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glUseProgramARB(shaders[0]);
   glUniform1iARB(glGetUniformLocationARB(shaders[0], "scene"), 4);
   glUniform1fARB(glGetUniformLocationARB(shaders[0], "gamma"), 0.6f);
-  glUniform1fARB(glGetUniformLocationARB(shaders[0], "numColors"), 54.0f);
+  glUniform1fARB(glGetUniformLocationARB(shaders[0], "numcolors"), 64.0f);
   glUniform4fvARB(glGetUniformLocationARB(shaders[0], "clear"), 0, color);
   sceneQuad();
   glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0);
