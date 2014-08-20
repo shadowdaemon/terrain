@@ -599,7 +599,7 @@ int main(int argc, char *argv[])
 {
   GLuint textures[7], shaders[5];
   GLFWwindow *window = NULL;
-  int swapb = 1, squaresize = 0, i;
+  int squaresize = 0, i;
   char direction, state = 1;
   float fps = 0.0f, fogend = 20.0f;
   struct v2f sector    = {0.0f, 0.0f};
@@ -649,7 +649,7 @@ int main(int argc, char *argv[])
       }
       updateCamera(camerarot);
       glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
-      render(window, scene, textquads, textures, shaders, &swapb, camerapos, camerarot,
+      render(window, scene, textquads, textures, shaders, camerapos, camerarot,
              &sector, &squaresize, &fogend, &fps, airunits);
     }
     free(scene);

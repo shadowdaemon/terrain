@@ -319,7 +319,7 @@ float readTerrainHeightPlane(float x, float z, int squaresize, struct v3f *norma
 }
 
 
-void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int *swapb, int squaresize)
+void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, char *swapb, int squaresize)
 {
   if (camerapos.x > (sector->x + TERRAIN_STEP_SIZE * squaresize) ||
        camerapos.x < (sector->x - TERRAIN_STEP_SIZE * squaresize)) {
@@ -339,7 +339,7 @@ void selectPosition(void)
 
 
 void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
-                 int *swapb, int *squaresize)
+                 char *swapb, int *squaresize)
 {
   struct terrain temp1, temp2;
   struct v3f temp3f;

@@ -385,13 +385,14 @@ void sceneQuad(void)
 
 
 void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads, GLuint *textures,
-            GLuint *shaders, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
+            GLuint *shaders, struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
             int *squaresize, float *fogend, float *fps, struct airunit *airunits)
 {
   GLfloat color[4], temp;
   GLint lpos[4], mpos[4];
   static double time = 0;
   static float fps2 = 0;
+  static char swapb = 1;
 
   *fps = 1 / (glfwGetTime() - time);
   fps2 += (*fps - fps2) * 0.05f;
@@ -472,7 +473,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glEnable(GL_LIGHTING);
   glEnable(GL_NORMALIZE);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
-  drawTerrain(camerapos, camerarot, sector, swapb, squaresize);
+  drawTerrain(camerapos, camerarot, sector, &swapb, squaresize);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
   renderWater(camerapos, camerarot, squaresize, color);
   glBindTexture(GL_TEXTURE_2D, textures[1]);
@@ -526,8 +527,8 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
-  if (*swapb)
+  if (swapb)
     glfwSwapBuffers(window);
-  *swapb = 1;
+  swapb = 1;
   glfwPollEvents();
 }
