@@ -339,7 +339,7 @@ void selectPosition(void)
 
 
 void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
-                 float camheight, int *swapb, int *squaresize)
+                 int *swapb, int *squaresize)
 {
   struct terrain temp1, temp2;
   struct v3f temp3f;

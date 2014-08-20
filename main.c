@@ -316,19 +316,6 @@ void updateCamera(struct v3f cameraRot)
 }
 
 
-float cameraHeight(struct v3f camerapos)
-{
-  static float height;
-  float ground;
-
-  ground = readTerrainHeight(camerapos.x, camerapos.z);
-  ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
-  height = camerapos.y - ground;
-
-  return height;
-}
-
-
 void cameraTrailMovement(struct v3f *camerapos, struct v3f *camerarot, struct v3f modelpos, struct v3f modelrot)
 {
   struct v3f temppos = modelpos;
@@ -614,7 +601,7 @@ int main(int argc, char *argv[])
   GLFWwindow *window = NULL;
   int swapb = 1, squaresize = 0, i;
   char direction, state = 1;
-  float fps = 0.0f, camheight = 0.0f, fogend = 20.0f;
+  float fps = 0.0f, fogend = 20.0f;
   struct v2f sector    = {0.0f, 0.0f};
   struct v3f camerarot = {0.0f, 0.0f, 0.0f};
   struct v3f camerapos = {0.0f, 0.0f, 0.0f};
@@ -649,7 +636,6 @@ int main(int argc, char *argv[])
     textquads[9] = *loadTextQuad("data/models/quads/9.obj");
     textquads[10] = *loadTextQuad("data/models/quads/minus.obj");
     while (!glfwWindowShouldClose(window)) {
-      camheight = cameraHeight(camerapos);
       keyboardInput(window, &direction);
       if (state == 0) {
         mouseLook(window, &camerarot);
@@ -664,7 +650,7 @@ int main(int argc, char *argv[])
       updateCamera(camerarot);
       glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
       render(window, scene, textquads, textures, shaders, &swapb, camerapos, camerarot,
-             &sector, camheight, &squaresize, &fogend, &fps, airunits);
+             &sector, &squaresize, &fogend, &fps, airunits);
     }
     free(scene);
     free(airunits);

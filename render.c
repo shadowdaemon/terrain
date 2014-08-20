@@ -386,7 +386,7 @@ void sceneQuad(void)
 
 void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads, GLuint *textures,
             GLuint *shaders, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
-            float camheight, int *squaresize, float *fogend, float *fps, struct airunit *airunits)
+            int *squaresize, float *fogend, float *fps, struct airunit *airunits)
 {
   GLfloat color[4], temp;
   GLint lpos[4], mpos[4];
@@ -472,7 +472,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glEnable(GL_LIGHTING);
   glEnable(GL_NORMALIZE);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
-  drawTerrain(camerapos, camerarot, sector, camheight, swapb, squaresize);
+  drawTerrain(camerapos, camerarot, sector, swapb, squaresize);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
   renderWater(camerapos, camerarot, squaresize, color);
   glBindTexture(GL_TEXTURE_2D, textures[1]);
