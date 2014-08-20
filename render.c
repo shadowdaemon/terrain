@@ -385,7 +385,7 @@ void sceneQuad(void)
 
 
 void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads, GLuint *textures,
-            GLuint *shaders, int *swapb, struct v3f *camerapos, struct v3f camerarot, struct v2f *sector,
+            GLuint *shaders, int *swapb, struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
             float camheight, int *squaresize, float *fogend, float *fps, struct airunit *airunits)
 {
   GLfloat color[4], temp;
@@ -462,9 +462,9 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glClearColor(color[0], color[1], color[2], color[3]);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glShadeModel(GL_SMOOTH);
-  renderSky(*camerapos, camerarot, color, *fogend);
-  renderSun(*camerapos, lpos, 160);
-  renderMoon(*camerapos, mpos, 60);
+  renderSky(camerapos, camerarot, color, *fogend);
+  renderSun(camerapos, lpos, 160);
+  renderMoon(camerapos, mpos, 60);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
   glEnable(GL_FOG);
@@ -474,11 +474,11 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glBindTexture(GL_TEXTURE_2D, textures[0]);
   drawTerrain(camerapos, camerarot, sector, camheight, swapb, squaresize);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
-  renderWater(*camerapos, camerarot, squaresize, color);
+  renderWater(camerapos, camerarot, squaresize, color);
   glBindTexture(GL_TEXTURE_2D, textures[1]);
-  renderFoliage(scene, *camerapos, camerarot, *sector, *squaresize);
+  renderFoliage(scene, camerapos, camerarot, *sector, *squaresize);
   glBindTexture(GL_TEXTURE_2D, textures[5]);
-  renderBuildings(scene, *camerapos, camerarot, *sector, *squaresize);
+  renderBuildings(scene, camerapos, camerarot, *sector, *squaresize);
   glBindTexture(GL_TEXTURE_2D, textures[3]);
   drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 0.35f, 255);
   //for (i = 1; i < 15; i++)
@@ -489,7 +489,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glEnable(GL_LIGHTING);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
-  renderCloud(*camerapos, camerarot, squaresize);
+  renderCloud(camerapos, camerarot, squaresize);
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();

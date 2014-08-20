@@ -319,24 +319,16 @@ float readTerrainHeightPlane(float x, float z, int squaresize, struct v3f *norma
 }
 
 
-void moveTerrain(struct v3f *camerapos, struct v3f camerarot, struct v2f *sector, int *swapb, int squaresize)
+void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int *swapb, int squaresize)
 {
-  /* if (camerapos->x > WORLD_SIZE) */
-  /*   camerapos->x = WORLD_SIZE; */
-  /* else if (camerapos->x < -WORLD_SIZE) */
-  /*   camerapos->x = -WORLD_SIZE; */
-  if (camerapos->x > (sector->x + TERRAIN_STEP_SIZE * squaresize) ||
-       camerapos->x < (sector->x - TERRAIN_STEP_SIZE * squaresize)) {
-    sector->x = camerapos->x;
+  if (camerapos.x > (sector->x + TERRAIN_STEP_SIZE * squaresize) ||
+       camerapos.x < (sector->x - TERRAIN_STEP_SIZE * squaresize)) {
+    sector->x = camerapos.x;
     *swapb = 0;
   }
-  /* if (camerapos->z > WORLD_SIZE) */
-  /*   camerapos->z = WORLD_SIZE; */
-  /* else if (camerapos->z < -WORLD_SIZE) */
-  /*   camerapos->z = -WORLD_SIZE; */
-  if (camerapos->z > (sector->y + TERRAIN_STEP_SIZE * squaresize) ||
-       camerapos->z < (sector->y - TERRAIN_STEP_SIZE * squaresize)) {
-    sector->y = camerapos->z;
+  if (camerapos.z > (sector->y + TERRAIN_STEP_SIZE * squaresize) ||
+       camerapos.z < (sector->y - TERRAIN_STEP_SIZE * squaresize)) {
+    sector->y = camerapos.z;
     *swapb = 0;
   }
 }
@@ -346,7 +338,7 @@ void selectPosition(void)
 {}
 
 
-void drawTerrain(struct v3f *camerapos, struct v3f camerarot, struct v2f *sector,
+void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
                  float camheight, int *swapb, int *squaresize)
 {
   struct terrain temp1, temp2;
@@ -394,7 +386,7 @@ void drawTerrain(struct v3f *camerapos, struct v3f camerarot, struct v2f *sector
 
   glMateriali(GL_FRONT, GL_SHININESS, 11);
   moveTerrain(camerapos, camerarot, sector, swapb, *squaresize);
-  if (camerapos->y < CLOUD_HEIGHT) {
+  if (camerapos.y < CLOUD_HEIGHT) {
     alt = 1;
     *squaresize = TERRAIN_SQUARE_SIZE;
   }
@@ -417,7 +409,7 @@ void drawTerrain(struct v3f *camerapos, struct v3f camerarot, struct v2f *sector
       z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) - 40; z3 = z3 < 0 ? 0 : (z3 + 40) * 8;
       xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) * (x3 + *squaresize) + x * *squaresize;
       zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) * (z3 + *squaresize) + z * *squaresize;
-      dist = distance2d(*camerapos, mv3f(xpos, 0.0f, zpos));
+      dist = distance2d(camerapos, mv3f(xpos, 0.0f, zpos));
       if (xgrid > TERRAIN_GRID_SIZE_HALF + 39) {
         x1 = xpos + x3 - 12480.0f + *squaresize / 2;
         x2 = xpos - x3 - 12480.0f - *squaresize / 2;
@@ -448,13 +440,13 @@ void drawTerrain(struct v3f *camerapos, struct v3f camerarot, struct v2f *sector
       z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) * 8;
       xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) * (x3 + *squaresize) + x * *squaresize;
       zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) * (z3 + *squaresize) + z * *squaresize;
-      dist = distance2d(*camerapos, mv3f(xpos, 0.0f, zpos));
+      dist = distance2d(camerapos, mv3f(xpos, 0.0f, zpos));
       x1 = xpos + x3 + *squaresize / 2;
       x2 = xpos - x3 - *squaresize / 2;
       z1 = zpos + z3 + *squaresize / 2;
       z2 = zpos - z3 - *squaresize / 2;
     }
-    cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(*camerapos, mv3f(xpos, 0, zpos))));
+    cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
     while (cull >= 360)
       cull -= 360;
     if (camerarot.x > 47.0f || cull <= 75 || cull >= 285 || dist < *squaresize * 3.5f) {

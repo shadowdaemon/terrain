@@ -663,7 +663,7 @@ int main(int argc, char *argv[])
       }
       updateCamera(camerarot);
       glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
-      render(window, scene, textquads, textures, shaders, &swapb, &camerapos, camerarot,
+      render(window, scene, textquads, textures, shaders, &swapb, camerapos, camerarot,
              &sector, camheight, &squaresize, &fogend, &fps, airunits);
     }
     free(scene);
