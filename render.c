@@ -229,7 +229,6 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
 {
   int i, size;
   float rot, x, z;
-  const int height = 4500;
   const float scale = 0.00005f;
 
   size = TERRAIN_GRID_SIZE * *squaresize;
@@ -246,14 +245,14 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   glNormal3i(0, -1, 0);
   glBegin(GL_TRIANGLE_FAN);
   glTexCoord2f(0.0f, 0.0f);
-  glVertex3f(0.0f, height, 0.0f);
+  glVertex3f(0.0f, CLOUD_HEIGHT, 0.0f);
   glColor4ub(128, 128, 128, 0);
   for (i = 0; i <= 360; i += 30) {
     rot = i / PIx180;
     x = -size * sinf(rot);
     z = size * cosf(rot);
     glTexCoord2f(x, z);
-    glVertex3f(x, height, z);
+    glVertex3f(x, CLOUD_HEIGHT, z);
   }
   glEnd();
   glPopMatrix();

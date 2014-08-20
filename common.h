@@ -13,7 +13,6 @@
 #define TERRAIN_GRID_SIZE_QUARTER           30
 #define TERRAIN_SQUARE_SIZE                 100
 #define TERRAIN_SQUARE_SIZE_HALF            50
-// #define TERRAIN_CENTRE_DISTANCE             (TERRAIN_SQUARE_SIZE*TERRAIN_GRID_SIZE*0.1f)
 #define TERRAIN_STEP_SIZE                   8
 #define TERRAIN_WATER_LEVEL                 0
 #define T_TYPE_NULL                         0
@@ -25,6 +24,7 @@
 #define T_TYPE_DIRT                         6
 #define T_TYPE_ROCK                         7
 #define T_TYPE_FOREST1                      8
+#define CLOUD_HEIGHT                        4500
 #define KEY_NONE                            0
 #define KEY_LMB                             5
 #define KEY_LMB_RELEASE                     6
@@ -115,8 +115,7 @@ struct v3f {
   float z;
 };
 
-struct terrain
-{
+struct terrain {
   float height;
   unsigned char type;
 };

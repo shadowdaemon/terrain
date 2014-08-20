@@ -233,7 +233,7 @@ struct terrain algorithmicTerrain(float x, float z)
   if (dist < 20000) {
     dist = (20000 - dist) / 9000;
     dist = dist < 0 ? 0 : dist > 1 ? 1 : dist;
-    temp.height += (470.0f - temp.height) * dist * 0.8f;
+    temp.height += (3470.0f - temp.height) * dist * 0.8f;
   }
   temp.height -= temp.height < 1500 ? (temp.height - 1500) * 0.32f : 0;
   temp.height -= temp.height < 3000 ? (temp.height - 3000) * 0.46f : 0;
@@ -352,8 +352,7 @@ void drawTerrain(struct v3f *camerapos, struct v3f camerarot, struct v2f *sector
   struct terrain temp1, temp2;
   struct v3f temp3f;
   int xgrid, zgrid, x1, z1, x2, z2, x3, z3, alt, cull;
-  static int alt2 = 0;
-  const int altstep = 7;
+  static int size = 0;
   float x, z, xpos = 0.0f, zpos = 0.0f, dist;
   float v1[3], v2[3], v3[3];
   unsigned char NEcolorR [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
@@ -395,33 +394,25 @@ void drawTerrain(struct v3f *camerapos, struct v3f camerarot, struct v2f *sector
 
   glMateriali(GL_FRONT, GL_SHININESS, 11);
   moveTerrain(camerapos, camerarot, sector, swapb, *squaresize);
-  //selectPosition();
-
-  // scaling terrain
-  for (alt = 0; alt < 25000; alt++) {
-    if (camheight < TERRAIN_SQUARE_SIZE * altstep) {
-      *squaresize = TERRAIN_SQUARE_SIZE;
-      break;
-    }
-    else if (camheight < alt * TERRAIN_SQUARE_SIZE * altstep) {
-      *squaresize = (TERRAIN_SQUARE_SIZE + TERRAIN_SQUARE_SIZE * ((alt * 2) - 3) / 2);
-      break;
-    }
-    else
-      *squaresize = (TERRAIN_SQUARE_SIZE + TERRAIN_SQUARE_SIZE * ((alt * 2) - 3) / 2);
+  if (camerapos->y < CLOUD_HEIGHT) {
+    alt = 1;
+    *squaresize = TERRAIN_SQUARE_SIZE;
   }
-  if (alt2 != alt) {
-    alt2 = alt;
+  else {
+    alt = 0;
+    *squaresize = TERRAIN_SQUARE_SIZE * 5;
+  }
+  if (size != *squaresize) {
+    size = *squaresize;
     *swapb = 0;
   }
-  // *squaresize = TERRAIN_SQUARE_SIZE;
   x = (int) (sector->x / (*squaresize));
   z = (int) (sector->y / (*squaresize));
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
   glScalef(0.0015f, 0.0015f, 0.0015f);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
-    if (alt < 5) {
+    if (alt) {
       x3 = fabs(TERRAIN_GRID_SIZE_HALF - xgrid) - 40; x3 = x3 < 0 ? 0 : (x3 + 40) * 8;
       z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) - 40; z3 = z3 < 0 ? 0 : (z3 + 40) * 8;
       xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) * (x3 + *squaresize) + x * *squaresize;
