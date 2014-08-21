@@ -2,13 +2,15 @@
 #include "maths.h"
 
 
-void updateFog(GLfloat *clear, int squaresize, float *fogend)
+void updateFog(GLfloat *clear, int squaresize, float *fogend, float height)
 {
   static float fogstart = 10.0f;
   float fstart = 0.08f;
   float temp = 0.0f;
 
-  temp = squaresize * TERRAIN_GRID_SIZE * 0.9f;
+  temp = (250 - fabs(CLOUD_HEIGHT - height)) * (height > CLOUD_HEIGHT ? -250.0f : -50.0f);
+  temp = temp > 0 ? 0 : temp;
+  temp += squaresize * TERRAIN_GRID_SIZE * 0.9f;
   if (*fogend > temp)
     *fogend -= (*fogend - temp) * 0.31f;
   else
@@ -18,6 +20,7 @@ void updateFog(GLfloat *clear, int squaresize, float *fogend)
     fogstart -= (fogstart - temp) * 0.17f;
   else
     fogstart -= (fogstart - temp) * 0.02f;
+  *fogend = *fogend < squaresize * 5 ? squaresize * 5 : *fogend;
   fogstart = fogstart > 3000 ? 3000 : fogstart;
   fstart = *fogend * 0.00002f > 4.0f ? 4.0f : *fogend * 0.00002f;
   glFogfv(GL_FOG_COLOR, clear);
@@ -229,9 +232,12 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
 {
   int i, size;
   float rot, x, z;
+  int alpha;
   const float scale = 0.00005f;
 
   size = TERRAIN_GRID_SIZE * *squaresize;
+  alpha = fabs(CLOUD_HEIGHT - camerapos.y) * 0.5f;
+  alpha = alpha > 180 ? 180 : alpha;
   glMateriali(GL_FRONT, GL_SHININESS, 31);
   glDisable(GL_CULL_FACE);
   glEnable(GL_TEXTURE_2D);
@@ -241,7 +247,7 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   glPushMatrix();
   glScalef(scale, scale, scale);
   glTranslatef(camerapos.x, 0.0f, camerapos.z);
-  glColor4ub(128, 128, 128, 120);
+  glColor4ub(128, 128, 128, (GLubyte) alpha);
   glNormal3i(0, -1, 0);
   glBegin(GL_TRIANGLE_FAN);
   glTexCoord2f(0.0f, 0.0f);
