@@ -193,11 +193,10 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize, GL
   glDisable(GL_CULL_FACE);
   glPushMatrix();
   glTranslatef(camerapos.x, 0.0f, camerapos.z);
-  glRotatef(-camerarot.y, 0.0f, 1.0f, 0.0f);
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
   glScalef(scale, scale, scale);
-  glTranslatef(camerapos.x, 0.0f, camerapos.z);
+  glTranslatef(camerapos.x, camerapos.z, 0.0f);
   glBegin(GL_QUADS);
   color[3] = 0.7f;
   glColor4fv(color);
@@ -246,7 +245,7 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
   glScalef(scale, scale, scale);
-  glTranslatef(camerapos.x, 0.0f, camerapos.z);
+  glTranslatef(camerapos.x, camerapos.z, 0.0f);
   glColor4ub(128, 128, 128, (GLubyte) alpha);
   glNormal3i(0, -1, 0);
   glBegin(GL_TRIANGLE_FAN);
