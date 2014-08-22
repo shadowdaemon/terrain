@@ -429,9 +429,9 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   color[2] = 0.12f;
   glLightfv(GL_LIGHT1, GL_SPECULAR, color);
   if (lpos[1] < -300)
-    temp = 0.15f * (1 - (-300 - lpos[1]) / 700.0f);
+    temp = 0.35f * (1 - (-300 - lpos[1]) / 700.0f);
   else
-    temp = 0.15f;
+    temp = 0.35f;
   color[0] = temp;
   color[1] = temp;
   color[2] = temp;
