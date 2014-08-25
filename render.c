@@ -371,6 +371,23 @@ void renderNumber(int num, struct aiScene *textquads, struct v2f pos)
 }
 
 
+void renderFX(void)
+{
+  int xgrid, zgrid;
+
+  glColor3ub(255, 255, 255);
+  for (xgrid = 0, zgrid = 0; xgrid < 10 && zgrid < 10; xgrid++) {
+    glBegin(GL_POINTS);
+    glVertex3f(xgrid * 50, 3500, zgrid * 50);
+    glEnd();
+    if (xgrid >= 9) {
+      zgrid++;
+      xgrid = -1;
+    }
+  }
+}
+
+
 void sceneQuad(void)
 {
   glDisable(GL_DEPTH_TEST);
@@ -393,7 +410,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
             GLuint *shaders, struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
             int *squaresize, float *fogend, float *fps, struct airunit *airunits)
 {
-  GLfloat color[4], temp;
+  GLfloat color[4], mat[16], temp;
   GLint lpos[4], mpos[4];
   static double time = 0;
   static float fps2 = 0;
@@ -492,6 +509,16 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_LIGHTING);
   renderExhaust(airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), airunits[0].thrust * 0.35f);
+  glEnable(GL_POINT_SPRITE);
+  glEnable(GL_PROGRAM_POINT_SIZE);
+  glUseProgramARB(shaders[2]);
+  glUniform1iARB(glGetUniformLocationARB(shaders[2], "texture"), 1);
+  glGetFloatv(GL_PROJECTION_MATRIX, mat);
+  glUniformMatrix4fvARB(glGetUniformLocationARB(shaders[2], "projection"), 1, GL_FALSE, mat);
+  glGetFloatv(GL_MODELVIEW_MATRIX, mat);
+  glUniformMatrix4fvARB(glGetUniformLocationARB(shaders[2], "modelview"), 1, GL_FALSE, mat);
+  renderFX();
+  glUseProgramARB(0);
   glEnable(GL_LIGHTING);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, textures[2]);

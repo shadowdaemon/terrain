@@ -245,6 +245,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
 
   linkShader(&shaders[0], "data/shaders/1.vsh", "data/shaders/1.fsh");
   linkShader(&shaders[1], "data/shaders/2.vsh", "data/shaders/2.fsh");
+  linkShader(&shaders[2], "data/shaders/3.vsh", "data/shaders/3.fsh");
 
   return window;
 }
