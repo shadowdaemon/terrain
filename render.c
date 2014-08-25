@@ -410,7 +410,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
             GLuint *shaders, struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
             int *squaresize, float *fogend, float *fps, struct airunit *airunits)
 {
-  GLfloat color[4], mat[16], temp;
+  GLfloat color[4], temp;
   GLint lpos[4], mpos[4];
   static double time = 0;
   static float fps2 = 0;
@@ -513,10 +513,8 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glEnable(GL_PROGRAM_POINT_SIZE);
   glUseProgramARB(shaders[2]);
   glUniform1iARB(glGetUniformLocationARB(shaders[2], "texture"), 1);
-  glGetFloatv(GL_PROJECTION_MATRIX, mat);
-  glUniformMatrix4fvARB(glGetUniformLocationARB(shaders[2], "projection"), 1, GL_FALSE, mat);
-  glGetFloatv(GL_MODELVIEW_MATRIX, mat);
-  glUniformMatrix4fvARB(glGetUniformLocationARB(shaders[2], "modelview"), 1, GL_FALSE, mat);
+  glUniform1fARB(glGetUniformLocationARB(shaders[2], "size"), 10.0f);
+  glUniform2fARB(glGetUniformLocationARB(shaders[2], "screensize"), 1366, 768);
   renderFX();
   glUseProgramARB(0);
   glEnable(GL_LIGHTING);
