@@ -6,22 +6,14 @@ void updateFog(GLfloat *clear, int squaresize, float *fogend, float height)
 {
   static float fogstart = 10.0f;
   float fstart = 0.08f;
-  float temp = 0.0f;
+  float fend = squaresize * TERRAIN_GRID_SIZE * 0.9f;
+  float temp = height - CLOUD_HEIGHT;
 
-  temp = (250 - fabs(CLOUD_HEIGHT - height)) * (height > CLOUD_HEIGHT ? -250.0f : -50.0f);
-  temp = temp > 0 ? 0 : temp;
-  temp += squaresize * TERRAIN_GRID_SIZE * 0.9f;
-  if (*fogend > temp)
-    *fogend -= (*fogend - temp) * 0.31f;
-  else
-    *fogend -= (*fogend - temp) * 0.04f;
+  if (temp < 750.0f && height > CLOUD_HEIGHT)
+    fend -= (1 - temp / 750.0f) * (fend * 0.8f);
+  *fogend = fend;
   temp = *fogend * 0.75f;
-  if (fogstart > temp)
-    fogstart -= (fogstart - temp) * 0.17f;
-  else
-    fogstart -= (fogstart - temp) * 0.02f;
-  *fogend = *fogend < squaresize * 5 ? squaresize * 5 : *fogend;
-  fogstart = fogstart > 3000 ? 3000 : fogstart;
+  fogstart = temp > 3000 ? 3000 : temp;
   fstart = *fogend * 0.00002f > 4.0f ? 4.0f : *fogend * 0.00002f;
   glFogfv(GL_FOG_COLOR, clear);
   glFogf(GL_FOG_START, fogstart);
