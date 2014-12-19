@@ -1,5 +1,8 @@
 core
 data/blender
+data/gimp
+data/global-tiff-data
+data/models
 data/wings
 terrain
 testing
