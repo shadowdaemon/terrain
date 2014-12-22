@@ -182,11 +182,29 @@ char calculateTerrainType(float height)
 struct terrain algorithmicTerrain(float x, float z)
 {
   struct terrain temp;
+  float dist;
+
+  temp.height = 500.0f;
+  dist = distance2d(mv3f(0, 0, 0), mv3f(x, 0, z));
+  if (dist < 700) {
+    dist = (700 - dist) / 350;
+    dist = dist < 0 ? 0 : dist > 1 ? 1 : dist;
+    temp.height += (1000.0f - temp.height) * dist;
+  }
+  temp.type = calculateTerrainType(temp.height);
+
+  return temp;
+}
+
+
+struct terrain algorithmicTerrainFoo(float x, float z)
+{
+  struct terrain temp;
   float dist, x1, z1;
 
-  temp.height = -5000.0f;
+  temp.height = -9000.0f;
   //temp.height = algorithmicTerrainHeight4(x * 0.2f, z * 0.2f, temp.height) * 7.35f;
-  temp.height = algorithmicTerrainHeight2(z * 0.8f, x * 0.8f, temp.height) * 1.35f;
+  temp.height = algorithmicTerrainHeight1(z * 0.8f, x * 0.8f, temp.height) * 1.35f;
   temp.type = T_TYPE_NULL;
   if (temp.height > 2500 && temp.height < 4000) {
     x1 = 0.5f - sinf(x * 0.0009f + 11000);
