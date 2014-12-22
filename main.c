@@ -403,7 +403,9 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
   struct v3f normal;
   float ground;
 
-  switch (direction) {
+  if ((direction | INPUT_SPACE) == direction)
+    speed *= 10.0f;
+  switch (direction & ~INPUT_SPACE) {
   case INPUT_UP:
     degreestovector3d(camerapos, camerarot, mv3f(0.0f, 0.0f, 0.0f), -speed);
     break;
