@@ -15,6 +15,8 @@
 #define TERRAIN_SQUARE_SIZE_HALF            250
 #define TERRAIN_STEP_SIZE                   4
 #define TERRAIN_WATER_LEVEL                 0
+#define FOG_END                             TERRAIN_SQUARE_SIZE * TERRAIN_GRID_SIZE * 0.5f
+#define FOG_START                           FOG_END * 0.5f
 #define T_TYPE_NULL                         0
 #define T_TYPE_CRATER                       1
 #define T_TYPE_VILLAGE                      2
@@ -139,5 +141,4 @@ const struct aiScene *loadModel(const char *file);
 const struct aiScene *loadTextQuad(const char *file);
 void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfloat size, GLuint alpha);
 void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads, GLuint *textures, GLuint *shaders,
-  struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float *fogend, float *fps,
-  struct airunit *airunits);
+  struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float *fps, struct airunit *airunits);

@@ -604,7 +604,7 @@ int main(int argc, char *argv[])
   GLFWwindow *window = NULL;
   int i;
   char direction, state = 0;
-  float fps = 0.0f, fogend = 20.0f;
+  float fps = 0.0f;
   struct v2f sector    = {0.0f, 0.0f};
   struct v3f camerarot = {0.0f, 0.0f, 0.0f};
   struct v3f camerapos = {0.0f, 0.0f, 0.0f};
@@ -653,7 +653,7 @@ int main(int argc, char *argv[])
       updateCamera(camerarot);
       glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
       render(window, scene, textquads, textures, shaders, camerapos, camerarot,
-             &sector, &fogend, &fps, airunits);
+             &sector, &fps, airunits);
     }
     free(scene);
     free(airunits);
