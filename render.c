@@ -2,34 +2,30 @@
 #include "maths.h"
 
 
-void updateFog(GLfloat *clear, int squaresize, float *fogend, float height)
+void updateFog(GLfloat *clear, float *fogend, float height)
 {
   static float fogstart = 10.0f;
-  float fstart = 0.08f;
-  float fend = squaresize * TERRAIN_GRID_SIZE * 0.9f;
+  float fend = TERRAIN_SQUARE_SIZE * TERRAIN_GRID_SIZE * 0.9f;
   float temp = height - CLOUD_HEIGHT;
 
-  if (temp < 750.0f && height > CLOUD_HEIGHT)
-    fend -= (1 - temp / 750.0f) * (fend * 0.8f);
   *fogend = fend;
   temp = *fogend * 0.75f;
   fogstart = temp > 3000 ? 3000 : temp;
-  fstart = *fogend * 0.00002f > 4.0f ? 4.0f : *fogend * 0.00002f;
   glFogfv(GL_FOG_COLOR, clear);
   glFogf(GL_FOG_START, fogstart);
   glFogf(GL_FOG_END, *fogend);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glFrustum(-5.4f * fstart, 5.4f * fstart, -4.0f * fstart, 4.0f * fstart, 8.0f * fstart, *fogend * 1.1f);
+  glFrustum(-0.54f, 0.54f, -0.4f, 0.4f, 0.8f, *fogend * 1.1f);
   glMatrixMode(GL_MODELVIEW);
 }
 
 
-void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camerarot, struct v2f sector, int squaresize)
+void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camerarot, struct v2f sector)
 {
   struct v3f normal;
   int xgrid, zgrid, x1, z1, cull, density;
-  const int size = TERRAIN_SQUARE_SIZE * 0.4f;
+  const int size = TERRAIN_SQUARE_SIZE * 0.1f;
   float x, z, xpos = 0.0f, zpos = 0.0f, height, dist;
   unsigned char type;
   GLubyte alpha;
@@ -49,7 +45,7 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
     while (cull >= 360)
       cull -= 360;
     if (cull <= 85 || cull >= 275 || camerarot.x > 27.0f) {
-      height = readTerrainHeightPlane(xpos, zpos, squaresize, &normal);
+      height = readTerrainHeightPlane(xpos, zpos, &normal);
       type = readTerrainType(xpos, zpos);
       dist = distance3d(camerapos, mv3f(xpos, height, zpos));
       x1 = x1 * x1 + z1 * z1;
@@ -83,7 +79,7 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
             alpha = 0;
           drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
           if (type == T_TYPE_FOREST1)
-            drawModel((const struct aiScene *) &scene[(x1 + 2) % 6], mv3f(xpos - 20, readTerrainHeightPlane(xpos - 20, zpos - 23, squaresize, &normal), zpos - 23), mv3f(0, x1, 0), 0.333f, alpha);
+            drawModel((const struct aiScene *) &scene[(x1 + 2) % 6], mv3f(xpos - 20, readTerrainHeightPlane(xpos - 20, zpos - 23, &normal), zpos - 23), mv3f(0, x1, 0), 0.333f, alpha);
         }
       }
     }
@@ -95,11 +91,11 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
 }
 
 
-void renderBuildings(struct aiScene *scene, struct v3f camerapos, struct v3f camerarot, struct v2f sector, int squaresize)
+void renderBuildings(struct aiScene *scene, struct v3f camerapos, struct v3f camerarot, struct v2f sector)
 {
   struct v3f normal;
   int xgrid, zgrid, x1, z1, cull;
-  const int size = TERRAIN_SQUARE_SIZE * 0.4f;
+  const int size = TERRAIN_SQUARE_SIZE * 0.1f;
   float x, z, xpos = 0.0f, zpos = 0.0f, height, dist;
   unsigned char type;
   GLubyte alpha;
@@ -118,7 +114,7 @@ void renderBuildings(struct aiScene *scene, struct v3f camerapos, struct v3f cam
     while (cull >= 360)
       cull -= 360;
     if (cull <= 85 || cull >= 275 || camerarot.x > 27.0f) {
-      height = readTerrainHeightPlane(xpos, zpos, squaresize, &normal);
+      height = readTerrainHeightPlane(xpos, zpos, &normal);
       type = readTerrainType(xpos, zpos);
       dist = distance3d(camerapos, mv3f(xpos, height, zpos));
       x1 = x1 * x1 + z1 * z1;
@@ -175,9 +171,9 @@ void renderSky(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, float
 }
 
 
-void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize, GLfloat color[4])
+void renderWater(struct v3f camerapos, struct v3f camerarot, GLfloat color[4])
 {
-  int xshift, zshift, xgrid, zgrid, size = *squaresize * 8;
+  int xshift, zshift, xgrid, zgrid, size = TERRAIN_SQUARE_SIZE * 8;
   float xpos, zpos;
   const float scale = 0.0001f;
 
@@ -219,14 +215,14 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, int *squaresize, GL
 }
 
 
-void renderCloud(struct v3f camerapos, struct v3f camerarot, int *squaresize)
+void renderCloud(struct v3f camerapos, struct v3f camerarot)
 {
   int i, size;
   float rot, x, z;
   int alpha;
   const float scale = 0.00005f;
 
-  size = TERRAIN_GRID_SIZE * *squaresize;
+  size = TERRAIN_GRID_SIZE * TERRAIN_SQUARE_SIZE;
   alpha = fabs(CLOUD_HEIGHT - camerapos.y) * 0.5f;
   alpha = alpha > 180 ? 180 : alpha;
   glMateriali(GL_FRONT, GL_SHININESS, 31);
@@ -400,7 +396,7 @@ void sceneQuad(void)
 
 void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads, GLuint *textures,
             GLuint *shaders, struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
-            int *squaresize, float *fogend, float *fps, struct airunit *airunits)
+            float *fogend, float *fps, struct airunit *airunits)
 {
   GLfloat color[4], temp;
   GLint lpos[4], mpos[4];
@@ -473,7 +469,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   color[0] += lpos[0] > 800 ? (lpos[0] - 800) * 0.005f * 0.1f : 0;
   color[1] = 0.5176470588235295f * (lpos[1] > -400 ? (lpos[1] + 400) / 1400.0f : 0);
   color[2] = 0.8431372549019608f * (lpos[1] > -200 ? 0.05f + (lpos[1] + 200) / 1200.0f : 0.05f);
-  updateFog(color, *squaresize, fogend, camerapos.y);
+  updateFog(color, fogend, camerapos.y);
   glClearColor(color[0], color[1], color[2], color[3]);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glShadeModel(GL_SMOOTH);
@@ -487,13 +483,13 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glEnable(GL_LIGHTING);
   glEnable(GL_NORMALIZE);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
-  drawTerrain(camerapos, camerarot, sector, &swapb, squaresize);
+  drawTerrain(camerapos, camerarot, sector, &swapb);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
-  renderWater(camerapos, camerarot, squaresize, color);
+  renderWater(camerapos, camerarot, color);
   glBindTexture(GL_TEXTURE_2D, textures[1]);
-  renderFoliage(scene, camerapos, camerarot, *sector, *squaresize);
+  renderFoliage(scene, camerapos, camerarot, *sector);
   glBindTexture(GL_TEXTURE_2D, textures[5]);
-  renderBuildings(scene, camerapos, camerarot, *sector, *squaresize);
+  renderBuildings(scene, camerapos, camerarot, *sector);
   glBindTexture(GL_TEXTURE_2D, textures[3]);
   drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 0.35f, 255);
   //for (i = 1; i < 15; i++)
@@ -512,7 +508,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glEnable(GL_LIGHTING);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
-  renderCloud(camerapos, camerarot, squaresize);
+  renderCloud(camerapos, camerarot);
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();

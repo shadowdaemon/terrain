@@ -329,8 +329,8 @@ void cameraTrailMovement(struct v3f *camerapos, struct v3f *camerarot, struct v3
   camerarot->x = modelrot.x;
   //camerarot->y = vectorstodegree2d(mv3f(modelpos.x, 0, modelpos.z), *camerapos) - 180;
   camerarot->y = vectorstodegree2d(modelpos, *camerapos);
-  ground = readTerrainHeightPlane(camerapos->x, camerapos->z, TERRAIN_SQUARE_SIZE, &temppos);
-  ground += TERRAIN_SQUARE_SIZE * 0.07f;
+  ground = readTerrainHeightPlane(camerapos->x, camerapos->z, &temppos);
+  ground += 5.0f;
   ground = ground < TERRAIN_WATER_LEVEL + 10 ? TERRAIN_WATER_LEVEL + 10 : ground;
   camerapos->y = camerapos->y < ground ? ground : camerapos->y;
 }
@@ -434,9 +434,9 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
     break;
   default: break;
   }
-  ground = readTerrainHeightPlane(camerapos->x, camerapos->z, TERRAIN_SQUARE_SIZE, &normal);
+  ground = readTerrainHeightPlane(camerapos->x, camerapos->z, &normal);
   ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
-  ground += TERRAIN_SQUARE_SIZE * 0.02f;
+  ground += 1.8f;
   camerapos->y = ground;
 }
 
@@ -483,9 +483,9 @@ void flyMovement(struct airunit *unit, char input)
     drag = 0.003f;
     lift = 0.03f;
   }
-  ground = readTerrainHeightPlane(unit->pos.x, unit->pos.z, TERRAIN_SQUARE_SIZE, &temppos);
+  ground = readTerrainHeightPlane(unit->pos.x, unit->pos.z, &temppos);
   ground = ground < TERRAIN_WATER_LEVEL + 7 ? TERRAIN_WATER_LEVEL + 7 : ground;
-  temp2 = unit->pos.y < 11000 ? (11000 - unit->pos.y) / 11000.0f : 0.0f;
+  temp2 = unit->pos.y < 21000 ? (21000 - unit->pos.y) / 21000.0f : 0.0f;
   temp2 = temp2 < 0.0f ? 0.0f : temp2;
   temppos = unit->pos;
   if ((input | INPUT_SPACE) == input)
@@ -602,8 +602,8 @@ int main(int argc, char *argv[])
 {
   GLuint textures[7], shaders[5];
   GLFWwindow *window = NULL;
-  int squaresize = 0, i;
-  char direction, state = 1;
+  int i;
+  char direction, state = 0;
   float fps = 0.0f, fogend = 20.0f;
   struct v2f sector    = {0.0f, 0.0f};
   struct v3f camerarot = {0.0f, 0.0f, 0.0f};
@@ -653,7 +653,7 @@ int main(int argc, char *argv[])
       updateCamera(camerarot);
       glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
       render(window, scene, textquads, textures, shaders, camerapos, camerarot,
-             &sector, &squaresize, &fogend, &fps, airunits);
+             &sector, &fogend, &fps, airunits);
     }
     free(scene);
     free(airunits);
