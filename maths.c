@@ -89,6 +89,15 @@ float vectorstodegree2d(struct v3f pos_self, struct v3f pos_b)
 }
 
 
+struct v3f normalize3d(struct v3f pos)
+{
+  struct v3f temp = mv3f(0.0f, 0.0f, 0.0f);
+  float d = distance3d(temp, pos);
+
+  return mv3f(pos.x / d, pos.y / d, pos.z / d);
+}
+
+
 struct v3f calcNormal(float in_v1[3], float in_v2[3], float in_v3[3])
 {
   float v1[3], v2[3], v3[3];
