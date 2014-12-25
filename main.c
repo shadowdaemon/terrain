@@ -617,6 +617,19 @@ void airUnitMoveVTOL(struct airunit *unit, struct v3f pos)
 }
 
 
+void updateAirUnits(struct airunit *units)
+{
+  int i;
+
+  for (i = 0; i < 15; i++) {
+    if (distance2d(units[i].pos, mv3f(1100000, 0, 550000)) < 2500.0f)
+      airUnitMoveVTOL(&units[i], mv3f(110000, 0, 550000));
+    else
+      airUnitMove(&units[i], mv3f(1100000, 0, 550000));
+  }
+}
+
+
 int main(int argc, char *argv[])
 {
   GLuint textures[7], shaders[5];
@@ -668,12 +681,7 @@ int main(int argc, char *argv[])
         //flyMovement(&airunits[0], direction);
         cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot);
       }
-      for (i = 0; i < 15; i++) {
-        if (distance2d(airunits[i].pos, mv3f(1100000, 0, 550000)) < 2500.0f)
-          airUnitMoveVTOL(&airunits[i], mv3f(110000, 0, 550000));
-        else
-          airUnitMove(&airunits[i], mv3f(1100000, 0, 550000));
-      }
+      updateAirUnits(airunits);
       updateCamera(camerarot);
       glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
       render(window, scene, textquads, textures, shaders, camerapos, camerarot,
