@@ -128,6 +128,7 @@ struct airunit {
   struct v3f rot;
   struct v3f vec;
   float thrust;
+  float vtol_thrust;
   float speed;
   float height;
 };

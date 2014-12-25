@@ -349,7 +349,7 @@ void mouseLook(GLFWwindow *window, struct v3f *camerarot)
     camerarot->y -= 360.0f;
   while (camerarot->y < 0.0f)
     camerarot->y += 360.0f;
-  // mouse x, y / view x, y swapped here...
+  /* Mouse x, y and view x, y swapped here. */
   camerarot->y = (float) (mouse_pos.x * mouse_sensitivity);
   camerarot->x = (float) (mouse_pos.y * mouse_sensitivity);
 }
@@ -443,11 +443,13 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
 void flyMovement(struct airunit *unit, char input)
 {
   struct v3f pos;
-  float ground, maxthrust, thrust_step, thrust_ceiling, drag, lift, glide, temp, q;
+  float ground, max_thrust, max_vtol_thrust, thrust_step,
+    thrust_ceiling, drag, lift, glide, temp, q;
 
   switch (unit->type) {
   case UNIT_AIRFIGHTER:
-    maxthrust = 2.5f;
+    max_thrust = 2.5f;
+    max_vtol_thrust = 0.7f;
     thrust_step = 0.05f;
     thrust_ceiling = 21000.0f;
     drag = 0.003f;
@@ -490,12 +492,16 @@ void flyMovement(struct airunit *unit, char input)
   /* Thrust lapse, atmospheric density.  See https://en.wikipedia.org/wiki/Jet_engine_performance */
   temp = unit->pos.y < thrust_ceiling ? (thrust_ceiling - unit->pos.y) / thrust_ceiling : 0.0f;
   temp = temp < 0.0f ? 0.0f : temp;
-  pos = mv3f(0, 0, 0);
+  pos = mv3f(0.0f, 0.0f, 0.0f);
   /* VTOL thrust. */
-  if ((input | INPUT_SPACE) == input)
-    degreestovector3d(&pos, unit->rot, mv3f(90.0f, 180.0f, 0.0f), 0.7f/*unit->vtol_thrust*/);
+  if ((input | INPUT_SPACE) == input) {
+    unit->vtol_thrust = unit->vtol_thrust + 0.1f > max_vtol_thrust ? max_vtol_thrust : unit->vtol_thrust + 0.1f;
+    degreestovector3d(&pos, unit->rot, mv3f(90.0f, 180.0f, 0.0f), unit->vtol_thrust);
+  }
+  else
+    unit->vtol_thrust = unit->vtol_thrust - 0.05f > 0.0f ? unit->vtol_thrust - 0.05f : 0.0f;
   /* Normal thrust. */
-  unit->thrust = unit->thrust > maxthrust ? maxthrust : unit->thrust < 0 ? 0 : unit->thrust;
+  unit->thrust = unit->thrust > max_thrust ? max_thrust : unit->thrust < 0.0f ? 0.0f : unit->thrust;
   degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), unit->thrust * temp);
   /* Update position and vector. */
   unit->vec.x += pos.x;
@@ -505,9 +511,9 @@ void flyMovement(struct airunit *unit, char input)
   unit->pos.y += unit->vec.y;
   unit->pos.z += unit->vec.z;
   /* Airspeed. */
-  unit->speed = distance3d(mv3f(0, 0, 0), unit->vec);
+  unit->speed = distance3d(mv3f(0.0f, 0.0f, 0.0f), unit->vec);
   /* Drag. */
-  pos = mv3f(0, 0, 0);
+  pos = mv3f(0.0f, 0.0f, 0.0f);
   degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), 1.0f);
   q = distance3d(pos, normalize3d(unit->vec));
   drag = drag * temp * (unit->speed + 20.0f) * q * 0.1f;
@@ -515,19 +521,19 @@ void flyMovement(struct airunit *unit, char input)
   unit->vec.y -= unit->vec.y * drag;
   unit->vec.z -= unit->vec.z * drag;
   /* Lift and glide. */
-  pos = mv3f(0, 0, 0);
+  pos = mv3f(0.0f, 0.0f, 0.0f);
   degreestovector3d(&pos, unit->rot, mv3f(90.0f, 180.0f, 0.0f), unit->speed * (2 - q) * temp * lift);
   degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), -unit->vec.y * temp * glide);
   unit->vec.x += pos.x;
   unit->vec.y += pos.y;
   unit->vec.z += pos.z;
   /* Aircraft banking. */
-  pos = mv3f(0, 0, 0);
+  pos = mv3f(0.0f, 0.0f, 0.0f);
   degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), unit->speed);
-  temp = (vectorstodegree2d(pos, mv3f(0, 0, 0)) - vectorstodegree2d(unit->vec, mv3f(0, 0, 0))) * 0.09f;
-  if (vectorstodegree2d(pos, mv3f(0, 0, 0)) > vectorstodegree2d(unit->vec, mv3f(0, 0, 0)) + 0.8f)
+  temp = (vectorstodegree2d(pos, mv3f(0.0f, 0.0f, 0.0f)) - vectorstodegree2d(unit->vec, mv3f(0.0f, 0.0f, 0.0f))) * 0.09f;
+  if (vectorstodegree2d(pos, mv3f(0.0f, 0.0f, 0.0f)) > vectorstodegree2d(unit->vec, mv3f(0.0f, 0.0f, 0.0f)) + 0.8f)
     unit->rot.z += temp > 7 ? 0 : temp;
-  else if (vectorstodegree2d(unit->vec, mv3f(0, 0, 0)) > vectorstodegree2d(pos, mv3f(0, 0, 0)) + 0.8f)
+  else if (vectorstodegree2d(unit->vec, mv3f(0.0f, 0.0f, 0.0f)) > vectorstodegree2d(pos, mv3f(0.0f, 0.0f, 0.0f)) + 0.8f)
     unit->rot.z += temp < -7 ? 0 : temp;
   unit->rot.z -= unit->rot.z * 0.12f;
   unit->rot.z = unit->rot.z > 70 ? 70 : unit->rot.z < -70 ? -70 : unit->rot.z;
