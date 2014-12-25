@@ -6,8 +6,10 @@ void updateFogAndFrustum(GLfloat *clear, struct v3f camerapos)
 {
   float fstart = (camerapos.y - readTerrainHeight(camerapos.x, camerapos.z)) * 0.1f;
 
-  if (fstart > 5.0f)
-    fstart = 5.0f;
+  if (fstart > 10.0f)
+    fstart = 10.0f;
+  else if (fstart < 1.0f)
+    fstart = 1.0f;
   glFogfv(GL_FOG_COLOR, clear);
   glFogf(GL_FOG_START, FOG_START);
   glFogf(GL_FOG_END, FOG_END);
