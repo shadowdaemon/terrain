@@ -297,7 +297,7 @@ void renderMoon(struct v3f camerapos, GLint pos[4], float size)
 }
 
 
-void renderExhaust(struct v3f pos, struct v3f rot, float size)
+void renderExhaust(struct v3f pos, struct v3f rot, float scale, float size)
 {
   int i;
   float r, x, y;
@@ -306,29 +306,30 @@ void renderExhaust(struct v3f pos, struct v3f rot, float size)
   //glMateriali(GL_FRONT, GL_EMISSION, 78);
   glPushMatrix();
   glTranslatef(pos.x, pos.y, pos.z);
+  glScalef(scale, scale, scale);
   glRotatef(rot.y, 0.0f, 1.0f, 0.0f);
   glRotatef(rot.x, 1.0f, 0.0f, 0.0f);
   glRotatef(rot.z, 0.0f, 0.0f, 1.0f);
   glBegin(GL_TRIANGLE_FAN);
   glColor4ub(195, 110, 30, 185);
-  glVertex3f(0.5f, 0.5f, -size * 10.0f - 5.2f);
+  glVertex3f(1.4286f, 1.4286f, -size * 10.0f - 14.857f);
   glColor4ub(255, 225, 90, 30);
   for (i = 0; i <= 360; i += 120) {
     r = i / PIx180;
     x = -size * sinf(r);
     y = size * cosf(r);
-    glVertex3f(x + 0.5f, y + 0.5f, -1.7f);
+    glVertex3f(x + 1.428f, y + 1.428f, -4.857f);
   }
   glEnd();
   glBegin(GL_TRIANGLE_FAN);
   glColor4ub(195, 110, 30, 185);
-  glVertex3f(-0.5f, 0.5f, -size * 10.0f - 5.2f);
+  glVertex3f(-1.4286f, 1.4286f, -size * 10.0f - 14.857f);
   glColor4ub(255, 225, 90, 30);
   for (i = 0; i <= 360; i += 120) {
     r = i / PIx180;
     x = -size * sinf(r);
     y = size * cosf(r);
-    glVertex3f(x - 0.5f, y + 0.5f, -1.7f);
+    glVertex3f(x - 1.428f, y + 1.428f, -4.857f);
   }
   glEnd();
   glPopMatrix();
@@ -359,7 +360,7 @@ void renderFX(void)
   glColor3ub(255, 255, 255);
   for (xgrid = 0, zgrid = 0; xgrid < 10 && zgrid < 10; xgrid++) {
     glBegin(GL_POINTS);
-    glVertex3f(xgrid * 50, 3500, zgrid * 50);
+    glVertex3f(xgrid * 50, 5000, zgrid * 50);
     glEnd();
     if (xgrid >= 9) {
       zgrid++;
@@ -393,6 +394,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
 {
   GLfloat color[4], temp;
   GLint lpos[4], mpos[4];
+  int i;
   static double time = 0;
   static float fps2 = 0;
   static char swapb = 1;
@@ -484,12 +486,12 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glBindTexture(GL_TEXTURE_2D, textures[5]);
   renderBuildings(scene, camerapos, camerarot, *sector);
   glBindTexture(GL_TEXTURE_2D, textures[3]);
-  drawModel((const struct aiScene *) &scene[6], airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), 0.35f, 255);
-  //for (i = 1; i < 15; i++)
-    //drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 1, 255);
+  for (i = 0; i < 15; i++)
+    drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 0.7f, 255);
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_LIGHTING);
-  renderExhaust(airunits[0].pos, mv3f(airunits[0].rot.x, -airunits[0].rot.y, airunits[0].rot.z), airunits[0].thrust * 0.35f);
+  for (i = 0; i < 15; i++)
+    renderExhaust(airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 0.7f, airunits[i].thrust * 0.35f);
   glEnable(GL_POINT_SPRITE);
   glEnable(GL_PROGRAM_POINT_SIZE);
   glUseProgramARB(shaders[2]);
