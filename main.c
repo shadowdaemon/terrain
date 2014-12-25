@@ -490,11 +490,11 @@ void flyMovement(struct airunit *unit, char input)
   /* Thrust lapse, atmospheric density.  See https://en.wikipedia.org/wiki/Jet_engine_performance */
   temp = unit->pos.y < thrust_ceiling ? (thrust_ceiling - unit->pos.y) / thrust_ceiling : 0.0f;
   temp = temp < 0.0f ? 0.0f : temp;
+  pos = mv3f(0, 0, 0);
   /* VTOL thrust. */
   if ((input | INPUT_SPACE) == input)
-    unit->vec.y += 0.5f * temp;
+    degreestovector3d(&pos, unit->rot, mv3f(90.0f, 180.0f, 0.0f), 0.7f/*unit->vtol_thrust*/);
   /* Normal thrust. */
-  pos = mv3f(0, 0, 0);
   unit->thrust = unit->thrust > maxthrust ? maxthrust : unit->thrust < 0 ? 0 : unit->thrust;
   degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), unit->thrust * temp);
   /* Update position and vector. */
