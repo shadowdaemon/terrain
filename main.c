@@ -322,7 +322,7 @@ void cameraTrailMovement(struct v3f *camerapos, struct v3f *camerarot, struct v3
   struct v3f temppos = modelpos;
   float ground = 0.0f;
 
-  degreestovector3d(&temppos, modelrot, mv3f(0, 180, 0), 20);
+  degreestovector3d(&temppos, modelrot, mv3f(0, 180, 0), 25.0f);
   camerapos->x += (temppos.x - camerapos->x) * 0.37f;
   camerapos->y += (temppos.y - camerapos->y) * 0.37f;
   camerapos->z += (temppos.z - camerapos->z) * 0.37f;
@@ -450,7 +450,7 @@ void flyMovement(struct airunit *unit, char input)
   case UNIT_AIRFIGHTER:
     max_thrust = 2.5f;
     max_vtol_thrust = 0.7f;
-    thrust_step = 0.05f;
+    thrust_step = 0.01f;
     thrust_ceiling = 21000.0f;
     drag = 0.003f;
     lift = 0.004f;
@@ -559,10 +559,41 @@ void flyMovement(struct airunit *unit, char input)
 }
 
 
+void airUnitMove(struct airunit *unit, struct v3f pos)
+{
+  float dist = distance2d(unit->pos, pos);
+  float speed = dist < 7000.0f ? 50.0f : 120.0f;
+  int thrust = unit->speed > speed ? INPUT_DOWN : INPUT_UP;
+
+  unit->rot.y += (vectorstodegree2d(unit->pos, pos) - unit->rot.y) * 0.1f;
+  if (dist < 5000.0f) {
+    flyMovement(unit, INPUT_NONE);
+    unit->rot.x += (-15.0f - unit->rot.x) * 0.2f;
+  }
+  else if (unit->vec.y < -WORLD_GRAVITY - 7.0f || unit->height < 500.0f) {
+    flyMovement(unit, INPUT_SPACE + thrust);
+    unit->rot.x += (-35.0f - unit->rot.x) * 0.15f;
+  }
+  else if (unit->height < 750.0f) {
+    flyMovement(unit, thrust);
+    unit->rot.x += (-10.0f - unit->rot.x) * 0.1f;
+  }
+  else if (unit->height > 1000.0f) {
+    flyMovement(unit, thrust);
+    unit->rot.x += (17.5f - unit->rot.x) * 0.05f;
+  }
+  else {
+    flyMovement(unit, thrust);
+    unit->rot.x += (0.0f - unit->rot.x) * 0.05f;
+  }
+}
+
+
 void airUnitMoveVTOL(struct airunit *unit, struct v3f pos)
 {
   float dist = distance2d(unit->pos, pos);
-  float a = unit->speed > 20.0f ? -5.0f : 7.5f;
+  float pitch = unit->speed > 30.0f ? -5.0f : 7.5f;
+  int thrust = unit->thrust > 0.0f ? INPUT_DOWN : INPUT_NONE;
 
   if (dist > 200.0f)
     unit->rot.y += (vectorstodegree2d(unit->pos, pos) - unit->rot.y) * 0.1f;
@@ -570,18 +601,18 @@ void airUnitMoveVTOL(struct airunit *unit, struct v3f pos)
     unit->rot.y += 2.0f;
   if (unit->height > 150.0f) {
     if (unit->vec.y < -WORLD_GRAVITY - 7.0f)
-      flyMovement(unit, INPUT_SPACE);
+      flyMovement(unit, INPUT_SPACE + thrust);
     else
-      flyMovement(unit, INPUT_NONE);
-    unit->rot.x += (a - unit->rot.x) * 0.25f;
+      flyMovement(unit, INPUT_NONE + thrust);
+    unit->rot.x += (pitch - unit->rot.x) * 0.15f;
   }
   else if (unit->vec.y < -WORLD_GRAVITY || unit->height < 70.0f) {
-    flyMovement(unit, INPUT_SPACE);
-    unit->rot.x += (a - unit->rot.x) * 0.2f;
+    flyMovement(unit, INPUT_SPACE + thrust);
+    unit->rot.x += (pitch - unit->rot.x) * 0.1f;
   }
   else {
-    flyMovement(unit, INPUT_NONE);
-    unit->rot.x += (0.0f - unit->rot.x) * 0.1f;
+    flyMovement(unit, INPUT_NONE + thrust);
+    unit->rot.x += (0.0f - unit->rot.x) * 0.05f;
   }
 }
 
@@ -633,12 +664,16 @@ int main(int argc, char *argv[])
         movement(&camerapos, camerarot, direction, 5);
       }
       else {
-        mouseLook(window, &airunits[0].rot);
-        flyMovement(&airunits[0], direction);
+        //mouseLook(window, &airunits[0].rot);
+        //flyMovement(&airunits[0], direction);
         cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot);
       }
-      for (i = 1; i < 15; i++)
-        airUnitMoveVTOL(&airunits[i], airunits[0].pos);
+      for (i = 0; i < 15; i++) {
+        if (distance2d(airunits[i].pos, mv3f(1100000, 0, 550000)) < 2500.0f)
+          airUnitMoveVTOL(&airunits[i], mv3f(110000, 0, 550000));
+        else
+          airUnitMove(&airunits[i], mv3f(1100000, 0, 550000));
+      }
       updateCamera(camerarot);
       glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
       render(window, scene, textquads, textures, shaders, camerapos, camerarot,
