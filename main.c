@@ -537,6 +537,10 @@ void flyMovement(struct airunit *unit, char input)
     unit->rot.z += temp < -7 ? 0 : temp;
   unit->rot.z -= unit->rot.z * 0.12f;
   unit->rot.z = unit->rot.z > 70 ? 70 : unit->rot.z < -70 ? -70 : unit->rot.z;
+  if (unit->rot.y > 360.0f)
+    unit->rot.y -= 360.0f;
+  else if (unit->rot.y < 0.0f)
+    unit->rot.y += 360.0f;
   /* Ground detection and collision handling. */
   unit->height = fabs(unit->pos.y - ground);
   if (unit->pos.y < ground) {
@@ -562,6 +566,8 @@ void airUnitMoveVTOL(struct airunit *unit, struct v3f pos)
 
   if (dist > 200.0f)
     unit->rot.y += (vectorstodegree2d(unit->pos, pos) - unit->rot.y) * 0.1f;
+  else
+    unit->rot.y += 2.0f;
   if (unit->height > 150.0f) {
     if (unit->vec.y < -WORLD_GRAVITY - 7.0f)
       flyMovement(unit, INPUT_SPACE);
