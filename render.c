@@ -511,8 +511,14 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glEnable(GL_LIGHTING);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
-  renderCloud(camerapos, camerarot, 9500, 0.00005f);
-  renderCloud(camerapos, camerarot, 3900, 0.00001f);
+  if (camerapos.y < 9500) {
+    renderCloud(camerapos, camerarot, 9500, 0.00005f);
+    renderCloud(camerapos, camerarot, 4500, 0.00001f);
+  }
+  else {
+    renderCloud(camerapos, camerarot, 4500, 0.00001f);
+    renderCloud(camerapos, camerarot, 9500, 0.00005f);
+  }
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();

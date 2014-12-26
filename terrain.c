@@ -156,27 +156,6 @@ float algorithmicTerrainHeight5(float x, float z)
 }
 
 
-char calculateTerrainTypeOld(float height)
-{
-  char type = T_TYPE_DIRT;
-
-  if (height <= TERRAIN_WATER_LEVEL)
-    type = T_TYPE_ROCK;
-  else if (height < TERRAIN_WATER_LEVEL + 100)
-    type = T_TYPE_DIRT;
-  else if (height < 1000)
-    type = T_TYPE_GRASS1;
-  else if (height < 2000)
-    type = T_TYPE_GRASS2;
-  else if (height < 5000)
-    type = T_TYPE_GRASS3;
-  else if (height < 7000)
-    type = T_TYPE_DIRT;
-  else
-    type = T_TYPE_ROCK;
-
-  return type;
-}
 char calculateTerrainType(float height)
 {
   char type = T_TYPE_DIRT;
@@ -189,14 +168,12 @@ char calculateTerrainType(float height)
     type = T_TYPE_GRASS1;
   else if (height < 2000)
     type = T_TYPE_GRASS2;
-  else if (height < 3000)
-    type = T_TYPE_GRASS3;
   else if (height < 3500)
-    type = T_TYPE_DIRT;
+    type = T_TYPE_GRASS3;
   else if (height < 4200)
-    type = T_TYPE_SNOW;
+    type = T_TYPE_DIRT;
   else
-    type = T_TYPE_ROCK;
+    type = T_TYPE_SNOW;
 
   return type;
 }
@@ -225,9 +202,8 @@ struct terrain algorithmicTerrain(float x, float z)
   struct terrain temp;
   float dist, x1, z1;
 
-  temp.height = -9000.0f;
-  //temp.height = algorithmicTerrainHeight4(x * 0.2f, z * 0.2f, temp.height) * 7.35f;
-  temp.height = algorithmicTerrainHeight1(z * 0.8f, x * 0.8f, temp.height);
+  temp.height = -7000.0f;
+  temp.height = algorithmicTerrainHeight1(z * 0.4f, x * 0.4f, temp.height) * 1.35f;
   temp.type = T_TYPE_NULL;
   if (temp.height > 2500 && temp.height < 4000) {
     x1 = 0.5f - sinf(x * 0.0009f + 11000);
