@@ -8,15 +8,15 @@
 #define VIEW_DISTANCE_HALF                  750
 #define WORLD_SIZE                          100000
 #define WORLD_GRAVITY                       0.4f
-#define TERRAIN_GRID_SIZE                   120
-#define TERRAIN_GRID_SIZE_HALF              60
-#define TERRAIN_GRID_SIZE_QUARTER           30
+#define TERRAIN_GRID_SIZE                   100
+#define TERRAIN_GRID_SIZE_HALF              50
+#define TERRAIN_GRID_SIZE_QUARTER           25
 #define TERRAIN_SQUARE_SIZE                 500
 #define TERRAIN_SQUARE_SIZE_HALF            250
 #define TERRAIN_STEP_SIZE                   4
 #define TERRAIN_WATER_LEVEL                 0
 #define FOG_END                             TERRAIN_SQUARE_SIZE * TERRAIN_GRID_SIZE * 0.45f
-#define FOG_START                           FOG_END * 0.5f
+#define FOG_START                           FOG_END * 0.02f
 #define T_TYPE_NULL                         0
 #define T_TYPE_CRATER                       1
 #define T_TYPE_VILLAGE                      2

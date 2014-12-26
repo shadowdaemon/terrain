@@ -53,22 +53,22 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
       x1 = x1 % 1076;
       switch (type) {
       case T_TYPE_GRASS1:
-        density = 110;
+        density = 310;
         break;
       case T_TYPE_GRASS2:
-        density = 127;
+        density = 427;
         break;
       case T_TYPE_GRASS3:
-        density = 101;
+        density = 201;
         break;
       case T_TYPE_VILLAGE:
         density = 103;
         break;
       case T_TYPE_FOREST1:
-        density = 470;
+        density = 770;
         break;
       default:
-        density = 120;
+        density = 170;
       }
       if ((dist < VIEW_DISTANCE || dist < TERRAIN_SQUARE_SIZE * 10) && x1 < density) {
         if (height > TERRAIN_WATER_LEVEL + 50 && height < 2900 && type != T_TYPE_DIRT) {
@@ -546,12 +546,12 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glUniform1fARB(glGetUniformLocationARB(shaders[0], "numcolors"), 64.0f);
   glUniform4fvARB(glGetUniformLocationARB(shaders[0], "clear"), 0, color);
   sceneQuad();
-  /* glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0); */
-  /* glUseProgramARB(shaders[1]); */
-  /* glUniform1iARB(glGetUniformLocationARB(shaders[1], "scene"), 4); */
-  /* glUniform2fARB(glGetUniformLocationARB(shaders[1], "steps"), 2000.0f, 2000.0f); */
-  /* glUniform4fvARB(glGetUniformLocationARB(shaders[1], "clear"), 0, color); */
-  /* sceneQuad(); */
+  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0);
+  glUseProgramARB(shaders[1]);
+  glUniform1iARB(glGetUniformLocationARB(shaders[1], "scene"), 4);
+  glUniform2fARB(glGetUniformLocationARB(shaders[1], "steps"), 2000.0f, 2000.0f);
+  glUniform4fvARB(glGetUniformLocationARB(shaders[1], "clear"), 0, color);
+  sceneQuad();
   glUseProgramARB(0);
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
