@@ -528,9 +528,9 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glPushMatrix();
   glLoadIdentity();
   glBindTexture(GL_TEXTURE_2D, textures[6]);
-  //renderNumber(camerapos->x, textquads, mv2f(RESX - 100, 120));
-  //renderNumber(camerapos->z, textquads, mv2f(RESX - 100, 70));
-  //renderNumber(fps2, textquads, mv2f(RESX - 100, 20));
+  /* renderNumber(camerapos.x, textquads, mv2f(RESX - 100, 120)); */
+  /* renderNumber(camerapos.z, textquads, mv2f(RESX - 100, 70)); */
+  /* renderNumber(fps2, textquads, mv2f(RESX - 100, 20)); */
   renderNumber(airunits[0].pos.y, textquads, mv2f(RESX - 100, 120));
   renderNumber(airunits[0].speed * fps2, textquads, mv2f(RESX - 100, 70));
   renderNumber(airunits[0].thrust * 100, textquads, mv2f(RESX - 100, 20));

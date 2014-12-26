@@ -243,7 +243,7 @@ struct terrain algorithmicTerrain(float x, float z)
     else if (z1 > 1)
       z1 = 1;
     temp.height += (1500 - fabs(1500 - temp.height)) * x1 * z1 * 0.37f;
-    if (x1 * z1 > 0.7f)
+    if (x1 * z1 > 0.3f)
       temp.type = T_TYPE_FOREST1;
   }
   dist = distance2d(mv3f(0, 0, 0), mv3f(x, 0, z));
@@ -477,8 +477,8 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
         SEcolorB[xgrid][zgrid] = 25;
         break;
       case T_TYPE_FOREST1:
-        SEcolorR[xgrid][zgrid] = 43;
-        SEcolorG[xgrid][zgrid] = 85;
+        SEcolorR[xgrid][zgrid] = 48;
+        SEcolorG[xgrid][zgrid] = 90;
         SEcolorB[xgrid][zgrid] = 27;
         break;
       case T_TYPE_SNOW:
@@ -536,8 +536,8 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
         NEcolorB[xgrid][zgrid] = 25;
         break;
       case T_TYPE_FOREST1:
-        NEcolorR[xgrid][zgrid] = 43;
-        NEcolorG[xgrid][zgrid] = 85;
+        NEcolorR[xgrid][zgrid] = 51;
+        NEcolorG[xgrid][zgrid] = 90;
         NEcolorB[xgrid][zgrid] = 27;
         break;
       case T_TYPE_SNOW:
