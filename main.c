@@ -403,7 +403,7 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
   float ground;
 
   if ((direction | INPUT_SPACE) == direction)
-    speed *= 10.0f;
+    speed *= 50.0f;
   switch (direction & ~INPUT_SPACE) {
   case INPUT_UP:
     degreestovector3d(camerapos, camerarot, mv3f(0.0f, 0.0f, 0.0f), -speed);
@@ -666,7 +666,7 @@ int main(int argc, char *argv[])
   GLuint textures[7], shaders[5];
   GLFWwindow *window = NULL;
   int i;
-  char direction, state = 1;
+  char direction, state = 0;
   float fps = 0.0f;
   struct v2f sector    = {0.0f, 0.0f};
   struct v3f camerarot = {0.0f, 0.0f, 0.0f};
@@ -705,7 +705,7 @@ int main(int argc, char *argv[])
       keyboardInput(window, &direction);
       if (state == 0) {
         mouseLook(window, &camerarot);
-        movement(&camerapos, camerarot, direction, 5);
+        movement(&camerapos, camerarot, direction, 1.0f);
       }
       else {
         mouseLook(window, &airunits[0].rot);

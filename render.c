@@ -4,7 +4,8 @@
 
 void updateFogAndFrustum(GLfloat *clear, struct v3f camerapos)
 {
-  float fstart = (camerapos.y - readTerrainHeight(camerapos.x, camerapos.z)) * 0.1f;
+  struct v3f pos;
+  float fstart = (camerapos.y - readTerrainHeightPlane(camerapos.x, camerapos.z, &pos)) * 0.1f;
 
   if (fstart > 10.0f)
     fstart = 10.0f;
@@ -70,7 +71,7 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
         density = 120;
       }
       if ((dist < VIEW_DISTANCE || dist < TERRAIN_SQUARE_SIZE * 10) && x1 < density) {
-        if (height > TERRAIN_WATER_LEVEL + 50 && height < 2750 && type != T_TYPE_DIRT) {
+        if (height > TERRAIN_WATER_LEVEL + 50 && height < 2900 && type != T_TYPE_DIRT) {
           if (dist < VIEW_DISTANCE_HALF)
             alpha = 255;
           else if (dist < VIEW_DISTANCE)
