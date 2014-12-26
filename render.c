@@ -26,7 +26,7 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
 {
   struct v3f normal;
   int xgrid, zgrid, x1, z1, cull, density;
-  const int size = TERRAIN_SQUARE_SIZE * 0.1f;
+  const int size = TERRAIN_SQUARE_SIZE * 0.2f; /* Size of generation sector, also affects density. */
   float x, z, xpos = 0.0f, zpos = 0.0f, height, dist;
   unsigned char type;
   GLubyte alpha;
@@ -98,7 +98,7 @@ void renderBuildings(struct aiScene *scene, struct v3f camerapos, struct v3f cam
 {
   struct v3f normal;
   int xgrid, zgrid, x1, z1, cull;
-  const int size = TERRAIN_SQUARE_SIZE * 0.1f;
+  const int size = TERRAIN_SQUARE_SIZE * 0.2f; /* Size of generation sector, also affects density. */
   float x, z, xpos = 0.0f, zpos = 0.0f, height, dist;
   unsigned char type;
   GLubyte alpha;
@@ -528,9 +528,9 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glPushMatrix();
   glLoadIdentity();
   glBindTexture(GL_TEXTURE_2D, textures[6]);
-  /* renderNumber(camerapos.x, textquads, mv2f(RESX - 100, 120)); */
-  /* renderNumber(camerapos.z, textquads, mv2f(RESX - 100, 70)); */
-  /* renderNumber(fps2, textquads, mv2f(RESX - 100, 20)); */
+  //renderNumber(camerapos->x, textquads, mv2f(RESX - 100, 120));
+  //renderNumber(camerapos->z, textquads, mv2f(RESX - 100, 70));
+  //renderNumber(fps2, textquads, mv2f(RESX - 100, 20));
   renderNumber(airunits[0].pos.y, textquads, mv2f(RESX - 100, 120));
   renderNumber(airunits[0].speed * fps2, textquads, mv2f(RESX - 100, 70));
   renderNumber(airunits[0].thrust * 100, textquads, mv2f(RESX - 100, 20));
