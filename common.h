@@ -7,7 +7,7 @@
 #define VIEW_DISTANCE                       1500
 #define VIEW_DISTANCE_HALF                  750
 #define WORLD_SIZE                          100000
-#define WORLD_GRAVITY                       0.3f
+#define WORLD_GRAVITY                       0.4f
 #define TERRAIN_GRID_SIZE                   120
 #define TERRAIN_GRID_SIZE_HALF              60
 #define TERRAIN_GRID_SIZE_QUARTER           30
@@ -15,7 +15,7 @@
 #define TERRAIN_SQUARE_SIZE_HALF            250
 #define TERRAIN_STEP_SIZE                   4
 #define TERRAIN_WATER_LEVEL                 0
-#define FOG_END                             TERRAIN_SQUARE_SIZE * TERRAIN_GRID_SIZE * 0.5f
+#define FOG_END                             TERRAIN_SQUARE_SIZE * TERRAIN_GRID_SIZE * 0.45f
 #define FOG_START                           FOG_END * 0.5f
 #define T_TYPE_NULL                         0
 #define T_TYPE_CRATER                       1
@@ -26,7 +26,8 @@
 #define T_TYPE_DIRT                         6
 #define T_TYPE_ROCK                         7
 #define T_TYPE_FOREST1                      8
-#define CLOUD_HEIGHT                        4500
+#define T_TYPE_SNOW                         9
+#define CLOUD_HEIGHT                        9500
 #define KEY_NONE                            0
 #define KEY_LMB                             5
 #define KEY_LMB_RELEASE                     6

@@ -156,7 +156,7 @@ float algorithmicTerrainHeight5(float x, float z)
 }
 
 
-char calculateTerrainType(float height)
+char calculateTerrainTypeOld(float height)
 {
   char type = T_TYPE_DIRT;
 
@@ -172,6 +172,29 @@ char calculateTerrainType(float height)
     type = T_TYPE_GRASS3;
   else if (height < 7000)
     type = T_TYPE_DIRT;
+  else
+    type = T_TYPE_ROCK;
+
+  return type;
+}
+char calculateTerrainType(float height)
+{
+  char type = T_TYPE_DIRT;
+
+  if (height <= TERRAIN_WATER_LEVEL)
+    type = T_TYPE_ROCK;
+  else if (height < TERRAIN_WATER_LEVEL + 100)
+    type = T_TYPE_DIRT;
+  else if (height < 1000)
+    type = T_TYPE_GRASS1;
+  else if (height < 2000)
+    type = T_TYPE_GRASS2;
+  else if (height < 3000)
+    type = T_TYPE_GRASS3;
+  else if (height < 3500)
+    type = T_TYPE_DIRT;
+  else if (height < 4200)
+    type = T_TYPE_SNOW;
   else
     type = T_TYPE_ROCK;
 
@@ -204,7 +227,7 @@ struct terrain algorithmicTerrain(float x, float z)
 
   temp.height = -9000.0f;
   //temp.height = algorithmicTerrainHeight4(x * 0.2f, z * 0.2f, temp.height) * 7.35f;
-  temp.height = algorithmicTerrainHeight1(z * 0.8f, x * 0.8f, temp.height) * 1.35f;
+  temp.height = algorithmicTerrainHeight1(z * 0.8f, x * 0.8f, temp.height);
   temp.type = T_TYPE_NULL;
   if (temp.height > 2500 && temp.height < 4000) {
     x1 = 0.5f - sinf(x * 0.0009f + 11000);
@@ -482,6 +505,11 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
         SEcolorG[xgrid][zgrid] = 85;
         SEcolorB[xgrid][zgrid] = 27;
         break;
+      case T_TYPE_SNOW:
+        SEcolorR[xgrid][zgrid] = 250;
+        SEcolorG[xgrid][zgrid] = 250;
+        SEcolorB[xgrid][zgrid] = 250;
+        break;
       default:
         SEcolorR[xgrid][zgrid] = 93;
         SEcolorG[xgrid][zgrid] = 87;
@@ -535,6 +563,11 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
         NEcolorR[xgrid][zgrid] = 43;
         NEcolorG[xgrid][zgrid] = 85;
         NEcolorB[xgrid][zgrid] = 27;
+        break;
+      case T_TYPE_SNOW:
+        NEcolorR[xgrid][zgrid] = 250;
+        NEcolorG[xgrid][zgrid] = 250;
+        NEcolorB[xgrid][zgrid] = 250;
         break;
       default:
         NEcolorR[xgrid][zgrid] = 93;
