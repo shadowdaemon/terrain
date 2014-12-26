@@ -2,6 +2,8 @@
 #include "common.h"
 
 
+float pos(float num);
+float neg(float num);
 int snap(float num, int snap);
 struct v2f mv2f(float x, float y);
 struct v3f mv3f(float x, float y, float z);

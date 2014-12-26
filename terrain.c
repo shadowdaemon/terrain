@@ -26,7 +26,7 @@ float algorithmicTerrainHeight1(float x, float z, float height)
     a2 = a2 > 1 ? 1 : a2;
     h1 = sinf(x * 0.00077f) * 710 * (a1 + a2);
     h2 = sinf(z * 0.00072f) * 716 * (a1 + a2);
-    height += - fabs(h1) - fabs(h2);
+    height += - pos(h1) - pos(h2);
   }
   height += (500 - height) * 0.31f + (11000 - height) * 0.17f + (height - 3500) * (3500 - height) * 0.0001f;
   if (height > 3000) {

@@ -1,6 +1,18 @@
 #include "maths.h"
 
 
+float pos(float num)
+{
+  return num > 0.0f ? num : 0.0f;
+}
+
+
+float neg(float num)
+{
+  return num < 0.0f ? num : 0.0f;
+}
+
+
 int snap(float num, int snap)
 {
   int temp = num - (int) num % snap;
