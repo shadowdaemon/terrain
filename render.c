@@ -217,15 +217,14 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, GLfloat color[4])
 }
 
 
-void renderCloud(struct v3f camerapos, struct v3f camerarot)
+void renderCloud(struct v3f camerapos, struct v3f camerarot, float height, float scale)
 {
   int i, size;
   float rot, x, z;
   int alpha;
-  const float scale = 0.00005f;
 
   size = TERRAIN_GRID_SIZE * TERRAIN_SQUARE_SIZE;
-  alpha = fabs(CLOUD_HEIGHT - camerapos.y) * 0.5f;
+  alpha = fabs(height - camerapos.y) * 0.5f;
   alpha = alpha > 180 ? 180 : alpha;
   glMateriali(GL_FRONT, GL_SHININESS, 31);
   glDisable(GL_CULL_FACE);
@@ -240,14 +239,14 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot)
   glNormal3i(0, -1, 0);
   glBegin(GL_TRIANGLE_FAN);
   glTexCoord2f(0.0f, 0.0f);
-  glVertex3f(0.0f, CLOUD_HEIGHT, 0.0f);
+  glVertex3f(0.0f, height, 0.0f);
   glColor4ub(128, 128, 128, 0);
   for (i = 0; i <= 360; i += 30) {
     rot = i / PIx180;
     x = -size * sinf(rot);
     z = size * cosf(rot);
     glTexCoord2f(x, z);
-    glVertex3f(x, CLOUD_HEIGHT, z);
+    glVertex3f(x, height, z);
   }
   glEnd();
   glPopMatrix();
@@ -500,7 +499,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_LIGHTING);
   for (i = 0; i < 15; i++)
-    renderExhaust(airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 0.7f, airunits[i].thrust * 0.35f);
+    renderExhaust(airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 0.7f, airunits[i].thrust * 0.8f);
   glEnable(GL_POINT_SPRITE);
   glEnable(GL_PROGRAM_POINT_SIZE);
   glUseProgramARB(shaders[2]);
@@ -512,7 +511,8 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glEnable(GL_LIGHTING);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
-  renderCloud(camerapos, camerarot);
+  renderCloud(camerapos, camerarot, 9500, 0.00005f);
+  renderCloud(camerapos, camerarot, 3900, 0.00001f);
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();

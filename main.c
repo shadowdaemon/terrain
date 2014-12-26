@@ -450,7 +450,7 @@ void flyMovement(struct airunit *unit, char input)
   case UNIT_AIRFIGHTER:
     max_thrust = 1.2f;
     max_vtol_thrust = 0.52f;
-    thrust_step = 0.05f;
+    thrust_step = 0.01f;
     thrust_ceiling = 21000.0f;
     drag = 0.02f;
     lift = 0.06f;
@@ -595,13 +595,13 @@ void airUnitMove(struct airunit *unit, struct v3f pos)
     unit->rot.x += (-40.0f - unit->rot.x) * 0.1f;
     unit->rot.y += 2.5f;
   }
-  else if (unit->vec.y < -WORLD_GRAVITY - 7.0f || unit->height < 500.0f) {
+  else if (unit->vec.y < -WORLD_GRAVITY * 2.5f && unit->height < 2500.0f) {
     flyMovement(unit, INPUT_SPACE + thrust);
-    unit->rot.x += (-35.0f - unit->rot.x) * 0.15f;
+    unit->rot.x += (-25.0f - unit->rot.x) * 0.05f;
   }
   else if (dist < 5000.0f) {
     flyMovement(unit, INPUT_NONE);
-    unit->rot.x += (-15.0f - unit->rot.x) * 0.15f;
+    unit->rot.x += (-15.0f - unit->rot.x) * 0.1f;
   }
   else if (unit->height < 1200.0f) {
     flyMovement(unit, thrust);
@@ -609,11 +609,11 @@ void airUnitMove(struct airunit *unit, struct v3f pos)
   }
   else if (unit->height > 10000.0f) {
     flyMovement(unit, thrust);
-    unit->rot.x += (15.5f - unit->rot.x) * 0.02f;
+    unit->rot.x += (3.5f - unit->rot.x) * 0.02f;
   }
   else {
     flyMovement(unit, thrust);
-    unit->rot.x += (0.0f - unit->rot.x) * 0.05f;
+    unit->rot.x += (0.0f - unit->rot.x) * 0.03f;
   }
 }
 
@@ -633,7 +633,7 @@ void airUnitMoveVTOL(struct airunit *unit, struct v3f pos)
       flyMovement(unit, INPUT_SPACE + thrust);
     else
       flyMovement(unit, INPUT_NONE + thrust);
-    unit->rot.x += (pitch - unit->rot.x) * 0.15f;
+    unit->rot.x += (pitch - unit->rot.x) * 0.1f;
   }
   else if (unit->vec.y < -WORLD_GRAVITY || unit->height < 70.0f) {
     flyMovement(unit, INPUT_SPACE + thrust);
@@ -649,10 +649,10 @@ void airUnitMoveVTOL(struct airunit *unit, struct v3f pos)
 void updateAirUnits(struct airunit *units)
 {
   int i;
-  //struct v3f pos = units[0].pos;
-  struct v3f pos = mv3f(110000.0f, 0.0f, 55000.0f);
+  struct v3f pos = units[0].pos;
+  //struct v3f pos = mv3f(110000.0f, 0.0f, 55000.0f);
 
-  for (i = 0; i < 15; i++) {
+  for (i = 1; i < 15; i++) {
     if (distance2d(units[i].pos, pos) < 2500.0f)
       airUnitMoveVTOL(&units[i], pos);
     else
@@ -708,8 +708,8 @@ int main(int argc, char *argv[])
         movement(&camerapos, camerarot, direction, 5);
       }
       else {
-        //mouseLook(window, &airunits[0].rot);
-        //flyMovement(&airunits[0], direction);
+        mouseLook(window, &airunits[0].rot);
+        flyMovement(&airunits[0], direction);
         cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot);
       }
       updateAirUnits(airunits);
