@@ -5,8 +5,11 @@
 void updateFogAndFrustum(GLfloat *clear, struct v3f camerapos)
 {
   struct v3f pos;
-  float fstart = (camerapos.y - readTerrainHeightPlane(camerapos.x, camerapos.z, &pos)) * 0.1f;
+  float ground = readTerrainHeightPlane(camerapos.x, camerapos.z, &pos);
+  float fstart;
 
+  ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
+  fstart = (camerapos.y - ground) * 0.1f;
   if (fstart > 10.0f)
     fstart = 10.0f;
   else if (fstart < 1.0f)
