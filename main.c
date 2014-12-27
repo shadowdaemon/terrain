@@ -405,10 +405,9 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
   float ground, temp;
 
   ground = readTerrainHeightPlane(camerapos->x, camerapos->z, &normal, t_size);
-  ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
-  ground += 1.8f;
   degreestovector3d(&pos, camerarot, mv3f(180.0f, 180.0f, 0.0f), 1.0f);
   temp = distance3d(pos, normalize3d(normal)) + 0.3f;
+  temp = temp > 1.0f ? 1.0f : temp;
   speed *= temp;
   if ((direction | INPUT_LEFT_SHIFT) == direction)
     speed *= 50.0f;
@@ -441,6 +440,9 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
     break;
   default: break;
   }
+  ground = readTerrainHeightPlane(camerapos->x, camerapos->z, &normal, t_size);
+  ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
+  ground += 1.8f;
   camerapos->y = ground;
 }
 
