@@ -26,7 +26,7 @@ float algorithmicTerrainHeight1(float x, float z, float height)
     a2 = a2 > 1 ? 1 : a2;
     h1 = sinf(x * 0.00077f) * 710 * (a1 + a2);
     h2 = sinf(z * 0.00072f) * 716 * (a1 + a2);
-    height += - pos(h1) - pos(h2);
+    height += - neg(h1) - pos(h2);
   }
   height += (500 - height) * 0.31f + (11000 - height) * 0.17f + (height - 3500) * (3500 - height) * 0.0001f;
   if (height > 3000) {
@@ -202,7 +202,7 @@ struct terrain algorithmicTerrain(float x, float z)
   struct terrain temp;
   float dist, x1, z1;
 
-  temp.height = -7000.0f;
+  temp.height = -9000.0f;
   temp.height = algorithmicTerrainHeight1(z * 0.4f, x * 0.4f, temp.height) * 1.35f;
   temp.type = T_TYPE_NULL;
   if (temp.height > 2500 && temp.height < 4000) {
@@ -291,15 +291,15 @@ unsigned char readTerrainType(float x, float z)
 }
 
 
-float readTerrainHeightPlane(float x, float z, struct v3f *normal)
+float readTerrainHeightPlane(float x, float z, struct v3f *normal, int t_size)
 {
   int xgrid, zgrid;
   float x1, z1, x2, z2, x3 = 0, z3 = 0;
   float height, p[2] = {x, z}, v1[3], v2[3], v3[3];
 
   for (xgrid = 0, x2 = 5000000; xgrid < 4; xgrid++) {
-    x1 = (xgrid - 2) * TERRAIN_SQUARE_SIZE + x - (int) x % TERRAIN_SQUARE_SIZE;
-    //x1 = (xgrid - 2) * TERRAIN_SQUARE_SIZE + snap(x, TERRAIN_SQUARE_SIZE);
+    x1 = (xgrid - 2) * t_size + x - (int) x % t_size;
+    //x1 = (xgrid - 2) * t_size + snap(x, t_size);
     x2 = fabs(x - x1) < x2 ? fabs(x - x1) : x2;
     if (fabs(x - x1) > x2)
       break;
@@ -307,18 +307,18 @@ float readTerrainHeightPlane(float x, float z, struct v3f *normal)
       x3 = x1;
   }
   for (zgrid = 0, z2 = 5000000; zgrid < 4; zgrid++) {
-    z1 = (zgrid - 2) * TERRAIN_SQUARE_SIZE + z - (int) z % TERRAIN_SQUARE_SIZE;
-    //z1 = (zgrid - 2) * TERRAIN_SQUARE_SIZE + snap(z, TERRAIN_SQUARE_SIZE);
+    z1 = (zgrid - 2) * t_size + z - (int) z % t_size;
+    //z1 = (zgrid - 2) * t_size + snap(z, t_size);
     z2 = fabs(z - z1) < z2 ? fabs(z - z1) : z2;
     if (fabs(z - z1) > z2)
       break;
     else
       z3 = z1;
   }
-  x1 = x3 + TERRAIN_SQUARE_SIZE / 2;
-  x2 = x3 - TERRAIN_SQUARE_SIZE / 2;
-  z1 = z3 - TERRAIN_SQUARE_SIZE / 2;
-  z2 = z3 + TERRAIN_SQUARE_SIZE / 2;
+  x1 = x3 + t_size / 2;
+  x2 = x3 - t_size / 2;
+  z1 = z3 - t_size / 2;
+  z2 = z3 + t_size / 2;
   if (distance2d(mv3f(x, 0, z), mv3f(x1, 0, z1)) < distance2d(mv3f(x, 0, z), mv3f(x2, 0, z2))) {
     v1[0] = x2; v1[1] = readTerrainHeight(x2, z1); v1[2] = z1;
     v2[0] = x1; v2[1] = readTerrainHeight(x1, z1); v2[2] = z1;
@@ -336,15 +336,15 @@ float readTerrainHeightPlane(float x, float z, struct v3f *normal)
 }
 
 
-void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, char *swapb)
+void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int t_size, char *swapb)
 {
-  if (camerapos.x > (sector->x + TERRAIN_STEP_SIZE * TERRAIN_SQUARE_SIZE) ||
-       camerapos.x < (sector->x - TERRAIN_STEP_SIZE * TERRAIN_SQUARE_SIZE)) {
+  if (camerapos.x > (sector->x + TERRAIN_STEP_SIZE * t_size) ||
+       camerapos.x < (sector->x - TERRAIN_STEP_SIZE * t_size)) {
     sector->x = camerapos.x;
     *swapb = 0;
   }
-  if (camerapos.z > (sector->y + TERRAIN_STEP_SIZE * TERRAIN_SQUARE_SIZE) ||
-       camerapos.z < (sector->y - TERRAIN_STEP_SIZE * TERRAIN_SQUARE_SIZE)) {
+  if (camerapos.z > (sector->y + TERRAIN_STEP_SIZE * t_size) ||
+       camerapos.z < (sector->y - TERRAIN_STEP_SIZE * t_size)) {
     sector->y = camerapos.z;
     *swapb = 0;
   }
@@ -356,10 +356,11 @@ void selectPosition(void)
 
 
 void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
-                 char *swapb)
+                 int *t_size, char *swapb)
 {
   struct terrain temp1, temp2;
   struct v3f temp3f;
+  static int size = 0;
   int xgrid, zgrid, x1, z1, x2, z2, cull;
   float x, z, xpos = 0.0f, zpos = 0.0f, dist;
   float v1[3], v2[3], v3[3];
@@ -401,24 +402,32 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   float SWnormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
 
   glMateriali(GL_FRONT, GL_SHININESS, 11);
-  moveTerrain(camerapos, camerarot, sector, swapb);
-  x = (int) (sector->x / TERRAIN_SQUARE_SIZE);
-  z = (int) (sector->y / TERRAIN_SQUARE_SIZE);
+  if (camerapos.y < TERRAIN_SCALE_HEIGHT)
+    *t_size = TERRAIN_SQUARE_SIZE;
+  else
+    *t_size = TERRAIN_SQUARE_SIZE * 3;
+  if (size != *t_size) {
+    size = *t_size;
+    *swapb = 0;
+  }
+  moveTerrain(camerapos, camerarot, sector, *t_size, swapb);
+  x = (int) (sector->x / *t_size);
+  z = (int) (sector->y / *t_size);
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
   glScalef(0.0015f, 0.0015f, 0.0015f);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
-    xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) * TERRAIN_SQUARE_SIZE + x * TERRAIN_SQUARE_SIZE;
-    zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) * TERRAIN_SQUARE_SIZE + z * TERRAIN_SQUARE_SIZE;
+    xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) * *t_size + x * *t_size;
+    zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) * *t_size + z * *t_size;
     dist = distance2d(camerapos, mv3f(xpos, 0.0f, zpos));
-    x1 = xpos + TERRAIN_SQUARE_SIZE / 2;
-    x2 = xpos - TERRAIN_SQUARE_SIZE / 2;
-    z1 = zpos + TERRAIN_SQUARE_SIZE / 2;
-    z2 = zpos - TERRAIN_SQUARE_SIZE / 2;
+    x1 = xpos + *t_size / 2;
+    x2 = xpos - *t_size / 2;
+    z1 = zpos + *t_size / 2;
+    z2 = zpos - *t_size / 2;
     cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
     while (cull >= 360)
       cull -= 360;
-    if (camerarot.x > 47.0f || cull <= 75 || cull >= 285 || dist < TERRAIN_SQUARE_SIZE * 3.5f) {
+    if (camerarot.x > 47.0f || cull <= 75 || cull >= 285 || dist < *t_size * 3.5f) {
       NEx[xgrid][zgrid] = x1;
       NEz[xgrid][zgrid] = z2;
       temp1 = algorithmicTerrain (NEx[xgrid][zgrid], NEz[xgrid][zgrid]); // color read here

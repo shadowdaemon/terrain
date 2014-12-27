@@ -15,8 +15,8 @@
 #define TERRAIN_SQUARE_SIZE_HALF            250
 #define TERRAIN_STEP_SIZE                   4
 #define TERRAIN_WATER_LEVEL                 0
-#define FOG_END                             TERRAIN_SQUARE_SIZE * TERRAIN_GRID_SIZE * 0.45f
-#define FOG_START                           FOG_END * 0.02f
+#define TERRAIN_SCALE_HEIGHT                9500
+#define LOWER_CLOUD_HEIGHT                  4500
 #define T_TYPE_NULL                         0
 #define T_TYPE_CRATER                       1
 #define T_TYPE_VILLAGE                      2
@@ -141,11 +141,11 @@ struct airunit {
 
 struct terrain algorithmicTerrain(float x, float z);
 float readTerrainHeight(float x, float y);
-float readTerrainHeightPlane(float x, float z, struct v3f *normal);
+float readTerrainHeightPlane(float x, float z, struct v3f *normal, int t_size);
 unsigned char readTerrainType(float x, float z);
-void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, char *swapb);
+void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int *t_size, char *swapb);
 const struct aiScene *loadModel(const char *file);
 const struct aiScene *loadTextQuad(const char *file);
 void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfloat size, GLuint alpha);
 void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads, GLuint *textures, GLuint *shaders,
-  struct v3f camerapos, struct v3f camerarot, struct v2f *sector, float *fps, struct airunit *airunits);
+  struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int *t_size, float *fps, struct airunit *airunits);
