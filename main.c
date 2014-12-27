@@ -392,6 +392,8 @@ void keyboardInput(GLFWwindow *window, char *direction)
     *direction = INPUT_DOWN_RIGHT;
   else if (x == -1 && z == -1)
     *direction = INPUT_DOWN_LEFT;
+  if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+    *direction += INPUT_LEFT_SHIFT;
   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS || glfwGetKey(window, ' ') == GLFW_PRESS)
     *direction += INPUT_SPACE;
 }
@@ -399,12 +401,18 @@ void keyboardInput(GLFWwindow *window, char *direction)
 
 void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float speed, int t_size)
 {
-  struct v3f normal;
-  float ground;
+  struct v3f normal, pos = mv3f(0.0f, 0.0f, 0.0f);
+  float ground, temp;
 
-  if ((direction | INPUT_SPACE) == direction)
+  ground = readTerrainHeightPlane(camerapos->x, camerapos->z, &normal, t_size);
+  ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
+  ground += 1.8f;
+  degreestovector3d(&pos, camerarot, mv3f(180.0f, 180.0f, 0.0f), 1.0f);
+  temp = distance3d(pos, normalize3d(normal)) + 0.3f;
+  speed *= temp;
+  if ((direction | INPUT_LEFT_SHIFT) == direction)
     speed *= 50.0f;
-  switch (direction & ~INPUT_SPACE) {
+  switch (direction & ~(INPUT_LEFT_SHIFT | INPUT_SPACE)) {
   case INPUT_UP:
     degreestovector3d(camerapos, camerarot, mv3f(0.0f, 0.0f, 0.0f), -speed);
     break;
@@ -433,9 +441,6 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
     break;
   default: break;
   }
-  ground = readTerrainHeightPlane(camerapos->x, camerapos->z, &normal, t_size);
-  ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
-  ground += 1.8f;
   camerapos->y = ground;
 }
 
@@ -666,7 +671,7 @@ int main(int argc, char *argv[])
   GLuint textures[7], shaders[5];
   GLFWwindow *window = NULL;
   int i, t_size;
-  char direction, state = 1;
+  char direction, state = 0;
   float fps = 0.0f;
   struct v2f sector    = {0.0f, 0.0f};
   struct v3f camerarot = {0.0f, 0.0f, 0.0f};

@@ -44,6 +44,7 @@
 #define INPUT_VERT_UP                       9
 #define INPUT_VERT_DOWN                     10
 #define INPUT_SPACE                         16
+#define INPUT_LEFT_SHIFT                    32
 #define UNIT_AIRFIGHTER                     0
 
 #define glActiveTexureARB _ActiveTexureARB
