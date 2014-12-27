@@ -430,14 +430,14 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
     if (camerarot.x > 47.0f || cull <= 75 || cull >= 285 || dist < *t_size * 3.5f) {
       NEx[xgrid][zgrid] = x1;
       NEz[xgrid][zgrid] = z2;
-      temp1 = algorithmicTerrain (NEx[xgrid][zgrid], NEz[xgrid][zgrid]); // color read here
+      temp1 = algorithmicTerrain (NEx[xgrid][zgrid], NEz[xgrid][zgrid]);
       NEy[xgrid][zgrid] = (int) temp1.height;
       NWx[xgrid][zgrid] = x2;
       NWz[xgrid][zgrid] = z2;
       NWy[xgrid][zgrid] = (int) readTerrainHeight (NWx[xgrid][zgrid], NWz[xgrid][zgrid]);
       SEx[xgrid][zgrid] = x1;
       SEz[xgrid][zgrid] = z1;
-      temp2 = algorithmicTerrain (SEx[xgrid][zgrid], SEz[xgrid][zgrid]); // color read here too..
+      temp2 = algorithmicTerrain (SEx[xgrid][zgrid], SEz[xgrid][zgrid]);
       SEy[xgrid][zgrid] = (int) temp2.height;
       SWx[xgrid][zgrid] = x2;
       SWz[xgrid][zgrid] = z1;
@@ -470,8 +470,8 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
         SEcolorB[xgrid][zgrid] = 88 + x1;
         break;
       case T_TYPE_DIRT:
-        SEcolorR[xgrid][zgrid] = 111;
-        SEcolorG[xgrid][zgrid] = 108;
+        SEcolorR[xgrid][zgrid] = 103;
+        SEcolorG[xgrid][zgrid] = 111;
         SEcolorB[xgrid][zgrid] = 63;
         break;
       case T_TYPE_CRATER:
@@ -545,7 +545,7 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
         NEcolorB[xgrid][zgrid] = 25;
         break;
       case T_TYPE_FOREST1:
-        NEcolorR[xgrid][zgrid] = 51;
+        NEcolorR[xgrid][zgrid] = 48;
         NEcolorG[xgrid][zgrid] = 90;
         NEcolorB[xgrid][zgrid] = 27;
         break;
