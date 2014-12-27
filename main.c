@@ -154,7 +154,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   glfwMakeContextCurrent(window);
   glfwSetKeyCallback(window, keyInputGLFW);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-  glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+  glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_FALSE);
   glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GL_TRUE);
   glfwSwapInterval(1);
   glEnable(GL_DEPTH_TEST);
@@ -660,7 +660,7 @@ void updateAirUnits(struct airunit *units, int t_size)
 {
   int i;
   struct v3f pos = units[0].pos;
-  //struct v3f pos = mv3f(110000.0f, 0.0f, 55000.0f);
+  /* struct v3f pos = mv3f(110000.0f, 0.0f, 55000.0f); */
 
   for (i = 1; i < 15; i++) {
     if (distance2d(units[i].pos, pos) < 2500.0f)
@@ -676,7 +676,7 @@ int main(int argc, char *argv[])
   GLuint textures[7], shaders[5];
   GLFWwindow *window = NULL;
   int i, t_size;
-  char direction, state = 0;
+  char direction, state = 1;
   float fps = 0.0f;
   struct v2f sector    = {0.0f, 0.0f};
   struct v3f camerarot = {0.0f, 0.0f, 0.0f};
@@ -716,11 +716,16 @@ int main(int argc, char *argv[])
       if (state == 0) {
         mouseLook(window, &camerarot);
         movement(&camerapos, camerarot, direction, 1.0f, t_size);
+        if (distance3d(camerapos, airunits[0].pos) < 10.0f && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
+          state = 1;
       }
       else {
         mouseLook(window, &airunits[0].rot);
         flyMovement(&airunits[0], direction, t_size);
         cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot, t_size);
+        if (airunits[0].thrust == 0 && airunits[0].height < 3.0f && airunits[0].speed < 2.0f
+            && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
+          state = 0;
       }
       updateAirUnits(airunits, t_size);
       updateCamera(camerarot);
