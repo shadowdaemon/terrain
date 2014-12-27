@@ -44,7 +44,7 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
 {
   struct v3f normal;
   int xgrid, zgrid, x1, z1, cull, density;
-  const int size = t_size * 0.2f; /* Size of generation sector, also affects density. */
+  const int size = t_size * 0.15f; /* Size of generation sector, also affects density. */
   float x, z, xpos = 0.0f, zpos = 0.0f, height, dist;
   unsigned char type;
   GLubyte alpha;
@@ -116,7 +116,7 @@ void renderBuildings(struct aiScene *scene, struct v3f camerapos, struct v3f cam
 {
   struct v3f normal;
   int xgrid, zgrid, x1, z1, cull;
-  const int size = t_size * 0.2f; /* Size of generation sector, also affects density. */
+  const int size = t_size * 0.15f; /* Size of generation sector, also affects density. */
   float x, z, xpos = 0.0f, zpos = 0.0f, height, dist;
   unsigned char type;
   GLubyte alpha;
@@ -312,7 +312,6 @@ void renderMoon(struct v3f camerapos, GLint pos[4], float size)
   glRotatef(r, 0.0f, 0.0f, 1.0f);
   glColor3ub(210, 210, 212);
   glBegin(GL_TRIANGLE_FAN);
-  //glVertex3f(0.0f, 0.0f, 0.0f);
   glVertex3f(size*0.5f, 0.0f, size*0.4f);
   glColor4ub(203, 203, 206, 200);
   for (i = 0; i <= 360; i += 15) {
@@ -341,13 +340,13 @@ void renderExhaust(struct v3f pos, struct v3f rot, float scale, float size)
   glRotatef(rot.z, 0.0f, 0.0f, 1.0f);
   glBegin(GL_TRIANGLE_FAN);
   glColor4ub(195, 110, 30, 185);
-  glVertex3f(1.4286f, 1.4286f, -size * 10.0f - 14.857f);
+  glVertex3f(1.4286f, 1.4286f, -powf(size, 1.5f) * 5.0f - 14.857f * size);
   glColor4ub(255, 225, 90, 30);
   for (i = 0; i <= 360; i += 60) {
     r = i / PIx180;
     x = -size * sinf(r);
     y = size * cosf(r);
-    glVertex3f(x + 1.428f, y + 1.428f, -4.857f);
+    glVertex3f(x + 1.4286f, y + 1.428f, -4.857f);
   }
   glEnd();
   glBegin(GL_POLYGON);
@@ -361,13 +360,13 @@ void renderExhaust(struct v3f pos, struct v3f rot, float scale, float size)
   glEnd();
   glBegin(GL_TRIANGLE_FAN);
   glColor4ub(195, 110, 30, 185);
-  glVertex3f(-1.4286f, 1.4286f, -size * 10.0f - 14.857f);
+  glVertex3f(-1.4286f, 1.4286f, -powf(size, 1.5f) * 5.0f - 14.857f * size);
   glColor4ub(255, 225, 90, 30);
   for (i = 0; i <= 360; i += 60) {
     r = i / PIx180;
     x = -size * sinf(r);
     y = size * cosf(r);
-    glVertex3f(x - 1.428f, y + 1.428f, -4.857f);
+    glVertex3f(x - 1.4286f, y + 1.428f, -4.857f);
   }
   glEnd();
   glBegin(GL_POLYGON);
