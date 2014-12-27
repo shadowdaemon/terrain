@@ -9,10 +9,9 @@ void updateFogAndFrustum(GLfloat *clear, struct v3f camerapos, int t_size)
   static float fog_start;
   float ground = readTerrainHeightPlane(camerapos.x, camerapos.z, &pos, t_size);
   float fstart;
-  float temp = camerapos.y - TERRAIN_SCALE_HEIGHT;
+  float temp = fabs(TERRAIN_SCALE_HEIGHT - camerapos.y) * 0.002f + 0.2f;
 
-  if (temp < 1250.0f && camerapos.y > TERRAIN_SCALE_HEIGHT)
-    fog_end -= (1 - temp / 1250.0f) * (fog_end * 0.66667f);
+  fog_end *= temp > 1.0f ? 1.0f : temp;
   if (camerapos.y < LOWER_CLOUD_HEIGHT)
     temp = 0.0f;
   else if (camerapos.y < TERRAIN_SCALE_HEIGHT)
