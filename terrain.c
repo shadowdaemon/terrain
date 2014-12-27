@@ -337,21 +337,36 @@ struct terrain algorithmicTerrain(float x, float z)
   temp.height = algorithmicTerrainHeight1(z * 0.1f, x * 0.1f);
   temp.height += algorithmicTerrainHeight6a(z * 0.3f, x * 0.3f) * 2.5f;
   temp.type = T_TYPE_NULL;
-  /*x1 = 1.0f - fabs(sinf(x * 0.000056f));
-  if (x1 < 0)
-    x1 = 0;
-  else if (x1 > 1)
-    x1 = 1;
-  z1 = 1.0f - fabs(sinf(z * 0.000059f));
-  if (z1 < 0)
-    z1 = 0;
-  else if (z1 > 1)
-    z1 = 1;
-    temp.height += (algorithmicTerrainHeight6b(z * 0.17f, x * 0.17f) + 1500) * 3.5f * x1 * z1;*/
-  //temp.height += algorithmicTerrainHeight6a(z * 0.3f, x * 0.3f) * 2.5f * x1 * z1;
-  //if (x1 * z1 > 0.3f)
-  //temp.type = T_TYPE_FOREST1;
-  //temp.height += algorithmicTerrainHeight1(z * 0.6f, x * 0.6f, temp.height) * 1.35f;
+  if (temp.height > 0 && temp.height < 3000) {
+    x1 = 1.0f - fabs(sinf(x * 0.00056f + 9900));
+    if (x1 < 0)
+      x1 = 0;
+    else if (x1 > 1)
+      x1 = 1;
+    z1 = 1.0f - fabs(sinf(z * 0.00059f));
+    if (z1 < 0)
+      z1 = 0;
+    else if (z1 > 1)
+      z1 = 1;
+    temp.height += (1500 - fabs(1500 - temp.height)) * x1 * z1 * 0.37f;
+    if (x1 * z1 > 0.3f)
+      temp.type = T_TYPE_FOREST1;
+  }
+  if (temp.height > 0 && temp.height < 1300) {
+    x1 = 0.571f - sinf(x * 0.00047f - 9500);
+    if (x1 < 0)
+      x1 = 0;
+    else if (x1 > 1)
+      x1 = 1;
+    z1 = 0.587f - sinf(z * 0.00034f);
+    if (z1 < 0)
+      z1 = 0;
+    else if (z1 > 1)
+      z1 = 1;
+    temp.height += (650 - fabs(650 - temp.height)) * x1 * z1 * 0.51f;
+    if (temp.height > 1200 && x1 * z1 > 0.65f)
+      temp.type = T_TYPE_VILLAGE;
+  }
   if (temp.type == T_TYPE_NULL)
     temp.type = calculateTerrainType(temp.height);
 
@@ -381,7 +396,6 @@ float readTerrainHeightPlane(float x, float z, struct v3f *normal, int t_size)
 
   for (xgrid = 0, x2 = 5000000; xgrid < 4; xgrid++) {
     x1 = (xgrid - 2) * t_size + x - (int) x % t_size;
-    //x1 = (xgrid - 2) * t_size + snap(x, t_size);
     x2 = fabs(x - x1) < x2 ? fabs(x - x1) : x2;
     if (fabs(x - x1) > x2)
       break;
@@ -390,7 +404,6 @@ float readTerrainHeightPlane(float x, float z, struct v3f *normal, int t_size)
   }
   for (zgrid = 0, z2 = 5000000; zgrid < 4; zgrid++) {
     z1 = (zgrid - 2) * t_size + z - (int) z % t_size;
-    //z1 = (zgrid - 2) * t_size + snap(z, t_size);
     z2 = fabs(z - z1) < z2 ? fabs(z - z1) : z2;
     if (fabs(z - z1) > z2)
       break;
@@ -431,10 +444,6 @@ void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
     *swapb = 0;
   }
 }
-
-
-void selectPosition(void)
-{}
 
 
 void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
