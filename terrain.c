@@ -16,7 +16,7 @@ float algorithmicTerrainHeight1(float x, float z, float height)
   z += 14213.5f;
   h1 = 4000 - fabs(4000 - (int)(x*0.0008f) % 8000);
   h2 = 5000 - fabs(5000 - (int)(z*0.00007f) % 10000);
-  height += 20000 - fabs(a1) - fabs(a2) - fabs(g1) - fabs(g2) + h1 * 5.2f + h2 * 6.7f;
+  height += 20000 - fabs(a1) - pos(a2) - fabs(g1) - fabs(g2) + h1 * 5.2f + h2 * 6.7f;
   x += 2331.2f;
   z += 5213.3f;
   if (height > 2000 || height < 1500) {
@@ -252,9 +252,9 @@ struct terrain algorithmicTerrain(float x, float z)
     dist = dist < 0 ? 0 : dist > 1 ? 1 : dist;
     temp.height += (3470.0f - temp.height) * dist * 0.8f;
   }
+  temp.height -= temp.height < 500 ? (temp.height - 500) * 0.71f : 0;
   temp.height -= temp.height < 1500 ? (temp.height - 1500) * 0.32f : 0;
   temp.height -= temp.height < 3000 ? (temp.height - 3000) * 0.46f : 0;
-  temp.height -= temp.height > 8000 ? (temp.height - 8000) * 0.61f : 0;
   if (temp.height > 0 && temp.height < 1300) {
     x1 = 0.571f - sinf(x * 0.00047f - 9500);
     if (x1 < 0)
