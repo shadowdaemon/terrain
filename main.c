@@ -401,14 +401,17 @@ void keyboardInput(GLFWwindow *window, char *direction)
 
 void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float speed, int t_size)
 {
-  struct v3f normal, pos = mv3f(0.0f, 0.0f, 0.0f);
+  struct v3f normal, pos;
   float ground, temp;
 
+  pos = *camerapos;
+  degreestovector3d(&pos, camerarot, mv3f(0.0f, 180.0f, 0.0f), 1.0f);
+  temp = readTerrainHeightPlane(pos.x, pos.z, &normal, t_size);
   ground = readTerrainHeightPlane(camerapos->x, camerapos->z, &normal, t_size);
-  degreestovector3d(&pos, camerarot, mv3f(180.0f, 180.0f, 0.0f), 1.0f);
-  temp = distance3d(pos, normalize3d(normal)) + 0.3f;
-  temp = temp > 1.0f ? 1.0f : temp;
-  speed *= temp;
+  if (temp > ground + 1.0f)
+    speed = 0.0f;
+  else if (temp > ground)
+    speed *= 1 - ((temp - ground) / 1.0f);
   if ((direction | INPUT_LEFT_SHIFT) == direction)
     speed *= 50.0f;
   switch (direction & ~(INPUT_LEFT_SHIFT | INPUT_SPACE)) {
