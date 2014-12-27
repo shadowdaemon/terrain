@@ -332,7 +332,7 @@ void renderExhaust(struct v3f pos, struct v3f rot, float scale, float size)
   float r, x, y;
 
   glMateriali(GL_FRONT, GL_SHININESS, 110);
-  //glMateriali(GL_FRONT, GL_EMISSION, 78);
+  /* glMateriali(GL_FRONT, GL_EMISSION, 78); */
   glPushMatrix();
   glTranslatef(pos.x, pos.y, pos.z);
   glScalef(scale, scale, scale);
@@ -343,7 +343,16 @@ void renderExhaust(struct v3f pos, struct v3f rot, float scale, float size)
   glColor4ub(195, 110, 30, 185);
   glVertex3f(1.4286f, 1.4286f, -size * 10.0f - 14.857f);
   glColor4ub(255, 225, 90, 30);
-  for (i = 0; i <= 360; i += 120) {
+  for (i = 0; i <= 360; i += 60) {
+    r = i / PIx180;
+    x = -size * sinf(r);
+    y = size * cosf(r);
+    glVertex3f(x + 1.428f, y + 1.428f, -4.857f);
+  }
+  glEnd();
+  glBegin(GL_POLYGON);
+  glColor4ub(255, 225, 90, 70);
+  for (i = 360; i >= 0; i -= 60) {
     r = i / PIx180;
     x = -size * sinf(r);
     y = size * cosf(r);
@@ -354,7 +363,16 @@ void renderExhaust(struct v3f pos, struct v3f rot, float scale, float size)
   glColor4ub(195, 110, 30, 185);
   glVertex3f(-1.4286f, 1.4286f, -size * 10.0f - 14.857f);
   glColor4ub(255, 225, 90, 30);
-  for (i = 0; i <= 360; i += 120) {
+  for (i = 0; i <= 360; i += 60) {
+    r = i / PIx180;
+    x = -size * sinf(r);
+    y = size * cosf(r);
+    glVertex3f(x - 1.428f, y + 1.428f, -4.857f);
+  }
+  glEnd();
+  glBegin(GL_POLYGON);
+  glColor4ub(255, 225, 90, 70);
+  for (i = 360; i >= 0; i -= 60) {
     r = i / PIx180;
     x = -size * sinf(r);
     y = size * cosf(r);
@@ -362,7 +380,7 @@ void renderExhaust(struct v3f pos, struct v3f rot, float scale, float size)
   }
   glEnd();
   glPopMatrix();
-  //glMateriali(GL_FRONT, GL_EMISSION, 0);
+  /* glMateriali(GL_FRONT, GL_EMISSION, 0); */
 }
 
 
@@ -488,7 +506,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glMaterialfv(GL_FRONT, GL_DIFFUSE, color);
   glMaterialfv(GL_FRONT, GL_AMBIENT, color);
   glMaterialfv(GL_FRONT, GL_SPECULAR, color);
-  //glMaterialfv(GL_FRONT, GL_EMISSION, color);
+  /* glMaterialfv(GL_FRONT, GL_EMISSION, color); */
   color[0] = 0.4588235294117647f * temp;
   color[0] += lpos[0] > 800 ? (lpos[0] - 800) * 0.005f * 0.1f : 0;
   color[1] = 0.5176470588235295f * (lpos[1] > -400 ? (lpos[1] + 400) / 1400.0f : 0);
