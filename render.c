@@ -245,7 +245,7 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, GLubyte alpha, floa
   int temp;
 
   size = TERRAIN_GRID_SIZE * t_size * 0.5f;
-  temp = fabs(height - camerapos.y) * 0.5f;
+  temp = fabs(height - camerapos.y) * 0.1f;
   temp = temp > alpha ? alpha : temp;
   glMateriali(GL_FRONT, GL_SHININESS, 31);
   glDisable(GL_CULL_FACE);
