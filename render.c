@@ -568,7 +568,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   /* renderNumber(camerapos->z, textquads, mv2f(RESX - 100, 70)); */
   renderNumber(fps2, textquads, mv2f(100, 20));
   renderNumber(airunits[0].height, textquads, mv2f(RESX - 100, 120));
-  renderNumber(airunits[0].speed * fps2, textquads, mv2f(RESX - 100, 70));
+  renderNumber(airunits[0].speed * 10.0f, textquads, mv2f(RESX - 100, 70));
   renderNumber(airunits[0].thrust * 100, textquads, mv2f(RESX - 100, 20));
   glReadBuffer(GL_BACK);
   glBindTexture(GL_TEXTURE_2D, textures[4]);
@@ -582,12 +582,12 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glUniform1fARB(glGetUniformLocationARB(shaders[0], "numcolors"), 64.0f);
   glUniform4fvARB(glGetUniformLocationARB(shaders[0], "clear"), 0, color);
   sceneQuad();
-  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0);
-  glUseProgramARB(shaders[1]);
-  glUniform1iARB(glGetUniformLocationARB(shaders[1], "scene"), 4);
-  glUniform2fARB(glGetUniformLocationARB(shaders[1], "steps"), 2000.0f, 2000.0f);
-  glUniform4fvARB(glGetUniformLocationARB(shaders[1], "clear"), 0, color);
-  sceneQuad();
+  /* glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0); */
+  /* glUseProgramARB(shaders[1]); */
+  /* glUniform1iARB(glGetUniformLocationARB(shaders[1], "scene"), 4); */
+  /* glUniform2fARB(glGetUniformLocationARB(shaders[1], "steps"), 2000.0f, 2000.0f); */
+  /* glUniform4fvARB(glGetUniformLocationARB(shaders[1], "clear"), 0, color); */
+  /* sceneQuad(); */
   glUseProgramARB(0);
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
