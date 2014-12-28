@@ -431,6 +431,14 @@ float readTerrainHeightPlane(float x, float z, struct v3f *normal, int t_size)
 }
 
 
+float readTerrainHeightPlane2(float x, float z, int t_size)
+{
+  struct v3f normal;
+
+  return readTerrainHeightPlane(x, z, &normal, t_size);
+}
+
+
 void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int t_size, char *swapb)
 {
   if (camerapos.x > (sector->x + TERRAIN_STEP_SIZE * t_size) ||

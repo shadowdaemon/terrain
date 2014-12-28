@@ -690,6 +690,7 @@ int main(int argc, char *argv[])
     for (i = 0; i < 15; i++) {
       airunits[i].type = UNIT_AIRFIGHTER;
       airunits[i].pos.x = (i - 5) * 50;
+      airunits[i].pos.y = readTerrainHeightPlane2(airunits[i].pos.x, airunits[i].pos.z, t_size);
     }
     scene[0] = *loadModel("data/models/tree1.obj");
     scene[1] = *loadModel("data/models/tree2.obj");

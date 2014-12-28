@@ -143,6 +143,7 @@ struct airunit {
 struct terrain algorithmicTerrain(float x, float z);
 float readTerrainHeight(float x, float y);
 float readTerrainHeightPlane(float x, float z, struct v3f *normal, int t_size);
+float readTerrainHeightPlane2(float x, float z, int t_size);
 unsigned char readTerrainType(float x, float z);
 void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int *t_size, char *swapb);
 const struct aiScene *loadModel(const char *file);
