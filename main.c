@@ -350,8 +350,8 @@ void mouseLook(GLFWwindow *window, struct v3f *camerarot)
   while (camerarot->y < 0.0f)
     camerarot->y += 360.0f;
   /* Mouse x, y and view x, y swapped here. */
-  camerarot->y = (float) (mouse_pos.x * mouse_sensitivity);
-  camerarot->x = (float) (mouse_pos.y * mouse_sensitivity);
+  camerarot->y = mouse_pos.x * mouse_sensitivity;
+  camerarot->x = mouse_pos.y * mouse_sensitivity;
 }
 
 
@@ -720,12 +720,15 @@ int main(int argc, char *argv[])
           state = 1;
       }
       else {
-        mouseLook(window, &airunits[0].rot);
+        if (airunits[0].height > 3.0f)
+          mouseLook(window, &airunits[0].rot);
         flyMovement(&airunits[0], direction, t_size);
         cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot, t_size);
         if (airunits[0].thrust == 0 && airunits[0].height < 3.0f && airunits[0].speed < 2.0f
-            && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
+            && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
           state = 0;
+          airunits[0].vtol_thrust = 0;
+        }
       }
       updateAirUnits(airunits, t_size);
       updateCamera(camerarot);

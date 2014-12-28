@@ -9,7 +9,7 @@ void updateFogAndFrustum(GLfloat *clear, struct v3f camerapos, int t_size)
   static float fog_start;
   float ground = readTerrainHeightPlane(camerapos.x, camerapos.z, &pos, t_size);
   float fstart;
-  float temp = fabs(TERRAIN_SCALE_HEIGHT - camerapos.y) * 0.002f + 0.2f;
+  float temp = fabs(TERRAIN_SCALE_HEIGHT - camerapos.y) * 0.008f + 0.2f;
 
   fog_end *= temp > 1.0f ? 1.0f : temp;
   if (camerapos.y < LOWER_CLOUD_HEIGHT)
@@ -70,10 +70,10 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
       x1 = x1 % 1076;
       switch (type) {
       case T_TYPE_GRASS1:
-        density = 310;
+        density = 210;
         break;
       case T_TYPE_GRASS2:
-        density = 427;
+        density = 327;
         break;
       case T_TYPE_GRASS3:
         density = 201;
@@ -82,13 +82,13 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
         density = 103;
         break;
       case T_TYPE_FOREST1:
-        density = 770;
+        density = 470;
         break;
       default:
         density = 170;
       }
       if ((dist < VIEW_DISTANCE || dist < t_size * 10) && x1 < density) {
-        if (height > TERRAIN_WATER_LEVEL + 50 && height < 2900 && type != T_TYPE_DIRT) {
+        if (height > TERRAIN_WATER_LEVEL + 50 && height < 3200 && type != T_TYPE_DIRT) {
           if (dist < VIEW_DISTANCE_HALF)
             alpha = 255;
           else if (dist < VIEW_DISTANCE)
@@ -96,10 +96,10 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
           else
             alpha = 0;
           drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
-          if (type == T_TYPE_FOREST1)
-            drawModel((const struct aiScene *) &scene[(x1 + 2) % 6], mv3f(xpos - 20,
-              readTerrainHeightPlane(xpos - 20, zpos - 23, &normal, t_size), zpos - 23),
-                mv3f(0, x1, 0), 0.333f, alpha);
+          /* if (type == T_TYPE_FOREST1) */
+          /*   drawModel((const struct aiScene *) &scene[(x1 + 2) % 6], mv3f(xpos - 20, */
+          /*     readTerrainHeightPlane(xpos - 20, zpos - 23, &normal, t_size), zpos - 23), */
+          /*       mv3f(0, x1, 0), 0.333f, alpha); */
         }
       }
     }
@@ -566,8 +566,8 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glBindTexture(GL_TEXTURE_2D, textures[6]);
   /* renderNumber(camerapos->x, textquads, mv2f(RESX - 100, 120)); */
   /* renderNumber(camerapos->z, textquads, mv2f(RESX - 100, 70)); */
-  /* renderNumber(fps2, textquads, mv2f(RESX - 100, 20)); */
-  renderNumber(airunits[0].pos.y, textquads, mv2f(RESX - 100, 120));
+  renderNumber(fps2, textquads, mv2f(100, 20));
+  renderNumber(airunits[0].height, textquads, mv2f(RESX - 100, 120));
   renderNumber(airunits[0].speed * fps2, textquads, mv2f(RESX - 100, 70));
   renderNumber(airunits[0].thrust * 100, textquads, mv2f(RESX - 100, 20));
   glReadBuffer(GL_BACK);
