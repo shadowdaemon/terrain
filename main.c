@@ -458,17 +458,18 @@ void flyMovement(struct airunit *unit, char input, int t_size)
 {
   struct v3f pos = mv3f(0.0f, 0.0f, 0.0f);
   float ground, max_thrust, max_vtol_thrust, thrust_step,
-    thrust_ceiling, tlapse, drag, lift, glide, pressure, temp;
+    thrust_ceiling, tlapse, aero, drag, lift, glide, pressure, temp;
 
   switch (unit->type) {
   case UNIT_AIRFIGHTER:
-    max_thrust = 2.5f;
-    max_vtol_thrust = 0.52f;
+    max_thrust = WORLD_GRAVITY + 0.2f;
+    max_vtol_thrust = WORLD_GRAVITY + 0.12f;
     thrust_step = 0.01f;
     thrust_ceiling = 21000.0f;
-    drag = 0.02f;
-    lift = 0.06f;
-    glide = 0.035f;
+    aero = 0.04f; /* This needs to be less than drag. */
+    drag = 0.05f;
+    lift = 0.025f;
+    glide = 0.01f;
   }
   switch (input & ~INPUT_SPACE) {
   case INPUT_UP:
@@ -503,6 +504,9 @@ void flyMovement(struct airunit *unit, char input, int t_size)
   }
   ground = readTerrainHeightPlane(unit->pos.x, unit->pos.z, &pos, t_size);
   ground = ground < TERRAIN_WATER_LEVEL + 7 ? TERRAIN_WATER_LEVEL + 7 : ground;
+  /* Airspeed.  The speed of sound is 340.29 metres per second. */
+  unit->speed = distance3d(mv3f(0.0f, 0.0f, 0.0f), unit->vec);
+  pressure = unit->pos.y < 30000.0f ? (30000.0f - unit->pos.y) / 30000.0f : 0.0f;
   /* Thrust lapse, atmospheric density.  See https://en.wikipedia.org/wiki/Jet_engine_performance */
   tlapse = unit->pos.y < thrust_ceiling ? (thrust_ceiling - unit->pos.y) / (thrust_ceiling * 0.7f) : 0.0f;
   tlapse = tlapse > 1.0f ? 1.0f : tlapse;
@@ -516,7 +520,7 @@ void flyMovement(struct airunit *unit, char input, int t_size)
     unit->vtol_thrust = unit->vtol_thrust - 0.025f > 0.0f ? unit->vtol_thrust - 0.025f : 0.0f;
   /* Normal thrust. */
   unit->thrust = unit->thrust > max_thrust ? max_thrust : unit->thrust < 0.0f ? 0.0f : unit->thrust;
-  degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), unit->thrust * tlapse);
+  degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), unit->thrust * tlapse + unit->speed * aero * pressure);
   /* Update position and vector. */
   unit->vec.x += pos.x;
   unit->vec.y += pos.y - WORLD_GRAVITY;
@@ -524,21 +528,22 @@ void flyMovement(struct airunit *unit, char input, int t_size)
   unit->pos.x += unit->vec.x;
   unit->pos.y += unit->vec.y;
   unit->pos.z += unit->vec.z;
-  /* Airspeed.  The speed of sound is 340.29 metres per second. */
-  unit->speed = distance3d(mv3f(0.0f, 0.0f, 0.0f), unit->vec);
   /* Drag. */
   pos = mv3f(0.0f, 0.0f, 0.0f);
   degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), 1.0f);
-  pressure = unit->pos.y < 30000.0f ? (30000.0f - unit->pos.y) / 30000.0f : 0.0f;
-  temp = distance3d(pos, normalize3d(unit->vec));
-  drag = drag * powf(pressure, 2.0f) * (unit->speed + 20.0f) * temp * 0.1f;
+  temp = 1 - distance3d(pos, normalize3d(unit->vec)) / 2.0f;
+  drag = drag * (pressure + 0.01f) * temp;
+  /* if (drag < 0.0f) */
+  /*   drag = 0.0f; */
+  /* else if (drag > 0.9f) */
+  /*   drag = 0.9f; */
   unit->vec.x -= unit->vec.x * drag;
   unit->vec.y -= unit->vec.y * drag;
   unit->vec.z -= unit->vec.z * drag;
   /* Lift and glide. */
   pos = mv3f(0.0f, 0.0f, 0.0f);
   lift *= fabs(unit->rot.x) < 50.0f ? (50.0f - fabs(unit->rot.x)) / 50.0f : 0.0f;
-  degreestovector3d(&pos, unit->rot, mv3f(90.0f, 180.0f, 0.0f), sqrt(unit->speed) * (2 - temp) * pressure * lift);
+  degreestovector3d(&pos, unit->rot, mv3f(90.0f, 180.0f, 0.0f), sqrt(unit->speed) * temp * pressure * lift);
   temp = unit->vec.y + WORLD_GRAVITY;
   if (temp < 0.0f)
     degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), -temp * pressure * glide);
@@ -735,7 +740,7 @@ int main(int argc, char *argv[])
           airunits[0].vtol_thrust = 0;
         }
       }
-      updateAirUnits(airunits, t_size);
+      /* updateAirUnits(airunits, t_size); */
       updateCamera(camerarot);
       glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
       render(window, scene, textquads, textures, shaders, camerapos, camerarot,
