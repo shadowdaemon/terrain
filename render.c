@@ -87,7 +87,7 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
       default:
         density = 170;
       }
-      if ((dist < VIEW_DISTANCE || dist < t_size * 10) && x1 < density) {
+      if ((dist < VIEW_DISTANCE || dist < t_size * 5.0f) && x1 < density) {
         if (height > TERRAIN_WATER_LEVEL + 50 && height < 3200 && type != T_TYPE_DIRT) {
           if (dist < VIEW_DISTANCE_HALF)
             alpha = 255;
@@ -139,7 +139,7 @@ void renderBuildings(struct aiScene *scene, struct v3f camerapos, struct v3f cam
       dist = distance3d(camerapos, mv3f(xpos, height, zpos));
       x1 = x1 * x1 + z1 * z1;
       x1 = x1 % 3176;
-      if ((dist < VIEW_DISTANCE || dist < t_size * 10) && x1 < 77/* && distance3d(mv3f(normal.x, fabs(normal.y), normal.z), mv3f(0, 1, 0)) < 1.0f*/) {
+      if ((dist < VIEW_DISTANCE || dist < t_size * 5.0f) && x1 < 77) {
         if (type == T_TYPE_VILLAGE) {
           if (dist < VIEW_DISTANCE_HALF)
             alpha = 255;
@@ -536,7 +536,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_LIGHTING);
   for (i = 0; i < 15; i++)
-    renderExhaust(airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 0.7f, airunits[i].thrust * 0.8f);
+    renderExhaust(airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 0.7f, airunits[i].thrust * 2.0f);
   /* glEnable(GL_POINT_SPRITE); */
   /* glEnable(GL_PROGRAM_POINT_SIZE); */
   /* glUseProgramARB(shaders[2]); */

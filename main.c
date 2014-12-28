@@ -468,8 +468,8 @@ void flyMovement(struct airunit *unit, char input, int t_size)
     thrust_ceiling = 21000.0f;
     aero = 0.04f; /* This needs to be less than drag. */
     drag = 0.05f;
-    lift = 0.025f;
-    glide = 0.01f;
+    lift = 0.09f;
+    glide = 0.035f;
   }
   switch (input & ~INPUT_SPACE) {
   case INPUT_UP:
