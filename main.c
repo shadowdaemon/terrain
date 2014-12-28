@@ -96,7 +96,6 @@ void linkShader(GLuint *shader, const char *v_file, const char *f_file)
   filelen = fileLength(v_file);
   vertSrc = (GLchar *) malloc(sizeof(GLchar) * filelen);
   loadGLSL(vertSrc, filelen, v_file);
-  // printf("%s\n", vertSrc);
   glShaderSourceARB(vertShader, 1, (const GLchar **) &vertSrc, NULL);
   glCompileShaderARB(vertShader);
   free(vertSrc);
@@ -110,7 +109,6 @@ void linkShader(GLuint *shader, const char *v_file, const char *f_file)
   filelen = fileLength(f_file);
   fragSrc = (GLchar *) malloc(sizeof(GLchar) * filelen);
   loadGLSL(fragSrc, filelen, f_file);
-  // printf("%s\n", fragSrc);
   glShaderSourceARB(fragShader, 1, (const GLchar **) &fragSrc, NULL);
   glCompileShaderARB(fragShader);
   free(fragSrc);
@@ -317,21 +315,27 @@ void updateCamera(struct v3f cameraRot)
 }
 
 
-void cameraTrailMovement(struct v3f *camerapos, struct v3f *camerarot, struct v3f modelpos, struct v3f modelrot, int t_size)
+void cameraTrailMovement(struct v3f *camerapos, struct v3f *camerarot, struct airunit unit, int t_size)
 {
-  struct v3f temppos = modelpos;
-  float ground = 0.0f;
+  struct v3f temppos = unit.pos;
+  float temp = 0.0f;
 
-  degreestovector3d(&temppos, modelrot, mv3f(0, 180, 0), 25.0f);
-  camerapos->x += (temppos.x - camerapos->x) * 0.37f;
-  camerapos->y += (temppos.y - camerapos->y) * 0.37f;
-  camerapos->z += (temppos.z - camerapos->z) * 0.37f;
-  camerarot->x = modelrot.x;
-  camerarot->y = vectorstodegree2d(modelpos, *camerapos);
-  ground = readTerrainHeightPlane(camerapos->x, camerapos->z, &temppos, t_size);
-  ground += 5.0f;
-  ground = ground < TERRAIN_WATER_LEVEL + 10 ? TERRAIN_WATER_LEVEL + 10 : ground;
-  camerapos->y = camerapos->y < ground ? ground : camerapos->y;
+  if (unit.speed > 80.0f) {
+    temp = 0.37f + (unit.speed - 80.0f) * 0.01f;
+    temp = temp > 1.0f ? 1.0f : temp;
+  }
+  else
+    temp = 0.37f;
+  degreestovector3d(&temppos, unit.rot, mv3f(0, 180, 0), 25.0f);
+  camerapos->x -= (camerapos->x - temppos.x) * temp;
+  camerapos->y -= (camerapos->y - temppos.y) * temp;
+  camerapos->z -= (camerapos->z - temppos.z) * temp;
+  camerarot->x = unit.rot.x;
+  camerarot->y = vectorstodegree2d(unit.pos, *camerapos);
+  temp = readTerrainHeightPlane(camerapos->x, camerapos->z, &temppos, t_size);
+  temp += 5.0f;
+  temp = temp < TERRAIN_WATER_LEVEL + 10 ? TERRAIN_WATER_LEVEL + 10 : temp;
+  camerapos->y = camerapos->y < temp ? temp : camerapos->y;
 }
 
 
@@ -724,7 +728,7 @@ int main(int argc, char *argv[])
         if (airunits[0].height > 3.0f)
           mouseLook(window, &airunits[0].rot);
         flyMovement(&airunits[0], direction, t_size);
-        cameraTrailMovement(&camerapos, &camerarot, airunits[0].pos, airunits[0].rot, t_size);
+        cameraTrailMovement(&camerapos, &camerarot, airunits[0], t_size);
         if (airunits[0].thrust == 0 && airunits[0].height < 3.0f && airunits[0].speed < 2.0f
             && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
           state = 0;
