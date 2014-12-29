@@ -49,6 +49,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
   float xpos, zpos, height, dist;
   unsigned char type;
   GLubyte alpha;
+  GLuint color[3];
 
   glMateriali(GL_FRONT, GL_SHININESS, 92);
   x = (int) (sector.x / size);
@@ -108,8 +109,20 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
             if (type == T_TYPE_GRASS1 || type == T_TYPE_GRASS2) {
               if (distance3d(mv3f(0, 1, 0), normalize3d(normal)) < 0.1f)
                 drawModel((const struct aiScene *) &scene[9], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
-              else if (x1 % 2 == 0)
+              else if (x1 % 15 < 5)
                 drawModel((const struct aiScene *) &scene[0], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
+              else if (x1 % 15 == 6) {
+                color[0] = 95; color[1] = 95; color[2] = 95;
+                glBindTexture(GL_TEXTURE_2D, textures[0]);
+                drawModel2((const struct aiScene *) &scene[6], mv3f(xpos, height, zpos), mv3f(x1, z1, 0),
+                  1.8f + (z1 % 10) * 0.23f, color, alpha);
+              }
+              else if (x1 % 15 == 7 && z1 % 7 == 0) {
+                if (distance3d(mv3f(0, 1, 0), normalize3d(normal)) < 0.3f) {
+                  glBindTexture(GL_TEXTURE_2D, textures[5]);
+                  drawModel((const struct aiScene *) &scene[12], mv3f(xpos, height, zpos), mv3f(0, x1 % 90, 0), 0.35f, alpha);
+                }
+              }
               else
                 drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.33f, alpha);
             }
@@ -130,10 +143,18 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
                 drawModel((const struct aiScene *) &scene[2], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.35f, alpha);
             }
             else if (type == T_TYPE_DIRT) {
-              if (x1 % 2 == 0)
+              if (x1 % 3 == 0)
                 drawModel((const struct aiScene *) &scene[5], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
-              else
-                drawModel((const struct aiScene *) &scene[3], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.32f, alpha);
+              else if (x1 % 3 == 1) {
+                color[0] = 103; color[1] = 111; color[2] = 63;
+                glBindTexture(GL_TEXTURE_2D, textures[0]);
+                drawModel2((const struct aiScene *) &scene[6], mv3f(xpos, height, zpos), mv3f(x1, z1, 0),
+                  2.3f + (z1 % 10) * 0.23f, color, alpha);
+              }
+              else {
+                color[0] = 255; color[1] = 230; color[2] = 240;
+                drawModel2((const struct aiScene *) &scene[3], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.32f, color, alpha);
+              }
             }
             else
               drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
@@ -144,7 +165,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
             height = readTerrainHeightPlane(xpos, zpos, &normal, t_size);
             if (distance3d(mv3f(0, 1, 0), normalize3d(normal)) < 0.3f) {
               glBindTexture(GL_TEXTURE_2D, textures[5]);
-              drawModel((const struct aiScene *) &scene[7], mv3f(xpos, height, zpos), mv3f(0, x1 % 90, 0), 0.35f, alpha);
+              drawModel((const struct aiScene *) &scene[12], mv3f(xpos, height, zpos), mv3f(0, x1 % 90, 0), 0.35f, alpha);
             }
           }
         }
@@ -528,7 +549,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   renderGroundScenery(scene, textures, camerapos, camerarot, *sector, *t_size);
   glBindTexture(GL_TEXTURE_2D, textures[3]);
   for (i = 0; i < 15; i++)
-    drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 0.7f, 255);
+    drawModel((const struct aiScene *) &scene[15], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 0.7f, 255);
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_LIGHTING);
   for (i = 0; i < 15; i++)

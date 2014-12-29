@@ -690,7 +690,7 @@ int main(int argc, char *argv[])
   struct v2f sector    = {0.0f, 0.0f};
   struct v3f camerarot = {0.0f, 0.0f, 0.0f};
   struct v3f camerapos = {0.0f, 0.0f, 0.0f};
-  struct aiScene *scene = malloc(sizeof(struct aiScene) * 12);
+  struct aiScene *scene = malloc(sizeof(struct aiScene) * 16);
   struct aiScene *textquads = malloc(sizeof(struct aiScene) * 36);
   struct airunit *airunits = malloc(sizeof(struct airunit) * 16);
 
@@ -707,12 +707,13 @@ int main(int argc, char *argv[])
     scene[3] = *loadModel("data/models/tree4.obj"); /* Bush. */
     scene[4] = *loadModel("data/models/mtree1.obj"); /* Small multi-trees. */
     scene[5] = *loadModel("data/models/stump1.obj"); /* Stump. */
-    scene[6] = *loadModel("data/models/fighter1.obj");
-    scene[7] = *loadModel("data/models/house1.obj");
-     /* These need to be loaded near end of array because of trees appearing above slopes.  See renderGroundScenery(). */
+    scene[6] = *loadModel("data/models/rock1.obj"); /* Rock. */
+     /* These must not be loaded near start of array because of trees appearing above slopes.  See renderGroundScenery(). */
     scene[8] = *loadModel("data/models/mtree2.obj"); /* Sparsely positioned multi-trees. */
     scene[9] = *loadModel("data/models/mtree3.obj"); /* More sparsely positioned multi-trees. */
     scene[10] = *loadModel("data/models/mtree4.obj"); /* Sparsely positioned firs. */
+    scene[12] = *loadModel("data/models/house1.obj");
+    scene[15] = *loadModel("data/models/fighter1.obj");
     textquads[0] = *loadTextQuad("data/models/quads/0.obj");
     textquads[1] = *loadTextQuad("data/models/quads/1.obj");
     textquads[2] = *loadTextQuad("data/models/quads/2.obj");
