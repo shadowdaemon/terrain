@@ -467,8 +467,8 @@ void flyMovement(struct airunit *unit, char input, int t_size)
     thrust_step = 0.01f;
     thrust_ceiling = 21000.0f;
     aero = 0.04f; /* This needs to be less than drag. */
-    drag = 0.05f;
-    lift = 0.09f;
+    drag = 0.053f;
+    lift = 0.095f;
     glide = 0.035f;
   }
   switch (input & ~INPUT_SPACE) {
@@ -709,7 +709,9 @@ int main(int argc, char *argv[])
     scene[5] = *loadModel("data/models/stump1.obj");
     scene[6] = *loadModel("data/models/fighter1.obj");
     scene[7] = *loadModel("data/models/house1.obj");
-    //scene[8] = *loadModel("/home/lonewolf/tmp/test/models/players/rx78/lower.md3");
+     /* Needs to be loaded near end of array because of trees appearing above slopes.  See renderGroundScenery(). */
+    scene[8] = *loadModel("data/models/mtree2.obj");
+    scene[9] = *loadModel("data/models/mtree3.obj");
     textquads[0] = *loadTextQuad("data/models/quads/0.obj");
     textquads[1] = *loadTextQuad("data/models/quads/1.obj");
     textquads[2] = *loadTextQuad("data/models/quads/2.obj");

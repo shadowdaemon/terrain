@@ -100,18 +100,29 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
           if (x1 < density) {
             glBindTexture(GL_TEXTURE_2D, textures[1]);
             if (height < 3200) {
-              drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
+              if (distance3d(mv3f(0, 1, 0), normalize3d(normal)) < 0.1f && (type == T_TYPE_GRASS2 || type == T_TYPE_GRASS1))
+                drawModel((const struct aiScene *) &scene[9], mv3f(xpos, height - 1, zpos), mv3f(0, x1, 0), 0.333f, alpha);
+              else
+                drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
               if (type == T_TYPE_FOREST1) {
                 xpos -= 20;
                 zpos -= 23;
                 height = readTerrainHeightPlane(xpos, zpos, &normal, t_size);
-                drawModel((const struct aiScene *) &scene[(x1 + 2) % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
+                if (distance3d(mv3f(0, 1, 0), normalize3d(normal)) < 0.08f)
+                  drawModel((const struct aiScene *) &scene[9], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
+                else if (distance3d(mv3f(0, 1, 0), normalize3d(normal)) < 0.12f)
+                  drawModel((const struct aiScene *) &scene[8], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
+                else
+                  drawModel((const struct aiScene *) &scene[(x1 + 2) % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
               }
               else if (type == T_TYPE_FOREST2) {
                 xpos -= 20;
                 zpos -= 23;
                 height = readTerrainHeightPlane(xpos, zpos, &normal, t_size);
-                drawModel((const struct aiScene *) &scene[4], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
+                if (distance3d(mv3f(0, 1, 0), normalize3d(normal)) < 0.12f)
+                  drawModel((const struct aiScene *) &scene[8], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
+                else
+                  drawModel((const struct aiScene *) &scene[4], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
               }
             }
             else
