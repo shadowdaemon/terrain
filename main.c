@@ -701,17 +701,18 @@ int main(int argc, char *argv[])
       airunits[i].pos.x = (i - 5) * 50;
       airunits[i].pos.y = readTerrainHeightPlane2(airunits[i].pos.x, airunits[i].pos.z, t_size);
     }
-    scene[0] = *loadModel("data/models/tree1.obj");
-    scene[1] = *loadModel("data/models/tree2.obj");
-    scene[2] = *loadModel("data/models/tree3.obj");
-    scene[3] = *loadModel("data/models/tree4.obj");
-    scene[4] = *loadModel("data/models/mtree1.obj");
-    scene[5] = *loadModel("data/models/stump1.obj");
+    scene[0] = *loadModel("data/models/tree1.obj"); /* Poplar. */
+    scene[1] = *loadModel("data/models/tree2.obj"); /* Normal. */
+    scene[2] = *loadModel("data/models/tree3.obj"); /* Fir. */
+    scene[3] = *loadModel("data/models/tree4.obj"); /* Bush. */
+    scene[4] = *loadModel("data/models/mtree1.obj"); /* Small multi-trees. */
+    scene[5] = *loadModel("data/models/stump1.obj"); /* Stump. */
     scene[6] = *loadModel("data/models/fighter1.obj");
     scene[7] = *loadModel("data/models/house1.obj");
-     /* Needs to be loaded near end of array because of trees appearing above slopes.  See renderGroundScenery(). */
-    scene[8] = *loadModel("data/models/mtree2.obj");
-    scene[9] = *loadModel("data/models/mtree3.obj");
+     /* These need to be loaded near end of array because of trees appearing above slopes.  See renderGroundScenery(). */
+    scene[8] = *loadModel("data/models/mtree2.obj"); /* Sparsely positioned multi-trees. */
+    scene[9] = *loadModel("data/models/mtree3.obj"); /* More sparsely positioned multi-trees. */
+    scene[10] = *loadModel("data/models/mtree4.obj"); /* Sparsely positioned firs. */
     textquads[0] = *loadTextQuad("data/models/quads/0.obj");
     textquads[1] = *loadTextQuad("data/models/quads/1.obj");
     textquads[2] = *loadTextQuad("data/models/quads/2.obj");
