@@ -40,12 +40,13 @@ void updateFogAndFrustum(GLfloat *clear, struct v3f camerapos, int t_size)
 }
 
 
-void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camerarot, struct v2f sector, int t_size)
+void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f camerapos,
+                         struct v3f camerarot, struct v2f sector, int t_size)
 {
   struct v3f normal;
-  int xgrid, zgrid, x1, z1, cull, density;
+  int xgrid, zgrid, x, z, x1, z1, cull, density;
   const int size = t_size * 0.15f; /* Size of generation sector, also affects density. */
-  float x, z, xpos = 0.0f, zpos = 0.0f, height, dist;
+  float xpos, zpos, height, dist;
   unsigned char type;
   GLubyte alpha;
 
@@ -63,7 +64,7 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
     cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
     while (cull >= 360)
       cull -= 360;
-    if (cull <= 85 || cull >= 275 || camerarot.x > 27.0f) {
+    if (cull <= 85 || cull >= 275 || camerarot.x > 27) {
       height = readTerrainHeightPlane(xpos, zpos, &normal, t_size);
       type = readTerrainType(xpos, zpos);
       dist = distance3d(camerapos, mv3f(xpos, height, zpos));
@@ -88,67 +89,37 @@ void renderFoliage(struct aiScene *scene, struct v3f camerapos, struct v3f camer
       default:
         density = 170;
       }
-      if ((dist < VIEW_DISTANCE || dist < t_size * 5.0f) && x1 < density) {
-        if (height > TERRAIN_WATER_LEVEL + 50 && height < 3200 && type != T_TYPE_DIRT) {
+      if (dist < VIEW_DISTANCE || dist < t_size * 5) {
+        if (height > TERRAIN_WATER_LEVEL + 50 && height < 4000) {
           if (dist < VIEW_DISTANCE_HALF)
             alpha = 255;
           else if (dist < VIEW_DISTANCE)
             alpha = (GLubyte) (255 - ((dist - VIEW_DISTANCE_HALF) / (float) VIEW_DISTANCE_HALF) * 255);
           else
             alpha = 0;
-          drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
-          /* if (type == T_TYPE_FOREST1) */
-          /*   drawModel((const struct aiScene *) &scene[(x1 + 2) % 6], mv3f(xpos - 20, */
-          /*     readTerrainHeightPlane(xpos - 20, zpos - 23, &normal, t_size), zpos - 23), */
-          /*       mv3f(0, x1, 0), 0.333f, alpha); */
-        }
-      }
-    }
-    if (xgrid >= TERRAIN_GRID_SIZE - 1) {
-      zgrid++;
-      xgrid = -1;
-    }
-  }
-}
-
-
-void renderBuildings(struct aiScene *scene, struct v3f camerapos, struct v3f camerarot, struct v2f sector, int t_size)
-{
-  struct v3f normal;
-  int xgrid, zgrid, x1, z1, cull;
-  const int size = t_size * 0.15f; /* Size of generation sector, also affects density. */
-  float x, z, xpos = 0.0f, zpos = 0.0f, height, dist;
-  unsigned char type;
-  GLubyte alpha;
-
-  glMateriali(GL_FRONT, GL_SHININESS, 67);
-  x = (int) (sector.x / size);
-  z = (int) (sector.y / size);
-  for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
-    xpos = (xgrid - TERRAIN_GRID_SIZE_HALF + x) * size;
-    zpos = (zgrid - TERRAIN_GRID_SIZE_HALF + z) * size;
-    x1 = (int) xpos % 71;
-    z1 = (int) zpos % 63;
-    xpos += z1;
-    zpos += x1;
-    cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
-    while (cull >= 360)
-      cull -= 360;
-    if (cull <= 85 || cull >= 275 || camerarot.x > 27.0f) {
-      height = readTerrainHeightPlane(xpos, zpos, &normal, t_size);
-      type = readTerrainType(xpos, zpos);
-      dist = distance3d(camerapos, mv3f(xpos, height, zpos));
-      x1 = x1 * x1 + z1 * z1;
-      x1 = x1 % 3176;
-      if ((dist < VIEW_DISTANCE || dist < t_size * 5.0f) && x1 < 77) {
-        if (type == T_TYPE_VILLAGE) {
-          if (dist < VIEW_DISTANCE_HALF)
-            alpha = 255;
-          else if (dist < VIEW_DISTANCE)
-            alpha = (GLubyte) (255 - ((dist - VIEW_DISTANCE_HALF) / (float) VIEW_DISTANCE_HALF) * 255);
-          else
-            alpha = 0;
-          drawModel((const struct aiScene *) &scene[7], mv3f(xpos, height, zpos), mv3f(0, x1 % 90, 0), 0.35f, alpha);
+          if (x1 < density) {
+            if (height < 3200) {
+              glBindTexture(GL_TEXTURE_2D, textures[1]);
+              drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
+              if (type == T_TYPE_FOREST1) {
+                xpos -= 20;
+                zpos -= 23;
+                height = readTerrainHeightPlane(xpos, zpos, &normal, t_size);
+                drawModel((const struct aiScene *) &scene[(x1 + 2) % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
+              }
+            }
+            else
+              drawModel((const struct aiScene *) &scene[5], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
+          }
+          if (type == T_TYPE_VILLAGE && x1 < 77) {
+            xpos += 31;
+            zpos += 37;
+            height = readTerrainHeightPlane(xpos, zpos, &normal, t_size);
+            if (distance3d(mv3f(0, 1, 0), normalize3d(normal)) < 0.3f) {
+              glBindTexture(GL_TEXTURE_2D, textures[5]);
+              drawModel((const struct aiScene *) &scene[7], mv3f(xpos, height, zpos), mv3f(0, x1 % 90, 0), 0.35f, alpha);
+            }
+          }
         }
       }
     }
@@ -527,10 +498,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   drawTerrain(camerapos, camerarot, sector, t_size, &swapb);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
   renderWater(camerapos, camerarot, color, *t_size);
-  glBindTexture(GL_TEXTURE_2D, textures[1]);
-  renderFoliage(scene, camerapos, camerarot, *sector, *t_size);
-  glBindTexture(GL_TEXTURE_2D, textures[5]);
-  renderBuildings(scene, camerapos, camerarot, *sector, *t_size);
+  renderGroundScenery(scene, textures, camerapos, camerarot, *sector, *t_size);
   glBindTexture(GL_TEXTURE_2D, textures[3]);
   for (i = 0; i < 15; i++)
     drawModel((const struct aiScene *) &scene[6], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 0.7f, 255);
