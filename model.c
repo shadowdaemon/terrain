@@ -23,7 +23,7 @@ const struct aiScene *loadTextQuad(const char *file)
 }
 
 
-void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfloat size, GLuint alpha)
+void drawModel2(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfloat size, const GLuint *color, GLuint alpha)
 {
   GLint i;
   struct aiMesh *mesh;
@@ -35,7 +35,7 @@ void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfl
   glRotatef(rot.x, 1.0f, 0.0f, 0.0f);
   glRotatef(rot.z, 0.0f, 0.0f, 1.0f);
   glScalef(size, size, size);
-  glColor4ub(225, 225, 225, alpha);
+  glColor4ub(color[0], color[1], color[2], alpha);
   switch (scene->mMeshes[0]->mFaces[0].mNumIndices) {
   case 3:
     mode = GL_TRIANGLES;
@@ -55,4 +55,12 @@ void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfl
     glDrawArrays(mode, 0, mesh->mNumFaces * mesh->mFaces[0].mNumIndices);
   }
   glPopMatrix();
+}
+
+
+void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfloat size, GLuint alpha)
+{
+  GLuint color[3] = {255, 255, 255};
+
+  drawModel2(scene, pos, rot, size, color, alpha);
 }
