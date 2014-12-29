@@ -98,8 +98,8 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
           else
             alpha = 0;
           if (x1 < density) {
+            glBindTexture(GL_TEXTURE_2D, textures[1]);
             if (height < 3200) {
-              glBindTexture(GL_TEXTURE_2D, textures[1]);
               drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
               if (type == T_TYPE_FOREST1) {
                 xpos -= 20;
