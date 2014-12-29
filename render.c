@@ -89,7 +89,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
       default:
         density = 170;
       }
-      if (dist < VIEW_DISTANCE || dist < t_size * 5) {
+      if (dist < VIEW_DISTANCE || dist < t_size * 6) {
         if (height > TERRAIN_WATER_LEVEL + 50 && height < 4000) {
           if (dist < VIEW_DISTANCE_HALF)
             alpha = 255;
@@ -106,6 +106,12 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
                 zpos -= 23;
                 height = readTerrainHeightPlane(xpos, zpos, &normal, t_size);
                 drawModel((const struct aiScene *) &scene[(x1 + 2) % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
+              }
+              else if (type == T_TYPE_FOREST2) {
+                xpos -= 20;
+                zpos -= 23;
+                height = readTerrainHeightPlane(xpos, zpos, &normal, t_size);
+                drawModel((const struct aiScene *) &scene[4], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
               }
             }
             else
@@ -505,7 +511,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_LIGHTING);
   for (i = 0; i < 15; i++)
-    renderExhaust(airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 0.7f, airunits[i].thrust * 2.0f);
+    renderExhaust(airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 0.7f, airunits[i].thrust * 1.5f);
   /* glEnable(GL_POINT_SPRITE); */
   /* glEnable(GL_PROGRAM_POINT_SIZE); */
   /* glUseProgramARB(shaders[2]); */

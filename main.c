@@ -462,7 +462,7 @@ void flyMovement(struct airunit *unit, char input, int t_size)
 
   switch (unit->type) {
   case UNIT_AIRFIGHTER:
-    max_thrust = WORLD_GRAVITY + 0.2f;
+    max_thrust = WORLD_GRAVITY + 0.6f;
     max_vtol_thrust = WORLD_GRAVITY + 0.12f;
     thrust_step = 0.01f;
     thrust_ceiling = 21000.0f;

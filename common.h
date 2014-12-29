@@ -26,7 +26,8 @@
 #define T_TYPE_DIRT                         6
 #define T_TYPE_ROCK                         7
 #define T_TYPE_FOREST1                      8
-#define T_TYPE_SNOW                         9
+#define T_TYPE_FOREST2                      9
+#define T_TYPE_SNOW                         10
 #define KEY_NONE                            0
 #define KEY_LMB                             5
 #define KEY_LMB_RELEASE                     6
