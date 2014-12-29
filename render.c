@@ -145,15 +145,15 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
             else if (type == T_TYPE_DIRT) {
               if (x1 % 3 == 0)
                 drawModel((const struct aiScene *) &scene[5], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
-              else if (x1 % 3 == 1) {
+              else if (x1 % 3 == 1 && height < 3700) {
+                color[0] = 255; color[1] = 230; color[2] = 240;
+                drawModel2((const struct aiScene *) &scene[3], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.32f, color, alpha);
+              }
+              else {
                 color[0] = 103; color[1] = 111; color[2] = 63;
                 glBindTexture(GL_TEXTURE_2D, textures[0]);
                 drawModel2((const struct aiScene *) &scene[6], mv3f(xpos, height, zpos), mv3f(x1, z1, 0),
                   2.3f + (z1 % 10) * 0.23f, color, alpha);
-              }
-              else {
-                color[0] = 255; color[1] = 230; color[2] = 240;
-                drawModel2((const struct aiScene *) &scene[3], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.32f, color, alpha);
               }
             }
             else
