@@ -545,7 +545,7 @@ void flyMovement(struct airunit *unit, char input, int t_size)
   lift *= fabs(unit->rot.x) < 50.0f ? (50.0f - fabs(unit->rot.x)) / 50.0f : 0.0f;
   degreestovector3d(&pos, unit->rot, mv3f(90.0f, 180.0f, 0.0f), sqrt(unit->speed) * temp * pressure * lift);
   temp = unit->vec.y + WORLD_GRAVITY;
-  if (temp < 0.0f)
+  if (temp < 0.0f && unit->speed < 40)
     degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), -temp * pressure * glide);
   unit->vec.x += pos.x;
   unit->vec.y += pos.y;
