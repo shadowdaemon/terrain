@@ -159,7 +159,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
             else
               drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
           }
-          if (type == T_TYPE_VILLAGE && x1 < 77) {
+          if (type == T_TYPE_VILLAGE && x1 < 477) {
             xpos += 31;
             zpos += 37;
             height = readTerrainHeightPlane(xpos, zpos, &normal, t_size);
