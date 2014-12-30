@@ -435,6 +435,29 @@ void renderFX(void)
 }
 
 
+void renderAircraft(struct aiScene *scene, GLuint *textures, struct v3f camerapos,
+                    struct airunit *units)
+{
+  int i, texture, model;
+
+  for (i = 0; i < 15; i++) {
+    switch (units[i].type) {
+    case UNIT_AIR_FIGHTER1:
+      texture = TEX_AIR_FIGHTER1;
+      model = MODEL_AIR_FIGHTER1;
+      break;
+    }
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_LIGHTING);
+    glBindTexture(GL_TEXTURE_2D, textures[texture]);
+    drawModel((const struct aiScene *) &scene[model], units[i].pos, mv3f(units[i].rot.x, -units[i].rot.y, units[i].rot.z), 0.7f, 255);
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_LIGHTING);
+    renderExhaust(units[i].pos, mv3f(units[i].rot.x, -units[i].rot.y, units[i].rot.z), 0.7f, units[i].thrust * 1.5f);
+  }
+}
+
+
 void sceneQuad(void)
 {
   glDisable(GL_DEPTH_TEST);
@@ -459,7 +482,6 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
 {
   GLfloat color[4], temp;
   GLint lpos[4], mpos[4];
-  int i;
   static double time = 0;
   static float fps2 = 0;
   static char swapb = 1;
@@ -547,13 +569,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glBindTexture(GL_TEXTURE_2D, textures[2]);
   renderWater(camerapos, camerarot, color, *t_size);
   renderGroundScenery(scene, textures, camerapos, camerarot, *sector, *t_size);
-  glBindTexture(GL_TEXTURE_2D, textures[3]);
-  for (i = 0; i < 15; i++)
-    drawModel((const struct aiScene *) &scene[15], airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 0.7f, 255);
-  glDisable(GL_TEXTURE_2D);
-  glDisable(GL_LIGHTING);
-  for (i = 0; i < 15; i++)
-    renderExhaust(airunits[i].pos, mv3f(airunits[i].rot.x, -airunits[i].rot.y, airunits[i].rot.z), 0.7f, airunits[i].thrust * 1.5f);
+  renderAircraft(scene, textures, camerapos, airunits);
   /* glEnable(GL_POINT_SPRITE); */
   /* glEnable(GL_PROGRAM_POINT_SIZE); */
   /* glUseProgramARB(shaders[2]); */
@@ -580,7 +596,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
-  glBindTexture(GL_TEXTURE_2D, textures[6]);
+  glBindTexture(GL_TEXTURE_2D, textures[3]);
   /* renderNumber(camerapos->x, textquads, mv2f(RESX - 100, 120)); */
   /* renderNumber(camerapos->z, textquads, mv2f(RESX - 100, 70)); */
   renderNumber(fps2, textquads, mv2f(100, 20));

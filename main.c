@@ -196,15 +196,15 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   loadTexture2D("data/textures/cloud_alpha.tga", 'n');
   glActiveTextureARB(GL_TEXTURE3_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[3]);
-  loadTexture2D("data/textures/fighter.png", 'n');
+  loadTexture2D("data/textures/font_alpha.tga", 'n');
   glActiveTextureARB(GL_TEXTURE4_ARB);
-  glBindTexture(GL_TEXTURE_2D, textures[4]);
+  glBindTexture(GL_TEXTURE_2D, textures[4]); /* Render to texture. */
   glActiveTextureARB(GL_TEXTURE5_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[5]);
   loadTexture2D("data/textures/building1.png", 'n');
   glActiveTextureARB(GL_TEXTURE6_ARB);
-  glBindTexture(GL_TEXTURE_2D, textures[6]);
-  loadTexture2D("data/textures/font_alpha.tga", 'n');
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_AIR_FIGHTER1]);
+  loadTexture2D("data/textures/fighter.png", 'n');
   glActiveTextureARB(GL_TEXTURE0_ARB);
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
@@ -461,7 +461,7 @@ void flyMovement(struct airunit *unit, char input, int t_size)
     thrust_ceiling, tlapse, aero, drag, lift, glide, pressure, temp;
 
   switch (unit->type) {
-  case UNIT_AIRFIGHTER:
+  case UNIT_AIR_FIGHTER1:
     max_thrust = WORLD_GRAVITY + 0.6f;
     max_vtol_thrust = WORLD_GRAVITY + 0.12f;
     thrust_step = 0.01f;
@@ -697,7 +697,7 @@ int main(int argc, char *argv[])
   if ((window = startGraphics(textures, shaders)) != NULL) {
     glfwSwapBuffers(window);
     for (i = 0; i < 15; i++) {
-      airunits[i].type = UNIT_AIRFIGHTER;
+      airunits[i].type = UNIT_AIR_FIGHTER1;
       airunits[i].pos.x = (i - 5) * 50;
       airunits[i].pos.y = readTerrainHeightPlane2(airunits[i].pos.x, airunits[i].pos.z, t_size);
     }
@@ -713,7 +713,8 @@ int main(int argc, char *argv[])
     scene[9] = *loadModel("data/models/mtree3.obj"); /* More sparsely positioned multi-trees. */
     scene[10] = *loadModel("data/models/mtree4.obj"); /* Sparsely positioned firs. */
     scene[12] = *loadModel("data/models/house1.obj");
-    scene[15] = *loadModel("data/models/fighter1.obj");
+    scene[MODEL_AIR_FIGHTER1] = *loadModel("data/models/fighter1.obj");
+    scene[MODEL_AIR_FIGHTER2] = *loadModel("data/models/fighter2.obj");
     textquads[0] = *loadTextQuad("data/models/quads/0.obj");
     textquads[1] = *loadTextQuad("data/models/quads/1.obj");
     textquads[2] = *loadTextQuad("data/models/quads/2.obj");
@@ -744,7 +745,7 @@ int main(int argc, char *argv[])
           airunits[0].vtol_thrust = 0;
         }
       }
-      /* updateAirUnits(airunits, t_size); */
+      updateAirUnits(airunits, t_size);
       updateCamera(camerarot);
       glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
       render(window, scene, textquads, textures, shaders, camerapos, camerarot,

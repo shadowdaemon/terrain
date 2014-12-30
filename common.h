@@ -47,7 +47,11 @@
 #define INPUT_VERT_DOWN                     10
 #define INPUT_SPACE                         16
 #define INPUT_LEFT_SHIFT                    32
-#define UNIT_AIRFIGHTER                     0
+
+#define UNIT_AIR_FIGHTER1                   0
+#define TEX_AIR_FIGHTER1                    6
+#define MODEL_AIR_FIGHTER1                  14
+#define MODEL_AIR_FIGHTER2                  15
 
 #define glActiveTexureARB _ActiveTexureARB
 #define glCreateProgramARB _CreateProgramARB
