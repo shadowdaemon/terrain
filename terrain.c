@@ -249,11 +249,12 @@ struct terrain algorithmicTerrain(float x, float z)
     b = 0;
   else
     temp.height += algorithmicTerrainHeight6(z * 0.2f, x * 0.2f) * 2.0f * b;
-  c = temp.height - 2500 * 0.0005f;
-  if (c > 0.2f)
-    c = 0.2f;
-  if (temp.height > 2500)
+  if (temp.height > 2500) {
+    c = (temp.height - 2500) * 0.0005f;
+    if (c > 0.2f)
+      c = 0.2f;
     temp.height += c * fabs(algorithmicTerrainHeight2(z * 0.3f, x * 0.3f));
+  }
   if (temp.height > TERRAIN_WATER_LEVEL)
     temp.height += 35.0f;
   temp.type = T_TYPE_NULL;
