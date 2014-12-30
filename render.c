@@ -354,7 +354,7 @@ void renderExhaust(struct v3f pos, struct v3f rot, float scale, float size)
   glPushMatrix();
   glTranslatef(pos.x, pos.y, pos.z);
   glScalef(scale, scale, scale);
-  glRotatef(rot.y, 0.0f, 1.0f, 0.0f);
+  glRotatef(-rot.y, 0.0f, 1.0f, 0.0f);
   glRotatef(rot.x, 1.0f, 0.0f, 0.0f);
   glRotatef(rot.z, 0.0f, 0.0f, 1.0f);
   glBegin(GL_TRIANGLE_FAN);
@@ -450,10 +450,10 @@ void renderAircraft(struct aiScene *scene, GLuint *textures, struct v3f camerapo
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_LIGHTING);
     glBindTexture(GL_TEXTURE_2D, textures[texture]);
-    drawModel((const struct aiScene *) &scene[model], units[i].pos, mv3f(units[i].rot.x, -units[i].rot.y, units[i].rot.z), 0.7f, 255);
+    drawModel((const struct aiScene *) &scene[model], units[i].pos, units[i].rot, 0.7f, 255);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_LIGHTING);
-    renderExhaust(units[i].pos, mv3f(units[i].rot.x, -units[i].rot.y, units[i].rot.z), 0.7f, units[i].thrust * 1.5f);
+    renderExhaust(units[i].pos, units[i].rot, 0.7f, units[i].thrust * 1.5f);
   }
 }
 
