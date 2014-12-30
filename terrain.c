@@ -156,23 +156,23 @@ float algorithmicTerrainHeight5(float x, float z)
 }
 
 
-float algorithmicTerrainHeight6a(float x, float z)
+float algorithmicTerrainHeight6(float x, float z)
 {
-  float hlevel = sinf(x * 0.00021f) + sinf(z * 0.00023f);
+  float hlevel = sinf(x * 0.00011f) + sinf(z * 0.00013f);
   float height = hlevel * 67 + 137;
   float temp1 = sinf(z * 0.00083f) + sinf(x * 0.00097f) + hlevel;
   float temp2 = cosf((x * 0.67f + z - 1423.0f) * 0.0027f);
   float temp3 = sin(z * 0.001172f - temp1) + sinf(x * 0.001021f + temp1);
-  float temp4 = sinf(z * 0.00212f + temp2) + sinf(x * 0.00171f - temp2);
+  float temp4 = sinf(z * 0.00212f + temp2) + cosf(x * 0.00171f - temp2);
   float temp5;
   float grain1 = -fabs(temp3 * 11 - 2);
   float grain2 = -fabs(temp4 * 11 + 5);
 
   temp1 = (temp1 + cosf(hlevel)) * 0.5f;
   if (grain2 < -30.0f)
-    grain2 = grain2 - (grain2 + 30.0f) * 0.93f;
+    grain2 -= (grain2 + 30.0f) * 0.93f;
   if (grain2 > -30.0f)
-    grain2 = grain2 - (grain2 + 30.0f) * -0.53f;
+    grain2 += (grain2 + 30.0f) * 0.53f;
   temp3 = cosf((temp3 * hlevel - temp4) * (temp1 * 0.17f));
   temp5 = temp3 * (temp1 + temp2) * (temp1 - temp3) * 11;
   if (temp5 < 120.0f)
@@ -180,38 +180,6 @@ float algorithmicTerrainHeight6a(float x, float z)
   else
     temp5 = temp5 - temp4 * (1 - (temp5 / 120.0f)) * 6;
   height += hlevel + grain1 + grain2 + temp5;
-  height += height * (height - 10.0f) * 0.04f;
-  if (height < TERRAIN_WATER_LEVEL)
-    height += height * 1.46f;
-  else
-    height += 25.0f;
-
-  return height;
-}
-
-
-float algorithmicTerrainHeight6b(float x, float z)
-{
-  float height;
-  float temp1 = sinf(z * 0.00083f) + sinf(x * 0.00097f);
-  float temp2 = cosf((x * 0.67f + z - 1423.0f) * 0.0027f);
-  float temp3 = sin(z * 0.001172f - temp1) + sinf(x * 0.001021f + temp1);
-  float temp4 = sinf(z * 0.00212f + temp2) + sinf(x * 0.00171f - temp2);
-  float temp5;
-  float grain1 = -fabs(temp3 * 11 - 2);
-  float grain2 = -fabs(temp4 * 11 + 5);
-
-  if (grain2 < -30.0f)
-    grain2 = grain2 - (grain2 + 30.0f) * 0.93f;
-  if (grain2 > -30.0f)
-    grain2 = grain2 - (grain2 + 30.0f) * -0.53f;
-  temp3 = cosf((temp3 - temp4) * (temp1 * 0.17f));
-  temp5 = temp3 * (temp1 + temp2) * (temp1 - temp3) * 11;
-  if (temp5 < 120.0f)
-    temp5 = temp5 + temp3 * (1 - (temp5 / 120.0f)) * 12;
-  else
-    temp5 = temp5 - temp4 * (1 - (temp5 / 120.0f)) * 6;
-  height = grain1 + grain2 + temp5;
   height += height * (height - 10.0f) * 0.04f;
   if (height < TERRAIN_WATER_LEVEL)
     height += height * 1.46f;
@@ -248,15 +216,8 @@ char calculateTerrainType(float height)
 struct terrain algorithmicTerrainTest(float x, float z)
 {
   struct terrain temp;
-  float dist;
 
-  temp.height = 500.0f;
-  dist = distance2d(mv3f(0, 0, 0), mv3f(x, 0, z));
-  if (dist < 700) {
-    dist = (700 - dist) / 350;
-    dist = dist < 0 ? 0 : dist > 1 ? 1 : dist;
-    temp.height += (1000.0f - temp.height) * dist;
-  }
+  temp.height = algorithmicTerrainHeight6(z * 0.3f, x * 0.3f);
   temp.type = calculateTerrainType(temp.height);
 
   return temp;
@@ -283,35 +244,44 @@ struct terrain algorithmicTerrain(float x, float z)
     temp.height += algorithmicTerrainHeight1(z * 0.53f, x * 0.59f) * 0.75f * a;
   if (b > 1) {
     b = 1;
-    temp.height += algorithmicTerrainHeight6a(z * 0.3f, x * 0.3f) * 2.0f;
+    temp.height += algorithmicTerrainHeight6(z * 0.2f, x * 0.2f) * 2.0f;
   }
   else if (b < 0)
     b = 0;
   else
-    temp.height += algorithmicTerrainHeight6a(z * 0.3f, x * 0.3f) * 2.0f * b;
-  if (temp.height < TERRAIN_WATER_LEVEL)
-    temp.height += temp.height * 1.46f;
-  else
+    temp.height += algorithmicTerrainHeight6(z * 0.2f, x * 0.2f) * 2.0f * b;
+  if (temp.height > TERRAIN_WATER_LEVEL)
     temp.height += 35.0f;
   temp.type = T_TYPE_NULL;
-  if (temp.height > 0 && temp.height < 3000) {
-    x1 = 1.0f - fabs(sinf(x * 0.00056f + a));
+  if (temp.height > 0 && temp.height < 1000) {
+    x1 = 1.0f - fabs(sinf(x * 0.00041f + a * 2.3f));
     if (x1 < 0)
       x1 = 0;
     else if (x1 > 1)
       x1 = 1;
-    z1 = 1.0f - fabs(sinf(z * 0.00059f + b));
+    z1 = 0.93f - fabs(cosf(z * 0.00037f + b));
     if (z1 < 0)
       z1 = 0;
     else if (z1 > 1)
       z1 = 1;
-    temp.height += (1500 - fabs(1500 - temp.height)) * x1 * z1 * 0.37f;
-    if (x1 * z1 > 0.3f) {
-      if (temp.height > 220 && temp.height < 1000)
-        temp.type = T_TYPE_FOREST1;
-      else if (temp.height > 1000)
+    /* temp.height += (500 - fabs(500 - temp.height)) * x1 * z1 * 0.52f; */
+    if (x1 * z1 > 0.31f && temp.height > 300)
+      temp.type = T_TYPE_FOREST1;
+  }
+  if (temp.height > 1000 && temp.height < 2000) {
+    x1 = 1.0f - fabs(cosf(x * 0.00036f));
+    if (x1 < 0)
+      x1 = 0;
+    else if (x1 > 1)
+      x1 = 1;
+    z1 = 1.0f - fabs(sinf(z * 0.00031f));
+    if (z1 < 0)
+      z1 = 0;
+    else if (z1 > 1)
+      z1 = 1;
+    /* temp.height += (1500 - fabs(1500 - temp.height)) * x1 * z1 * 0.57f; */
+    if (x1 * z1 > 0.35f)
         temp.type = T_TYPE_FOREST2;
-    }
   }
   if (temp.height > 0 && temp.height < 1200) {
     x1 = 0.871f - fabs(sinf(x * 0.00052f - b));
@@ -324,7 +294,7 @@ struct terrain algorithmicTerrain(float x, float z)
       z1 = 0;
     else if (z1 > 1)
       z1 = 1;
-    temp.height += (600 - fabs(600 - temp.height)) * x1 * z1 * 0.63f;
+    /* temp.height += (600 - fabs(600 - temp.height)) * x1 * z1 * 0.63f; */
     if (temp.height > 150 && x1 * z1 > 0.5f)
       temp.type = T_TYPE_VILLAGE;
   }

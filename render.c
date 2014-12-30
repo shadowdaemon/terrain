@@ -14,9 +14,9 @@ void updateFogAndFrustum(GLfloat *clear, struct v3f camerapos, int t_size)
   if (temp < 1250.0f && camerapos.y > TERRAIN_SCALE_HEIGHT)
     fog_end -= (1 - temp / 1250.0f) * (fog_end * 0.66667f);
   if (camerapos.y < LOWER_CLOUD_HEIGHT)
-    temp = 0.0f;
+    temp = fog_end * 0.3f;
   else if (camerapos.y < TERRAIN_SCALE_HEIGHT)
-    temp = fog_end * 0.4f;
+    temp = fog_end * 0.5f;
   else
     temp = fog_end * 0.7f;
   if (fog_start > fog_end * 0.7f)
@@ -70,7 +70,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
       type = readTerrainType(xpos, zpos);
       dist = distance3d(camerapos, mv3f(xpos, height, zpos));
       x1 = x1 * x1 + z1 * z1;
-      x1 = x1 % 1076;
+      x1 = x1 % SCENERY_DENSITY;
       switch (type) {
       case T_TYPE_GRASS1:
         density = 210;
