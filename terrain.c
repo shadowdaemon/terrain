@@ -48,41 +48,40 @@ float algorithmicTerrainHeight1(float x, float z)
 }
 
 
-float algorithmicTerrainHeight2(float x, float z, float height)
+float algorithmicTerrainHeight2(float x, float z)
 {
-  float x1, z1, a1, a2, h1, h2, g1, g2;
+  float height, x1, z1, a1, a2, h1, h2, g1, g2;
 
-  x1 = 0.00014f * x;
-  z1 = 0.00021f * z;
-  a1 = sinf(x1 * 0.37f) * 12700;
-  a2 = sinf(z1 - 0.07f * x1) * 4950;
-  g1 = sinf(0.000223f * x) * 2742;
-  g2 = sinf(0.000212f * z) * 3721;
-  h1 = 6000 - fabs(6000 - (int)(x*0.00092f) % 12000);
-  h2 = 5000 - fabs(5000 - (int)(z*0.00009f) % 10000);
-  height += 21000 - fabs(a1) - fabs(a2) - fabs(g1) - fabs(g2) + h1 * 6.2f + h2 * 6.9f;
+  x1 = 0.0014f * x;
+  z1 = 0.0021f * z;
+  a1 = sinf(x1 * 0.37f) * 6700;
+  a2 = sinf(z1 - 0.07f * x1) * 2950;
+  g1 = sinf(0.00223f * x) * 1742;
+  g2 = sinf(0.00212f * z) * 2721;
+  h1 = 6000 - fabs(6000 - (int)(x*0.0092f) % 12000);
+  h2 = 5000 - fabs(5000 - (int)(z*0.0009f) % 10000);
+  height = 8000 - fabs(a1) - fabs(a2) - fabs(g1) - fabs(g2) + h1 * 2.2f + h2 * 2.9f;
   if (height > 2000 || height < 1500) {
     a1 = height < 1500 ? (1500 - height) * 0.001f : 0;
     a1 = a1 > 1 ? 1 : a1;
     a2 = height > 2000 ? (height - 2000) * 0.0005f : 0;
     a2 = a2 > 1 ? 1 : a2;
-    h1 = sinf(x * 0.00077f) * 910 * (a1 + a2);
-    h2 = sinf(z * 0.00072f) * 916 * (a1 + a2);
+    h1 = sinf(x * 0.0077f) * 910 * (a1 + a2);
+    h2 = sinf(z * 0.0072f) * 916 * (a1 + a2);
     height += - fabs(h1) - fabs(h2);
   }
-  height += (1500 - height) * 0.26f + (height - 1000) * (1000 - height) * 0.00017f;
   if (height > 3000) {
     a2 = (height - 3000) * 0.0005f;
     a2 = a2 > 2 ? 2 : a2;
-    g1 = sinf(x * 0.0061f) * 60 * a2;
-    g2 = sinf(z * 0.0063f) * 62 * a2;
+    g1 = sinf(x * 0.061f) * 60 * a2;
+    g2 = sinf(z * 0.063f) * 62 * a2;
     height += - fabs(g1) - fabs(g2);
   }
   else if (height < 2300) {
     a1 = (2300 - height) * 0.0005f;
     a1 = a1 < 0 ? 0 : a1;
-    g1 = cosf(x * 0.000267f) * 500 * a1;
-    g2 = cosf(z * 0.000279f) * 590 * a1;
+    g1 = cosf(x * 0.00267f) * 500 * a1;
+    g2 = cosf(z * 0.00279f) * 590 * a1;
     height += g1 - g2;
   }
 
@@ -217,7 +216,7 @@ struct terrain algorithmicTerrainTest(float x, float z)
 {
   struct terrain temp;
 
-  temp.height = algorithmicTerrainHeight6(z * 0.3f, x * 0.3f);
+  temp.height = algorithmicTerrainHeight2(z * 0.3f, x * 0.3f);
   temp.type = calculateTerrainType(temp.height);
 
   return temp;
@@ -227,7 +226,7 @@ struct terrain algorithmicTerrainTest(float x, float z)
 struct terrain algorithmicTerrain(float x, float z)
 {
   struct terrain temp;
-  float a, b, x1, z1;
+  float a, b, c, x1, z1;
 
   temp.height = 0;
   x1 = 1.0f - fabs(sinf(x * 0.000037f));
@@ -250,6 +249,11 @@ struct terrain algorithmicTerrain(float x, float z)
     b = 0;
   else
     temp.height += algorithmicTerrainHeight6(z * 0.2f, x * 0.2f) * 2.0f * b;
+  c = temp.height - 2500 * 0.0005f;
+  if (c > 0.2f)
+    c = 0.2f;
+  if (temp.height > 2500)
+    temp.height += c * fabs(algorithmicTerrainHeight2(z * 0.3f, x * 0.3f));
   if (temp.height > TERRAIN_WATER_LEVEL)
     temp.height += 35.0f;
   temp.type = T_TYPE_NULL;
