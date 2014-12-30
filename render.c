@@ -105,22 +105,22 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
           else
             alpha = 0;
           if (x1 < density) {
-            glBindTexture(GL_TEXTURE_2D, textures[1]);
+            glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE]);
             if (type == T_TYPE_GRASS1 || type == T_TYPE_GRASS2) {
               if (distance3d(mv3f(0, 1, 0), normalize3d(normal)) < 0.1f)
-                drawModel((const struct aiScene *) &scene[9], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
+                drawModel((const struct aiScene *) &scene[MODEL_MTREE_SPARSE], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
               else if (x1 % 15 < 5)
-                drawModel((const struct aiScene *) &scene[0], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
+                drawModel((const struct aiScene *) &scene[MODEL_TREE_POPLAR], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
               else if (x1 % 15 == 6) {
                 color[0] = 95; color[1] = 95; color[2] = 95;
-                glBindTexture(GL_TEXTURE_2D, textures[0]);
-                drawModel2((const struct aiScene *) &scene[6], mv3f(xpos, height, zpos), mv3f(x1, z1, 0),
+                glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN]);
+                drawModel2((const struct aiScene *) &scene[MODEL_ROCK1], mv3f(xpos, height, zpos), mv3f(x1, z1, 0),
                   1.8f + (z1 % 10) * 0.23f, color, alpha);
               }
               else if (x1 % 15 == 7 && z1 % 7 == 0) {
                 if (distance3d(mv3f(0, 1, 0), normalize3d(normal)) < 0.3f) {
                   glBindTexture(GL_TEXTURE_2D, textures[5]);
-                  drawModel((const struct aiScene *) &scene[12], mv3f(xpos, height, zpos), mv3f(0, x1 % 90, 0), 0.35f, alpha);
+                  drawModel((const struct aiScene *) &scene[MODEL_BUILDING_HOUSE1], mv3f(xpos, height, zpos), mv3f(0, x1 % 90, 0), 0.35f, alpha);
                 }
               }
               else
@@ -128,31 +128,31 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
             }
             else if (type == T_TYPE_FOREST1) {
               if (distance3d(mv3f(0, 1, 0), normalize3d(normal)) < 0.1f)
-                drawModel((const struct aiScene *) &scene[9], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.34f, alpha);
+                drawModel((const struct aiScene *) &scene[MODEL_MTREE_SPARSE], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.34f, alpha);
               else if (distance3d(mv3f(0, 1, 0), normalize3d(normal)) < 0.14f)
-                drawModel((const struct aiScene *) &scene[8], mv3f(xpos, height - 1, zpos), mv3f(0, x1, 0), 0.34f, alpha);
+                drawModel((const struct aiScene *) &scene[MODEL_MTREE_BIG], mv3f(xpos, height - 1, zpos), mv3f(0, x1, 0), 0.34f, alpha);
               else
                 drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.34f, alpha);
             }
             else if (type == T_TYPE_FOREST2) {
               if (distance3d(mv3f(0, 1, 0), normalize3d(normal)) < 0.1f)
-                drawModel((const struct aiScene *) &scene[10], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.34f, alpha);
+                drawModel((const struct aiScene *) &scene[MODEL_MTREE_FIR], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.34f, alpha);
               else if (distance3d(mv3f(0, 1, 0), normalize3d(normal)) < 0.14f)
-                drawModel((const struct aiScene *) &scene[8], mv3f(xpos, height - 1, zpos), mv3f(0, x1, 0), 0.34f, alpha);
+                drawModel((const struct aiScene *) &scene[MODEL_MTREE_BIG], mv3f(xpos, height - 1, zpos), mv3f(0, x1, 0), 0.34f, alpha);
               else
-                drawModel((const struct aiScene *) &scene[2], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.35f, alpha);
+                drawModel((const struct aiScene *) &scene[MODEL_TREE_FIR], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.35f, alpha);
             }
             else if (type == T_TYPE_DIRT) {
               if (x1 % 3 == 0)
-                drawModel((const struct aiScene *) &scene[5], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
+                drawModel((const struct aiScene *) &scene[MODEL_TREE_STUMP], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.333f, alpha);
               else if (x1 % 3 == 1 && height < 3700) {
                 color[0] = 255; color[1] = 230; color[2] = 240;
-                drawModel2((const struct aiScene *) &scene[3], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.32f, color, alpha);
+                drawModel2((const struct aiScene *) &scene[MODEL_TREE_BUSH], mv3f(xpos, height, zpos), mv3f(0, x1, 0), 0.32f, color, alpha);
               }
               else {
                 color[0] = 103; color[1] = 111; color[2] = 63;
-                glBindTexture(GL_TEXTURE_2D, textures[0]);
-                drawModel2((const struct aiScene *) &scene[6], mv3f(xpos, height, zpos), mv3f(x1, z1, 0),
+                glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN]);
+                drawModel2((const struct aiScene *) &scene[MODEL_ROCK1], mv3f(xpos, height, zpos), mv3f(x1, z1, 0),
                   2.3f + (z1 % 10) * 0.23f, color, alpha);
               }
             }
@@ -165,7 +165,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
             height = readTerrainHeightPlane(xpos, zpos, &normal, t_size);
             if (distance3d(mv3f(0, 1, 0), normalize3d(normal)) < 0.3f) {
               glBindTexture(GL_TEXTURE_2D, textures[5]);
-              drawModel((const struct aiScene *) &scene[12], mv3f(xpos, height, zpos), mv3f(0, x1 % 90, 0), 0.35f, alpha);
+              drawModel((const struct aiScene *) &scene[MODEL_BUILDING_HOUSE1], mv3f(xpos, height, zpos), mv3f(0, x1 % 90, 0), 0.35f, alpha);
             }
           }
         }
@@ -564,7 +564,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_LIGHTING);
   glEnable(GL_NORMALIZE);
-  glBindTexture(GL_TEXTURE_2D, textures[0]);
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN]);
   drawTerrain(camerapos, camerarot, sector, t_size, &swapb);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
   renderWater(camerapos, camerarot, color, *t_size);

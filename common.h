@@ -49,7 +49,20 @@
 #define INPUT_LEFT_SHIFT                    32
 
 #define UNIT_AIR_FIGHTER1                   0
+#define TEX_TERRAIN                         0
+#define TEX_FOLIAGE                         1
 #define TEX_AIR_FIGHTER1                    6
+#define MODEL_TREE_POPLAR                   0
+#define MODEL_TREE_OAK                      1
+#define MODEL_TREE_FIR                      2
+#define MODEL_TREE_BUSH                     3
+#define MODEL_MTREE_SMALL                   4
+#define MODEL_TREE_STUMP                    5
+#define MODEL_ROCK1                         6
+#define MODEL_MTREE_BIG                     8
+#define MODEL_MTREE_SPARSE                  9
+#define MODEL_MTREE_FIR                     10
+#define MODEL_BUILDING_HOUSE1               12
 #define MODEL_AIR_FIGHTER1                  14
 #define MODEL_AIR_FIGHTER2                  15
 

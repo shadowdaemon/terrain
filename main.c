@@ -186,10 +186,10 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   glEnable(GL_TEXTURE_2D);
   glGenTextures(5, textures);
   glActiveTextureARB(GL_TEXTURE0_ARB);
-  glBindTexture(GL_TEXTURE_2D, textures[0]);
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN]);
   loadTexture2D("data/textures/terrain.tga", 'y');
   glActiveTextureARB(GL_TEXTURE1_ARB);
-  glBindTexture(GL_TEXTURE_2D, textures[1]);
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE]);
   loadTexture2D("data/textures/foliage.tga", 'n');
   glActiveTextureARB(GL_TEXTURE2_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[2]);
@@ -701,18 +701,18 @@ int main(int argc, char *argv[])
       airunits[i].pos.x = (i - 5) * 50;
       airunits[i].pos.y = readTerrainHeightPlane2(airunits[i].pos.x, airunits[i].pos.z, t_size);
     }
-    scene[0] = *loadModel("data/models/tree1.obj"); /* Poplar. */
-    scene[1] = *loadModel("data/models/tree2.obj"); /* Normal. */
-    scene[2] = *loadModel("data/models/tree3.obj"); /* Fir. */
-    scene[3] = *loadModel("data/models/tree4.obj"); /* Bush. */
-    scene[4] = *loadModel("data/models/mtree1.obj"); /* Small multi-trees. */
-    scene[5] = *loadModel("data/models/stump1.obj"); /* Stump. */
-    scene[6] = *loadModel("data/models/rock1.obj"); /* Rock. */
+    scene[MODEL_TREE_POPLAR] = *loadModel("data/models/tree1.obj"); /* Poplar. */
+    scene[MODEL_TREE_OAK] = *loadModel("data/models/tree2.obj"); /* Oak. */
+    scene[MODEL_TREE_FIR] = *loadModel("data/models/tree3.obj"); /* Fir. */
+    scene[MODEL_TREE_BUSH] = *loadModel("data/models/tree4.obj"); /* Bush. */
+    scene[MODEL_MTREE_SMALL] = *loadModel("data/models/mtree1.obj"); /* Small multi-trees. */
+    scene[MODEL_TREE_STUMP] = *loadModel("data/models/stump1.obj"); /* Stump. */
+    scene[MODEL_ROCK1] = *loadModel("data/models/rock1.obj"); /* Rock. */
      /* These must not be loaded near start of array because of trees appearing above slopes.  See renderGroundScenery(). */
-    scene[8] = *loadModel("data/models/mtree2.obj"); /* Sparsely positioned multi-trees. */
-    scene[9] = *loadModel("data/models/mtree3.obj"); /* More sparsely positioned multi-trees. */
-    scene[10] = *loadModel("data/models/mtree4.obj"); /* Sparsely positioned firs. */
-    scene[12] = *loadModel("data/models/house1.obj");
+    scene[MODEL_MTREE_BIG] = *loadModel("data/models/mtree2.obj"); /* Sparsely positioned multi-trees. */
+    scene[MODEL_MTREE_SPARSE] = *loadModel("data/models/mtree3.obj"); /* More sparsely positioned multi-trees. */
+    scene[MODEL_MTREE_FIR] = *loadModel("data/models/mtree4.obj"); /* Sparsely positioned firs. */
+    scene[MODEL_BUILDING_HOUSE1] = *loadModel("data/models/house1.obj");
     scene[MODEL_AIR_FIGHTER1] = *loadModel("data/models/fighter1.obj");
     scene[MODEL_AIR_FIGHTER2] = *loadModel("data/models/fighter2.obj");
     textquads[0] = *loadTextQuad("data/models/quads/0.obj");
