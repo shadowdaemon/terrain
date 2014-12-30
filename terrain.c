@@ -399,42 +399,42 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   int xgrid, zgrid, x1, z1, x2, z2, cull;
   float x, z, xpos = 0.0f, zpos = 0.0f, dist;
   float v1[3], v2[3], v3[3];
-  unsigned char NEcolorR [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  unsigned char NEcolorG [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  unsigned char NEcolorB [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  unsigned char SEcolorR [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  unsigned char SEcolorG [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  unsigned char SEcolorB [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  double NEx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  double NEy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  double NEz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  double SEx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  double SEy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  double SEz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  double SWx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  double SWy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  double SWz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  double NWx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  double NWy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  double NWz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  float Nnormx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  float Nnormy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  float Nnormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  float Snormx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  float Snormy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  float Snormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  float NEnormx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  float NEnormy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  float NEnormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  float NWnormx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  float NWnormy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  float NWnormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  float SEnormx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  float SEnormy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  float SEnormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  float SWnormx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  float SWnormy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
-  float SWnormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static unsigned char NEcolorR [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static unsigned char NEcolorG [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static unsigned char NEcolorB [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static unsigned char SEcolorR [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static unsigned char SEcolorG [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static unsigned char SEcolorB [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static double NEx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static double NEy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static double NEz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static double SEx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static double SEy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static double SEz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static double SWx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static double SWy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static double SWz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static double NWx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static double NWy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static double NWz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static float Nnormx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static float Nnormy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static float Nnormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static float Snormx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static float Snormy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static float Snormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static float NEnormx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static float NEnormy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static float NEnormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static float NWnormx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static float NWnormy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static float NWnormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static float SEnormx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static float SEnormy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static float SEnormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static float SWnormx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static float SWnormy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+  static float SWnormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
 
   glMateriali(GL_FRONT, GL_SHININESS, 11);
   if (camerapos.y < TERRAIN_SCALE_HEIGHT)
@@ -462,174 +462,171 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
     cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
     while (cull >= 360)
       cull -= 360;
-    if (camerarot.x > 47.0f || cull <= 75 || cull >= 285 || dist < *t_size * 3.5f) {
-      NEx[xgrid][zgrid] = x1;
-      NEz[xgrid][zgrid] = z2;
-      temp1 = algorithmicTerrain (NEx[xgrid][zgrid], NEz[xgrid][zgrid]);
-      NEy[xgrid][zgrid] = (int) temp1.height;
-      NWx[xgrid][zgrid] = x2;
-      NWz[xgrid][zgrid] = z2;
-      NWy[xgrid][zgrid] = (int) readTerrainHeight (NWx[xgrid][zgrid], NWz[xgrid][zgrid]);
-      SEx[xgrid][zgrid] = x1;
-      SEz[xgrid][zgrid] = z1;
-      temp2 = algorithmicTerrain (SEx[xgrid][zgrid], SEz[xgrid][zgrid]);
-      SEy[xgrid][zgrid] = (int) temp2.height;
-      SWx[xgrid][zgrid] = x2;
-      SWz[xgrid][zgrid] = z1;
-      SWy[xgrid][zgrid] = (int) readTerrainHeight (SWx[xgrid][zgrid], SWz[xgrid][zgrid]);
-      switch (temp2.type) {
-      case T_TYPE_GRASS1:
-        x2 = ((1000 - SEy[xgrid][zgrid]) / 900.0f) * 70.0f;
-        SEcolorR[xgrid][zgrid] = 40 + x2;
-        SEcolorG[xgrid][zgrid] = 108;
-        SEcolorB[xgrid][zgrid] = 15;
-        break;
-      case T_TYPE_GRASS2:
-        z1 = ((2000 - SEy[xgrid][zgrid]) / 1000.0f) * 25.0f;
-        SEcolorR[xgrid][zgrid] = 65 - z1;
-        SEcolorG[xgrid][zgrid] = 100;
-        SEcolorB[xgrid][zgrid] = 15;
-        break;
-      case T_TYPE_GRASS3:
-        x1 = ((5000 - SEy[xgrid][zgrid]) / 3000.0f) * 45.0f;
-        SEcolorR[xgrid][zgrid] = 103 - x1;
-        SEcolorG[xgrid][zgrid] = 100;
-        z1 = ((5000 - SEy[xgrid][zgrid]) / 3000.0f) * 37.0f;
-        SEcolorB[xgrid][zgrid] = 52 - z1;
-        break;
-      case T_TYPE_ROCK:
-        x1 = SEy[xgrid][zgrid] < TERRAIN_WATER_LEVEL ? SEy[xgrid][zgrid] * 0.041f : 0;
-        x1 = x1 < -77 ? -77 : x1;
-        SEcolorR[xgrid][zgrid] = 101 + x1;
-        SEcolorG[xgrid][zgrid] = 106 + x1;
-        SEcolorB[xgrid][zgrid] = 88 + x1;
-        break;
-      case T_TYPE_DIRT:
-        SEcolorR[xgrid][zgrid] = 103;
-        SEcolorG[xgrid][zgrid] = 111;
-        SEcolorB[xgrid][zgrid] = 63;
-        break;
-      case T_TYPE_CRATER:
-        SEcolorR[xgrid][zgrid] = 63;
-        SEcolorG[xgrid][zgrid] = 66;
-        SEcolorB[xgrid][zgrid] = 43;
-        break;
-      case T_TYPE_VILLAGE:
-        SEcolorR[xgrid][zgrid] = 90;
-        SEcolorG[xgrid][zgrid] = 111;
-        SEcolorB[xgrid][zgrid] = 35;
-        break;
-      case T_TYPE_FOREST1:
-        z1 = ((2000 - SEy[xgrid][zgrid]) / 1000.0f) * 25.0f;
-        SEcolorR[xgrid][zgrid] = 65 - z1;
-        SEcolorG[xgrid][zgrid] = 100;
-        SEcolorB[xgrid][zgrid] = 15;
-        break;
-      case T_TYPE_FOREST2:
-        SEcolorR[xgrid][zgrid] = 48;
-        SEcolorG[xgrid][zgrid] = 90;
-        SEcolorB[xgrid][zgrid] = 27;
-        break;
-      case T_TYPE_SNOW:
-        SEcolorR[xgrid][zgrid] = 250;
-        SEcolorG[xgrid][zgrid] = 250;
-        SEcolorB[xgrid][zgrid] = 250;
-        break;
-      default:
-        SEcolorR[xgrid][zgrid] = 93;
-        SEcolorG[xgrid][zgrid] = 87;
-        SEcolorB[xgrid][zgrid] = 55;
-        break;
+    if (camerarot.x > 47.0f || cull <= 75 || cull >= 285 || dist < *t_size * 3.5f || *swapb == 0) {
+      if (*swapb == 0) {
+        NEx[xgrid][zgrid] = x1;
+        NEz[xgrid][zgrid] = z2;
+        temp1 = algorithmicTerrain (NEx[xgrid][zgrid], NEz[xgrid][zgrid]);
+        NEy[xgrid][zgrid] = (int) temp1.height;
+        NWx[xgrid][zgrid] = x2;
+        NWz[xgrid][zgrid] = z2;
+        NWy[xgrid][zgrid] = (int) readTerrainHeight (NWx[xgrid][zgrid], NWz[xgrid][zgrid]);
+        SEx[xgrid][zgrid] = x1;
+        SEz[xgrid][zgrid] = z1;
+        temp2 = algorithmicTerrain (SEx[xgrid][zgrid], SEz[xgrid][zgrid]);
+        SEy[xgrid][zgrid] = (int) temp2.height;
+        SWx[xgrid][zgrid] = x2;
+        SWz[xgrid][zgrid] = z1;
+        SWy[xgrid][zgrid] = (int) readTerrainHeight (SWx[xgrid][zgrid], SWz[xgrid][zgrid]);
+        switch (temp2.type) {
+        case T_TYPE_GRASS1:
+          x2 = ((1000 - SEy[xgrid][zgrid]) / 900.0f) * 70.0f;
+          SEcolorR[xgrid][zgrid] = 40 + x2;
+          SEcolorG[xgrid][zgrid] = 108;
+          SEcolorB[xgrid][zgrid] = 15;
+          break;
+        case T_TYPE_GRASS2:
+          z1 = ((2000 - SEy[xgrid][zgrid]) / 1000.0f) * 25.0f;
+          SEcolorR[xgrid][zgrid] = 65 - z1;
+          SEcolorG[xgrid][zgrid] = 100;
+          SEcolorB[xgrid][zgrid] = 15;
+          break;
+        case T_TYPE_GRASS3:
+          x1 = ((5000 - SEy[xgrid][zgrid]) / 3000.0f) * 45.0f;
+          SEcolorR[xgrid][zgrid] = 103 - x1;
+          SEcolorG[xgrid][zgrid] = 100;
+          z1 = ((5000 - SEy[xgrid][zgrid]) / 3000.0f) * 37.0f;
+          SEcolorB[xgrid][zgrid] = 52 - z1;
+          break;
+        case T_TYPE_ROCK:
+          x1 = SEy[xgrid][zgrid] < TERRAIN_WATER_LEVEL ? SEy[xgrid][zgrid] * 0.041f : 0;
+          x1 = x1 < -77 ? -77 : x1;
+          SEcolorR[xgrid][zgrid] = 101 + x1;
+          SEcolorG[xgrid][zgrid] = 106 + x1;
+          SEcolorB[xgrid][zgrid] = 88 + x1;
+          break;
+        case T_TYPE_DIRT:
+          SEcolorR[xgrid][zgrid] = 103;
+          SEcolorG[xgrid][zgrid] = 111;
+          SEcolorB[xgrid][zgrid] = 63;
+          break;
+        case T_TYPE_CRATER:
+          SEcolorR[xgrid][zgrid] = 63;
+          SEcolorG[xgrid][zgrid] = 66;
+          SEcolorB[xgrid][zgrid] = 43;
+          break;
+        case T_TYPE_VILLAGE:
+          SEcolorR[xgrid][zgrid] = 90;
+          SEcolorG[xgrid][zgrid] = 111;
+          SEcolorB[xgrid][zgrid] = 35;
+          break;
+        case T_TYPE_FOREST1:
+          z1 = ((2000 - SEy[xgrid][zgrid]) / 1000.0f) * 25.0f;
+          SEcolorR[xgrid][zgrid] = 65 - z1;
+          SEcolorG[xgrid][zgrid] = 100;
+          SEcolorB[xgrid][zgrid] = 15;
+          break;
+        case T_TYPE_FOREST2:
+          SEcolorR[xgrid][zgrid] = 48;
+          SEcolorG[xgrid][zgrid] = 90;
+          SEcolorB[xgrid][zgrid] = 27;
+          break;
+        case T_TYPE_SNOW:
+          SEcolorR[xgrid][zgrid] = 250;
+          SEcolorG[xgrid][zgrid] = 250;
+          SEcolorB[xgrid][zgrid] = 250;
+          break;
+        default:
+          SEcolorR[xgrid][zgrid] = 93;
+          SEcolorG[xgrid][zgrid] = 87;
+          SEcolorB[xgrid][zgrid] = 55;
+          break;
+        }
+        switch (temp1.type) {
+        case T_TYPE_GRASS1:
+          x2 = ((1000 - NEy[xgrid][zgrid]) / 900.0f) * 70.0f;
+          NEcolorR[xgrid][zgrid] = 40 + x2;
+          NEcolorG[xgrid][zgrid] = 108;
+          NEcolorB[xgrid][zgrid] = 15;
+          break;
+        case T_TYPE_GRASS2:
+          z1 = ((2000 - NEy[xgrid][zgrid]) / 1000.0f) * 25.0f;
+          NEcolorR[xgrid][zgrid] = 65 - z1;
+          NEcolorG[xgrid][zgrid] = 100;
+          NEcolorB[xgrid][zgrid] = 15;
+          break;
+        case T_TYPE_GRASS3:
+          x1 = ((5000 - NEy[xgrid][zgrid]) / 3000.0f) * 45.0f;
+          NEcolorR[xgrid][zgrid] = 103 - x1;
+          NEcolorG[xgrid][zgrid] = 100;
+          z1 = ((5000 - NEy[xgrid][zgrid]) / 3000.0f) * 37.0f;
+          NEcolorB[xgrid][zgrid] = 52 - z1;
+          break;
+        case T_TYPE_ROCK:
+          x1 = NEy[xgrid][zgrid] < TERRAIN_WATER_LEVEL ? NEy[xgrid][zgrid] * 0.041f : 0;
+          x1 = x1 < -77 ? -77 : x1;
+          NEcolorR[xgrid][zgrid] = 101 + x1;
+          NEcolorG[xgrid][zgrid] = 106 + x1;
+          NEcolorB[xgrid][zgrid] = 88 + x1;
+          break;
+        case T_TYPE_DIRT:
+          NEcolorR[xgrid][zgrid] = 103;
+          NEcolorG[xgrid][zgrid] = 111;
+          NEcolorB[xgrid][zgrid] = 63;
+          break;
+        case T_TYPE_CRATER:
+          SEcolorR[xgrid][zgrid] = 63;
+          SEcolorG[xgrid][zgrid] = 66;
+          SEcolorB[xgrid][zgrid] = 43;
+          break;
+        case T_TYPE_VILLAGE:
+          NEcolorR[xgrid][zgrid] = 90;
+          NEcolorG[xgrid][zgrid] = 111;
+          NEcolorB[xgrid][zgrid] = 35;
+          break;
+        case T_TYPE_FOREST1:
+          z1 = ((2000 - NEy[xgrid][zgrid]) / 1000.0f) * 25.0f;
+          NEcolorR[xgrid][zgrid] = 65 - z1;
+          NEcolorG[xgrid][zgrid] = 100;
+          NEcolorB[xgrid][zgrid] = 15;
+          break;
+        case T_TYPE_FOREST2:
+          NEcolorR[xgrid][zgrid] = 48;
+          NEcolorG[xgrid][zgrid] = 90;
+          NEcolorB[xgrid][zgrid] = 27;
+          break;
+        case T_TYPE_SNOW:
+          NEcolorR[xgrid][zgrid] = 250;
+          NEcolorG[xgrid][zgrid] = 250;
+          NEcolorB[xgrid][zgrid] = 250;
+          break;
+        default:
+          NEcolorR[xgrid][zgrid] = 93;
+          NEcolorG[xgrid][zgrid] = 87;
+          NEcolorB[xgrid][zgrid] = 55;
+          break;
+        }
       }
-      switch (temp1.type) {
-      case T_TYPE_GRASS1:
-        x2 = ((1000 - NEy[xgrid][zgrid]) / 900.0f) * 70.0f;
-        NEcolorR[xgrid][zgrid] = 40 + x2;
-        NEcolorG[xgrid][zgrid] = 108;
-        NEcolorB[xgrid][zgrid] = 15;
-        break;
-      case T_TYPE_GRASS2:
-        z1 = ((2000 - NEy[xgrid][zgrid]) / 1000.0f) * 25.0f;
-        NEcolorR[xgrid][zgrid] = 65 - z1;
-        NEcolorG[xgrid][zgrid] = 100;
-        NEcolorB[xgrid][zgrid] = 15;
-        break;
-      case T_TYPE_GRASS3:
-        x1 = ((5000 - NEy[xgrid][zgrid]) / 3000.0f) * 45.0f;
-        NEcolorR[xgrid][zgrid] = 103 - x1;
-        NEcolorG[xgrid][zgrid] = 100;
-        z1 = ((5000 - NEy[xgrid][zgrid]) / 3000.0f) * 37.0f;
-        NEcolorB[xgrid][zgrid] = 52 - z1;
-        break;
-      case T_TYPE_ROCK:
-        x1 = NEy[xgrid][zgrid] < TERRAIN_WATER_LEVEL ? NEy[xgrid][zgrid] * 0.041f : 0;
-        x1 = x1 < -77 ? -77 : x1;
-        NEcolorR[xgrid][zgrid] = 101 + x1;
-        NEcolorG[xgrid][zgrid] = 106 + x1;
-        NEcolorB[xgrid][zgrid] = 88 + x1;
-        break;
-      case T_TYPE_DIRT:
-        NEcolorR[xgrid][zgrid] = 103;
-        NEcolorG[xgrid][zgrid] = 111;
-        NEcolorB[xgrid][zgrid] = 63;
-        break;
-      case T_TYPE_CRATER:
-        SEcolorR[xgrid][zgrid] = 63;
-        SEcolorG[xgrid][zgrid] = 66;
-        SEcolorB[xgrid][zgrid] = 43;
-        break;
-      case T_TYPE_VILLAGE:
-        NEcolorR[xgrid][zgrid] = 90;
-        NEcolorG[xgrid][zgrid] = 111;
-        NEcolorB[xgrid][zgrid] = 35;
-        break;
-      case T_TYPE_FOREST1:
-        z1 = ((2000 - NEy[xgrid][zgrid]) / 1000.0f) * 25.0f;
-        NEcolorR[xgrid][zgrid] = 65 - z1;
-        NEcolorG[xgrid][zgrid] = 100;
-        NEcolorB[xgrid][zgrid] = 15;
-        break;
-      case T_TYPE_FOREST2:
-        NEcolorR[xgrid][zgrid] = 48;
-        NEcolorG[xgrid][zgrid] = 90;
-        NEcolorB[xgrid][zgrid] = 27;
-        break;
-      case T_TYPE_SNOW:
-        NEcolorR[xgrid][zgrid] = 250;
-        NEcolorG[xgrid][zgrid] = 250;
-        NEcolorB[xgrid][zgrid] = 250;
-        break;
-      default:
-        NEcolorR[xgrid][zgrid] = 93;
-        NEcolorG[xgrid][zgrid] = 87;
-        NEcolorB[xgrid][zgrid] = 55;
-        break;
-      }
-      //  calcnormal for top segment
       v1[0] = (GLfloat) SEx[xgrid][zgrid];
       v1[1] = (GLfloat) SEy[xgrid][zgrid];
-      v1[2] = (GLfloat) SEz[xgrid][zgrid];  //  se vertex
+      v1[2] = (GLfloat) SEz[xgrid][zgrid];
       v2[0] = (GLfloat) NEx[xgrid][zgrid];
       v2[1] = (GLfloat) NEy[xgrid][zgrid];
-      v2[2] = (GLfloat) NEz[xgrid][zgrid];  //  ne vertex
+      v2[2] = (GLfloat) NEz[xgrid][zgrid];
       v3[0] = (GLfloat) NWx[xgrid][zgrid];
       v3[1] = (GLfloat) NWy[xgrid][zgrid];
-      v3[2] = (GLfloat) NWz[xgrid][zgrid];  //  nw vertex
-      temp3f = calcNormal(v1, v2, v3);  //  ccw - SE, NE, NW
+      v3[2] = (GLfloat) NWz[xgrid][zgrid];
+      temp3f = calcNormal(v1, v2, v3);
       Nnormx[xgrid][zgrid] = temp3f.x;
       Nnormy[xgrid][zgrid] = temp3f.y;
       Nnormz[xgrid][zgrid] = temp3f.z;
-      //  calcnormal for bottom segment
-      //  se in array already...
       v2[0] = (GLfloat) SWx[xgrid][zgrid];
       v2[1] = (GLfloat) SWy[xgrid][zgrid];
-      v2[2] = (GLfloat) SWz[xgrid][zgrid];  //  sw vertex
-      //  nw in array already...
-      temp3f = calcNormal(v1, v3, v2);  //  ccw - SE, NW, SW  //  swapped order
+      v2[2] = (GLfloat) SWz[xgrid][zgrid];
+      temp3f = calcNormal(v1, v3, v2);
       Snormx[xgrid][zgrid] = temp3f.x;
       Snormy[xgrid][zgrid] = temp3f.y;
       Snormz[xgrid][zgrid] = temp3f.z;
-      //  calcnormal for NW vertex
       x2 = xgrid - 1;
       z2 = zgrid - 1;
       NWnormx[xgrid][zgrid] = (Nnormx[xgrid][zgrid] + Snormx[xgrid][z2]
@@ -641,7 +638,6 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
       NWnormz[xgrid][zgrid] = (Nnormz[xgrid][zgrid] + Snormz[xgrid][z2]
                                + Nnormz[x2][z2] + Snormz[x2][z2]
                                + Nnormz[x2][zgrid] + Snormz[xgrid][zgrid]) / 6;
-      //  calcnormal for SE vertex
       x2 = xgrid + 1;
       z2 = zgrid + 1;
       SEnormx[xgrid][zgrid] = (Nnormx[xgrid][zgrid] + Snormx[xgrid][zgrid]
@@ -653,7 +649,6 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
       SEnormz[xgrid][zgrid] = (Nnormz[xgrid][zgrid] + Snormz[xgrid][zgrid]
                                + Nnormz[xgrid][z2] + Snormz[x2][z2]
                                + Nnormz[x2][z2] + Snormz[x2][zgrid]) / 6;
-      //  calcnormal for SW vertex
       x2 = xgrid - 1;
       z2 = zgrid + 1;
       SWnormx[xgrid][zgrid] = (Snormx[xgrid][zgrid] + Nnormx[x2][zgrid]
@@ -665,7 +660,6 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
       SWnormz[xgrid][zgrid] = (Snormz[xgrid][zgrid] + Nnormz[x2][zgrid]
                                + Snormz[x2][zgrid] + Nnormz[x2][z2]
                                + Snormz[xgrid][z2] + Nnormz[xgrid][z2]) / 6;
-      //  calcnormal for NE vertex
       x2 = xgrid + 1;
       z2 = zgrid - 1;
       NEnormx[xgrid][zgrid] = (Nnormx[xgrid][zgrid] + Snormx[x2][zgrid]
