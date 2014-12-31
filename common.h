@@ -2,6 +2,7 @@
 
 #define RESX                                1366
 #define RESY                                768
+#define USE_SHADERS                         0
 #define PI                                  3.14159265358979323846f
 #define PIx180                              180.0f*PI
 #define VIEW_DISTANCE                       1500
