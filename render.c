@@ -570,61 +570,63 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glEnable(GL_NORMALIZE);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN]);
   drawTerrain(camerapos, camerarot, sector, t_size, &swapb);
-  glBindTexture(GL_TEXTURE_2D, textures[2]);
-  renderWater(camerapos, camerarot, color, *t_size);
   renderGroundScenery(scene, textures, camerapos, camerarot, *sector, *t_size, swapb);
-  renderAircraft(scene, textures, camerapos, airunits);
-  /* glEnable(GL_POINT_SPRITE); */
-  /* glEnable(GL_PROGRAM_POINT_SIZE); */
-  /* glUseProgramARB(shaders[2]); */
-  /* glUniform1iARB(glGetUniformLocationARB(shaders[2], "texture"), 1); */
-  /* glUniform1fARB(glGetUniformLocationARB(shaders[2], "size"), 10.0f); */
-  /* glUniform2fARB(glGetUniformLocationARB(shaders[2], "screensize"), 1366, 768); */
-  /* renderFX(); */
-  /* glUseProgramARB(0); */
-  glEnable(GL_LIGHTING);
-  glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, textures[2]);
-  if (camerapos.y < TERRAIN_SCALE_HEIGHT) {
-    renderCloud(camerapos, camerarot, 180, TERRAIN_SCALE_HEIGHT, 0.00005f, *t_size);
-    renderCloud(camerapos, camerarot, 100, LOWER_CLOUD_HEIGHT, 0.00001f, *t_size);
+  if (swapb) {
+    glBindTexture(GL_TEXTURE_2D, textures[2]);
+    renderWater(camerapos, camerarot, color, *t_size);
+    renderAircraft(scene, textures, camerapos, airunits);
+    /* glEnable(GL_POINT_SPRITE); */
+    /* glEnable(GL_PROGRAM_POINT_SIZE); */
+    /* glUseProgramARB(shaders[2]); */
+    /* glUniform1iARB(glGetUniformLocationARB(shaders[2], "texture"), 1); */
+    /* glUniform1fARB(glGetUniformLocationARB(shaders[2], "size"), 10.0f); */
+    /* glUniform2fARB(glGetUniformLocationARB(shaders[2], "screensize"), 1366, 768); */
+    /* renderFX(); */
+    /* glUseProgramARB(0); */
+    glEnable(GL_LIGHTING);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textures[2]);
+    if (camerapos.y < TERRAIN_SCALE_HEIGHT) {
+      renderCloud(camerapos, camerarot, 180, TERRAIN_SCALE_HEIGHT, 0.00005f, *t_size);
+      renderCloud(camerapos, camerarot, 100, LOWER_CLOUD_HEIGHT, 0.00001f, *t_size);
+    }
+    else {
+      renderCloud(camerapos, camerarot, 65, LOWER_CLOUD_HEIGHT, 0.00001f, *t_size);
+      renderCloud(camerapos, camerarot, 120, TERRAIN_SCALE_HEIGHT, 0.00005f, *t_size);
+    }
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glOrtho(0, RESX, 0, RESY, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    glBindTexture(GL_TEXTURE_2D, textures[3]);
+    /* renderNumber(camerapos->x, textquads, mv2f(RESX - 100, 120)); */
+    /* renderNumber(camerapos->z, textquads, mv2f(RESX - 100, 70)); */
+    renderNumber(fps2, textquads, mv2f(100, 20));
+    renderNumber(airunits[0].height, textquads, mv2f(RESX - 100, 120));
+    renderNumber(airunits[0].speed * 10.0f, textquads, mv2f(RESX - 100, 70));
+    renderNumber(airunits[0].thrust * 100, textquads, mv2f(RESX - 100, 20));
+    glReadBuffer(GL_BACK);
+    glBindTexture(GL_TEXTURE_2D, textures[4]);
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0);
+    glUseProgramARB(shaders[0]);
+    glUniform1iARB(glGetUniformLocationARB(shaders[0], "scene"), 4);
+    glUniform1fARB(glGetUniformLocationARB(shaders[0], "gamma"), 0.6f);
+    glUniform1fARB(glGetUniformLocationARB(shaders[0], "numcolors"), 64.0f);
+    glUniform4fvARB(glGetUniformLocationARB(shaders[0], "clear"), 0, color);
+    sceneQuad();
+    /* glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0); */
+    /* glUseProgramARB(shaders[1]); */
+    /* glUniform1iARB(glGetUniformLocationARB(shaders[1], "scene"), 4); */
+    /* glUniform2fARB(glGetUniformLocationARB(shaders[1], "steps"), 2000.0f, 2000.0f); */
+    /* glUniform4fvARB(glGetUniformLocationARB(shaders[1], "clear"), 0, color); */
+    /* sceneQuad(); */
   }
-  else {
-    renderCloud(camerapos, camerarot, 65, LOWER_CLOUD_HEIGHT, 0.00001f, *t_size);
-    renderCloud(camerapos, camerarot, 120, TERRAIN_SCALE_HEIGHT, 0.00005f, *t_size);
-  }
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  glOrtho(0, RESX, 0, RESY, -1, 1);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-  glBindTexture(GL_TEXTURE_2D, textures[3]);
-  /* renderNumber(camerapos->x, textquads, mv2f(RESX - 100, 120)); */
-  /* renderNumber(camerapos->z, textquads, mv2f(RESX - 100, 70)); */
-  renderNumber(fps2, textquads, mv2f(100, 20));
-  renderNumber(airunits[0].height, textquads, mv2f(RESX - 100, 120));
-  renderNumber(airunits[0].speed * 10.0f, textquads, mv2f(RESX - 100, 70));
-  renderNumber(airunits[0].thrust * 100, textquads, mv2f(RESX - 100, 20));
-  glReadBuffer(GL_BACK);
-  glBindTexture(GL_TEXTURE_2D, textures[4]);
-  glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0);
-  glUseProgramARB(shaders[0]);
-  glUniform1iARB(glGetUniformLocationARB(shaders[0], "scene"), 4);
-  glUniform1fARB(glGetUniformLocationARB(shaders[0], "gamma"), 0.6f);
-  glUniform1fARB(glGetUniformLocationARB(shaders[0], "numcolors"), 64.0f);
-  glUniform4fvARB(glGetUniformLocationARB(shaders[0], "clear"), 0, color);
-  sceneQuad();
-  /* glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0); */
-  /* glUseProgramARB(shaders[1]); */
-  /* glUniform1iARB(glGetUniformLocationARB(shaders[1], "scene"), 4); */
-  /* glUniform2fARB(glGetUniformLocationARB(shaders[1], "steps"), 2000.0f, 2000.0f); */
-  /* glUniform4fvARB(glGetUniformLocationARB(shaders[1], "clear"), 0, color); */
-  /* sceneQuad(); */
   glUseProgramARB(0);
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
