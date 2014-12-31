@@ -406,47 +406,55 @@ void keyboardInput(GLFWwindow *window, char *direction)
 void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float speed, int t_size)
 {
   struct v3f normal, pos;
-  float ground, temp;
+  float ground, temp, dir = 0.0f;
+  char a = 0;
 
   pos = *camerapos;
-  degreestovector3d(&pos, camerarot, mv3f(0.0f, 180.0f, 0.0f), 1.0f);
+  if ((direction | INPUT_LEFT_SHIFT) == direction)
+    speed *= 50.0f;
+  switch (direction & ~(INPUT_LEFT_SHIFT | INPUT_SPACE)) {
+  case INPUT_UP:
+    dir = 0.0f;
+    a = -1;
+    break;
+  case INPUT_DOWN:
+    dir = 0.0f;
+    a = 1;
+    break;
+  case INPUT_LEFT:
+    dir = 90.0f;
+    a = 1;
+    break;
+  case INPUT_RIGHT:
+    dir = 270.0f;
+    a = 1;
+    break;
+  case INPUT_UP_RIGHT:
+    dir = 45.0f;
+    a = -1;
+    break;
+  case INPUT_UP_LEFT:
+    dir = -45.0f;
+    a = -1;
+    break;
+  case INPUT_DOWN_RIGHT:
+    dir = -45.0f;
+    a = 1;
+    break;
+  case INPUT_DOWN_LEFT:
+    dir = 45.0f;
+    a = 1;
+    break;
+  default: break;
+  }
+  degreestovector3d(&pos, camerarot, mv3f(0.0f, dir, 0.0f), a);
   temp = readTerrainHeightPlane(pos.x, pos.z, &normal, t_size);
   ground = readTerrainHeightPlane(camerapos->x, camerapos->z, &normal, t_size);
   if (temp > ground + 1.0f)
     speed = 0.0f;
   else if (temp > ground)
     speed *= 1 - ((temp - ground) / 1.0f);
-  if ((direction | INPUT_LEFT_SHIFT) == direction)
-    speed *= 50.0f;
-  switch (direction & ~(INPUT_LEFT_SHIFT | INPUT_SPACE)) {
-  case INPUT_UP:
-    degreestovector3d(camerapos, camerarot, mv3f(0.0f, 0.0f, 0.0f), -speed);
-    break;
-  case INPUT_DOWN:
-    degreestovector3d(camerapos, camerarot, mv3f(0.0f, 0.0f, 0.0f), speed);
-    break;
-  case INPUT_LEFT:
-    degreestovector3d(camerapos, mv3f(0.0f, camerarot.y, 0.0f),
-                                   mv3f(0.0f, 90.0f, 0.0f), speed);
-    break;
-  case INPUT_RIGHT:
-    degreestovector3d(camerapos, mv3f(0.0f, camerarot.y, 0.0f),
-                                   mv3f(0.0f, 270.0f, 0.0f), speed);
-    break;
-  case INPUT_UP_RIGHT:
-    degreestovector3d(camerapos, camerarot, mv3f(0.0f, 45.0f, 0.0f), -speed);
-    break;
-  case INPUT_UP_LEFT:
-    degreestovector3d(camerapos, camerarot, mv3f(0.0f, -45.0f, 0.0f), -speed);
-    break;
-  case INPUT_DOWN_RIGHT:
-    degreestovector3d(camerapos, camerarot, mv3f(0.0f, -45.0f, 0.0f), speed);
-    break;
-  case INPUT_DOWN_LEFT:
-    degreestovector3d(camerapos, camerarot, mv3f(0.0f, 45.0f, 0.0f), speed);
-    break;
-  default: break;
-  }
+  degreestovector3d(camerapos, camerarot, mv3f(0.0f, dir, 0.0f), a * speed);
   ground = readTerrainHeightPlane(camerapos->x, camerapos->z, &normal, t_size);
   ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
   ground += 1.8f;
