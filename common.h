@@ -8,13 +8,11 @@
 #define VIEW_DISTANCE                       2000
 #define VIEW_DISTANCE_HALF                  1000
 #define SCENERY_DENSITY                     1200 /* Lower number is more dense, don't go below 1000. */
-#define WORLD_SIZE                          100000
 #define WORLD_GRAVITY                       0.4f
 #define TERRAIN_GRID_SIZE                   120
 #define TERRAIN_GRID_SIZE_HALF              60
 #define TERRAIN_GRID_SIZE_QUARTER           30
 #define TERRAIN_SQUARE_SIZE                 500
-#define TERRAIN_SQUARE_SIZE_HALF            250
 #define TERRAIN_STEP_SIZE                   6
 #define TERRAIN_WATER_LEVEL                 0
 #define TERRAIN_SCALE_HEIGHT                9500
@@ -31,11 +29,6 @@
 #define T_TYPE_FOREST1                      8
 #define T_TYPE_FOREST2                      9
 #define T_TYPE_SNOW                         10
-#define KEY_NONE                            0
-#define KEY_LMB                             5
-#define KEY_LMB_RELEASE                     6
-#define KEY_MMB                             7
-#define KEY_RMB                             9
 #define INPUT_NONE                          0
 #define INPUT_UP                            1
 #define INPUT_DOWN                          2
