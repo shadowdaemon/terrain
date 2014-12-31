@@ -18,6 +18,7 @@
 #define TERRAIN_WATER_LEVEL                 0
 #define TERRAIN_SCALE_HEIGHT                9500
 #define LOWER_CLOUD_HEIGHT                  4500
+#define SCENERY_SIZE                        14400 /* TERRAIN_GRID_SIZE^2. */
 #define T_TYPE_NULL                         0
 #define T_TYPE_CRATER                       1
 #define T_TYPE_VILLAGE                      2

@@ -43,19 +43,19 @@ void updateFogAndFrustum(GLfloat *clear, struct v3f camerapos, int t_size)
 void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f camerapos,
                          struct v3f camerarot, struct v2f sector, int t_size, char swapb)
 {
-  static struct v3f normal[25000];
   int xgrid, zgrid, x, z, x1, z1, cull, density, i;
   const int size = t_size * 0.15f; /* Size of generation sector, also affects density. */
   float xpos, zpos, dist;
-  static float height[25000];
-  static unsigned char type[25000];
+  static struct v3f normal[SCENERY_SIZE];
+  static float height[SCENERY_SIZE];
+  static unsigned char type[SCENERY_SIZE];
   GLubyte alpha;
   GLuint color[3];
 
   glMateriali(GL_FRONT, GL_SHININESS, 92);
   x = (int) (sector.x / size);
   z = (int) (sector.y / size);
-  for (xgrid = 0, zgrid = 0, i = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
+  for (xgrid = 0, zgrid = 0, i = 0; i < SCENERY_SIZE && xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
     xpos = (xgrid - TERRAIN_GRID_SIZE_HALF + x) * size;
     zpos = (zgrid - TERRAIN_GRID_SIZE_HALF + z) * size;
     x1 = sqrt(fabs(xpos * zpos + 107)) * 123;
