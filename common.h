@@ -15,7 +15,7 @@
 #define TERRAIN_SQUARE_SIZE                 500
 #define TERRAIN_STEP_SIZE                   6
 #define TERRAIN_WATER_LEVEL                 0
-#define TERRAIN_SCALE_HEIGHT                9500
+#define TERRAIN_SCALE_HEIGHT                9500 /* Also upper cloud height. */
 #define LOWER_CLOUD_HEIGHT                  4500
 #define SCENERY_SIZE                        14400 /* TERRAIN_GRID_SIZE^2. */
 #define T_TYPE_NULL                         0
@@ -29,6 +29,7 @@
 #define T_TYPE_FOREST1                      8
 #define T_TYPE_FOREST2                      9
 #define T_TYPE_SNOW                         10
+#define T_TYPE_DESERT                       11
 #define INPUT_NONE                          0
 #define INPUT_UP                            1
 #define INPUT_DOWN                          2
