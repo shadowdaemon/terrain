@@ -620,12 +620,12 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
     glUniform1fARB(glGetUniformLocationARB(shaders[0], "numcolors"), 64.0f);
     glUniform4fvARB(glGetUniformLocationARB(shaders[0], "clear"), 0, color);
     sceneQuad();
-    /* glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0); */
-    /* glUseProgramARB(shaders[1]); */
-    /* glUniform1iARB(glGetUniformLocationARB(shaders[1], "scene"), 4); */
-    /* glUniform2fARB(glGetUniformLocationARB(shaders[1], "steps"), 2000.0f, 2000.0f); */
-    /* glUniform4fvARB(glGetUniformLocationARB(shaders[1], "clear"), 0, color); */
-    /* sceneQuad(); */
+    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0);
+    glUseProgramARB(shaders[1]);
+    glUniform1iARB(glGetUniformLocationARB(shaders[1], "scene"), 4);
+    glUniform2fARB(glGetUniformLocationARB(shaders[1], "steps"), RESX, RESY);
+    glUniform4fvARB(glGetUniformLocationARB(shaders[1], "clear"), 0, color);
+    sceneQuad();
   }
   glUseProgramARB(0);
   glMatrixMode(GL_PROJECTION);

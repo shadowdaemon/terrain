@@ -7,7 +7,7 @@ void main()
 {
   vec2 mod = offset;
   if (all(greaterThan(texture2D(scene, coords), clear + 0.1)))
-    mod = offset * 3.0;
+    mod = offset * 1.5;
   vec4 c  = texture2D(scene, coords);
   vec4 u1 = texture2D(scene, coords + vec2(0.0, -mod.y));
   vec4 u2 = texture2D(scene, coords + vec2(0.0, -mod.y * 2.0));
