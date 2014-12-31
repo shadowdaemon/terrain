@@ -411,7 +411,7 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
 
   pos = *camerapos;
   if ((direction | INPUT_LEFT_SHIFT) == direction)
-    speed *= 50.0f;
+    speed *= 2.3f;
   switch (direction & ~(INPUT_LEFT_SHIFT | INPUT_SPACE)) {
   case INPUT_UP:
     dir = 0.0f;
