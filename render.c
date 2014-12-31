@@ -63,15 +63,15 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
     z1 = (int) (x1 + zpos) % 85;
     xpos += z1;
     zpos += x1;
+    dist = distance3d(camerapos, mv3f(xpos, height[i], zpos));
     cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
     while (cull >= 360)
       cull -= 360;
-    if (cull <= 85 || cull >= 275 || camerarot.x > 27 || swapb == 0) {
+    if (cull <= 85 || cull >= 275 || camerarot.x > 27 || swapb == 0 || dist < t_size * 2) {
       if (swapb == 0) {
         height[i] = readTerrainHeightPlane(xpos, zpos, &normal[i], t_size);
         type[i] = readTerrainType(xpos, zpos);
       }
-      dist = distance3d(camerapos, mv3f(xpos, height[i], zpos));
       x1 = x1 * x1 + z1 * z1;
       x1 = x1 % SCENERY_DENSITY;
       switch (type[i]) {
@@ -102,7 +102,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
       default:
         density = 170;
       }
-      if (dist < VIEW_DISTANCE || dist < t_size * 6) {
+      if (dist < VIEW_DISTANCE) {
         if (height[i] > TERRAIN_WATER_LEVEL + 50) {
           if (dist < VIEW_DISTANCE_HALF)
             alpha = 255;
