@@ -145,7 +145,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
               else
                 drawModel((const struct aiScene *) &scene[MODEL_TREE_FIR], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.35f, alpha);
             }
-            else if (type[i] == T_TYPE_DIRT) {
+            else if (type[i] == T_TYPE_DIRT || type[i] == T_TYPE_DESERT) {
               if (x1 % 3 == 0)
                 drawModel((const struct aiScene *) &scene[MODEL_TREE_STUMP], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.333f, alpha);
               else if (x1 % 3 == 1 && height[i] < 3700) {
