@@ -261,6 +261,7 @@ struct terrain algorithmicTerrain(float x, float z)
   float a, b, c, x1, z1;
 
   temp.height = 0;
+  temp.type = T_TYPE_NULL;
   x1 = 1.0f - fabs(sinf(x * 0.000037f));
   z1 = 1.0f - fabs(cosf(z * 0.000043f + x1 * 0.01f));
   a = (x1 + 0.13f) * z1;
@@ -289,7 +290,6 @@ struct terrain algorithmicTerrain(float x, float z)
   }
   if (temp.height > TERRAIN_WATER_LEVEL)
     temp.height += 35.0f;
-  temp.type = T_TYPE_NULL;
   if (temp.height < 400) {
     x1 = 0.96f - fabs(sinf(x * 0.00007f + a));
     if (x1 < 0)
@@ -545,7 +545,10 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
           break;
         case T_TYPE_ROCK:
           x1 = SEy[xgrid][zgrid] < TERRAIN_WATER_LEVEL ? SEy[xgrid][zgrid] * 0.041f : 0;
-          x1 = x1 < -77 ? -77 : x1;
+          if (x1 < -77)
+            x1 = -77;
+          else if (x1 > 0)
+            x1 = 0;
           SEcolorR[xgrid][zgrid] = 101 + x1;
           SEcolorG[xgrid][zgrid] = 106 + x1;
           SEcolorB[xgrid][zgrid] = 88 + x1;
@@ -614,7 +617,10 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
           break;
         case T_TYPE_ROCK:
           x1 = NEy[xgrid][zgrid] < TERRAIN_WATER_LEVEL ? NEy[xgrid][zgrid] * 0.041f : 0;
-          x1 = x1 < -77 ? -77 : x1;
+          if (x1 < -77)
+            x1 = -77;
+          else if (x1 > 0)
+            x1 = 0;
           NEcolorR[xgrid][zgrid] = 101 + x1;
           NEcolorG[xgrid][zgrid] = 106 + x1;
           NEcolorB[xgrid][zgrid] = 88 + x1;
