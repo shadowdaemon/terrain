@@ -7,7 +7,7 @@
 #define PIx180                              180.0f*PI
 #define VIEW_DISTANCE                       2000
 #define VIEW_DISTANCE_HALF                  1000
-#define SCENERY_DENSITY                     1200 /* Lower number is more dense, don't go below 1000. */
+#define SCENERY_DENSITY                     1200 /* Lower number is more dense, don't go below 500. */
 #define WORLD_GRAVITY                       0.4f
 #define TERRAIN_GRID_SIZE                   120
 #define TERRAIN_GRID_SIZE_HALF              60

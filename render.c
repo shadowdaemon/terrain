@@ -100,7 +100,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
         density = 170;
       }
       if (dist < VIEW_DISTANCE || dist < t_size * 6) {
-        if (height[i] > TERRAIN_WATER_LEVEL + 50 && height[i] < 4000) {
+        if (height[i] > TERRAIN_WATER_LEVEL + 50) {
           if (dist < VIEW_DISTANCE_HALF)
             alpha = 255;
           else if (dist < VIEW_DISTANCE)
@@ -110,7 +110,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
           if (x1 < density) {
             glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE]);
             if (type[i] == T_TYPE_GRASS1 || type[i] == T_TYPE_GRASS2) {
-              if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.1f)
+              if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.1f && height[i] > 250)
                 drawModel((const struct aiScene *) &scene[MODEL_MTREE_SPARSE], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.333f, alpha);
               else if (x1 % 15 < 5)
                 drawModel((const struct aiScene *) &scene[MODEL_TREE_POPLAR], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.333f, alpha);
@@ -159,7 +159,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
                   2.3f + (z1 % 10) * 0.23f, color, alpha);
               }
             }
-            else
+            else if (height[i] < 3100)
               drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.333f, alpha);
           }
           if (type[i] == T_TYPE_VILLAGE && x1 < 477) {
@@ -169,6 +169,15 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
             if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.3f) {
               glBindTexture(GL_TEXTURE_2D, textures[5]);
               drawModel((const struct aiScene *) &scene[MODEL_BUILDING_HOUSE1], mv3f(xpos, height[i], zpos), mv3f(0, x1 % 90, 0), 0.35f, alpha);
+            }
+          }
+          else if (type[i] == T_TYPE_SNOW && x1 < 103) {
+            height[i] = readTerrainHeightPlane(xpos, zpos, &normal[i], t_size);
+            if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.45f) {
+              color[0] = 155; color[1] = 155; color[2] = 155;
+              glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN]);
+              drawModel2((const struct aiScene *) &scene[MODEL_ROCK1], mv3f(xpos, height[i], zpos), mv3f(x1, z1, 0),
+                         2.35f + (z1 % 10) * 0.71f, color, alpha);
             }
           }
         }
