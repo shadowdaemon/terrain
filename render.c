@@ -168,7 +168,10 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
             height[i] = readTerrainHeightPlane(xpos, zpos, &normal[i], t_size);
             if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.3f) {
               glBindTexture(GL_TEXTURE_2D, textures[5]);
-              drawModel((const struct aiScene *) &scene[MODEL_BUILDING_HOUSE1], mv3f(xpos, height[i], zpos), mv3f(0, x1 % 90, 0), 0.35f, alpha);
+              if (z1 % 3 == 0)
+                drawModel((const struct aiScene *) &scene[MODEL_BUILDING_HOUSE2], mv3f(xpos, height[i], zpos), mv3f(0, x1 % 90, 0), 0.35f, alpha);
+              else
+                drawModel((const struct aiScene *) &scene[MODEL_BUILDING_HOUSE1], mv3f(xpos, height[i], zpos), mv3f(0, x1 % 90, 0), 0.35f, alpha);
             }
           }
           else if (type[i] == T_TYPE_SNOW && x1 < 103) {

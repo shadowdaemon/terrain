@@ -59,6 +59,7 @@
 #define MODEL_MTREE_SPARSE                  9
 #define MODEL_MTREE_FIR                     10
 #define MODEL_BUILDING_HOUSE1               12
+#define MODEL_BUILDING_HOUSE2               13
 #define MODEL_AIR_FIGHTER1                  14
 #define MODEL_AIR_FIGHTER2                  15
 

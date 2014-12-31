@@ -721,6 +721,7 @@ int main(int argc, char *argv[])
     scene[MODEL_MTREE_SPARSE] = *loadModel("data/models/mtree3.obj"); /* More sparsely positioned multi-trees. */
     scene[MODEL_MTREE_FIR] = *loadModel("data/models/mtree4.obj"); /* Sparsely positioned firs. */
     scene[MODEL_BUILDING_HOUSE1] = *loadModel("data/models/house1.obj");
+    scene[MODEL_BUILDING_HOUSE2] = *loadModel("data/models/house2.obj");
     scene[MODEL_AIR_FIGHTER1] = *loadModel("data/models/fighter1.obj");
     scene[MODEL_AIR_FIGHTER2] = *loadModel("data/models/fighter2.obj");
     textquads[0] = *loadTextQuad("data/models/quads/0.obj");
