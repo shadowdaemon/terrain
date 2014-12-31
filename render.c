@@ -44,7 +44,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
                          struct v3f camerarot, struct v2f sector, int t_size, char swapb)
 {
   int xgrid, zgrid, x, z, x1, z1, cull, density, i;
-  const int size = t_size * 0.15f; /* Size of generation sector, also affects density. */
+  const int size = t_size * 0.2f; /* Size of generation sector, also affects density. */
   float xpos, zpos, dist;
   static struct v3f normal[SCENERY_SIZE];
   static float height[SCENERY_SIZE];
