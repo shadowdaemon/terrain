@@ -126,7 +126,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
               }
               else if (x1 % 15 == 7 && z1 % 7 == 0) {
                 if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.3f) {
-                  glBindTexture(GL_TEXTURE_2D, textures[5]);
+                  glBindTexture(GL_TEXTURE_2D, textures[TEX_BUILDING]);
                   drawModel((const struct aiScene *) &scene[MODEL_BUILDING_HOUSE1], mv3f(xpos, height[i], zpos), mv3f(0, x1 % 90, 0), 0.35f, alpha);
                 }
               }
@@ -169,7 +169,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
               if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.1f && a < 2)
                 drawModel((const struct aiScene *) &scene[MODEL_MTREE_SPARSE], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.333f, alpha);
               else if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.3f) {
-                glBindTexture(GL_TEXTURE_2D, textures[5]);
+                glBindTexture(GL_TEXTURE_2D, textures[TEX_BUILDING]);
                 if (a < 5)
                   drawModel((const struct aiScene *) &scene[MODEL_BUILDING_HOUSE2], mv3f(xpos, height[i], zpos), mv3f(0, x1 % 90, 0), 0.4f, alpha);
                 else if (a < 10)
@@ -594,7 +594,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   drawTerrain(camerapos, camerarot, sector, t_size, &swapb);
   renderGroundScenery(scene, textures, camerapos, camerarot, *sector, *t_size, swapb);
   if (swapb) {
-    glBindTexture(GL_TEXTURE_2D, textures[2]);
+    glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
     renderWater(camerapos, camerarot, color, *t_size);
     renderAircraft(scene, textures, camerapos, airunits);
     /* glEnable(GL_POINT_SPRITE); */
@@ -607,7 +607,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
     /* glUseProgramARB(0); */
     glEnable(GL_LIGHTING);
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textures[2]);
+    glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
     if (camerapos.y < TERRAIN_SCALE_HEIGHT) {
       renderCloud(camerapos, camerarot, 180, TERRAIN_SCALE_HEIGHT, 0.00005f, *t_size);
       renderCloud(camerapos, camerarot, 100, LOWER_CLOUD_HEIGHT, 0.00001f, *t_size);
@@ -623,7 +623,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
-    glBindTexture(GL_TEXTURE_2D, textures[3]);
+    glBindTexture(GL_TEXTURE_2D, textures[TEX_FONT]);
     renderNumber(camerapos.x, textquads, mv2f(250, 120));
     renderNumber(camerapos.z, textquads, mv2f(250, 70));
     renderNumber(fps2, textquads, mv2f(250, 20));
@@ -632,7 +632,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
     renderNumber(airunits[0].thrust * 100, textquads, mv2f(RESX - 100, 20));
     if (USE_SHADERS) {
       glReadBuffer(GL_BACK);
-      glBindTexture(GL_TEXTURE_2D, textures[4]);
+      glBindTexture(GL_TEXTURE_2D, textures[TEX_RENDER]);
       glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

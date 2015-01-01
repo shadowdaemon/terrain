@@ -47,6 +47,10 @@
 #define UNIT_AIR_FIGHTER1                   0
 #define TEX_TERRAIN                         0
 #define TEX_FOLIAGE                         1
+#define TEX_CLOUD                           2
+#define TEX_FONT                            3
+#define TEX_RENDER                          4
+#define TEX_BUILDING                        5
 #define TEX_AIR_FIGHTER1                    6
 #define MODEL_TREE_POPLAR                   0
 #define MODEL_TREE_OAK                      1

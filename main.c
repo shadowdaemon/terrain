@@ -192,15 +192,15 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE]);
   loadTexture2D("data/textures/foliage.tga", 'n');
   glActiveTextureARB(GL_TEXTURE2_ARB);
-  glBindTexture(GL_TEXTURE_2D, textures[2]);
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
   loadTexture2D("data/textures/cloud_alpha.tga", 'n');
   glActiveTextureARB(GL_TEXTURE3_ARB);
-  glBindTexture(GL_TEXTURE_2D, textures[3]);
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_FONT]);
   loadTexture2D("data/textures/font_alpha.tga", 'n');
   glActiveTextureARB(GL_TEXTURE4_ARB);
-  glBindTexture(GL_TEXTURE_2D, textures[4]); /* Render to texture. */
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_RENDER]); /* Render to texture. */
   glActiveTextureARB(GL_TEXTURE5_ARB);
-  glBindTexture(GL_TEXTURE_2D, textures[5]);
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_BUILDING]);
   loadTexture2D("data/textures/building1.png", 'n');
   glActiveTextureARB(GL_TEXTURE6_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_AIR_FIGHTER1]);
