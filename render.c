@@ -40,6 +40,163 @@ void updateFogAndFrustum(GLfloat *clear, struct v3f camerapos, int t_size)
 }
 
 
+void grassQuad(struct v3f pos, float rot, char type, GLuint alpha)
+{
+  int h;
+  float u, v, vv;
+
+  switch (type) {
+  case 0:
+    h = 1;
+    u = 0.0f;
+    v = 0.0f;
+    break;
+  case 1:
+    h = 1;
+    u = 0.505f;
+    v = 0.0f;
+    break;
+  case 2:
+    h = 1;
+    u = 0.0f;
+    v = 0.25f;
+    break;
+  case 3:
+    h = 1;
+    u = 0.505f;
+    v = 0.25f;
+    break;
+  case 4:
+    h = 2;
+    u = 0.0f;
+    v = 0.5f;
+    break;
+  default:
+    h = 1;
+    u = 0.0f;
+    v = 0.0f;
+  }
+  if (h == 1)
+    vv = 0.245f;
+  else
+    vv = 0.495f;
+  glMateriali(GL_FRONT, GL_SHININESS, 170);
+  glPushMatrix();
+  glTranslatef(pos.x, pos.y, pos.z);
+  glRotatef(rot, 0.0f, 1.0f, 0.0f);
+  glBegin(GL_QUADS);
+  glColor4ub(255, 255, 255, alpha);
+  glNormal3i(0, 0, 1);
+  glTexCoord2f(u, v);
+  glVertex3i(0, 0, 0);
+  glTexCoord2f(u + 0.495f, v);
+  glVertex3i(1, 0, 0);
+  glTexCoord2f(u + 0.495f, v + vv);
+  glVertex3i(1, h, 0);
+  glTexCoord2f(u, v + vv);
+  glVertex3i(0, h, 0);
+  glEnd();
+  glPopMatrix();
+}
+
+
+void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, int t_size)
+{
+  int xgrid, zgrid, x, z, x1, z1, cull, density, i;
+  static char update = 1;
+  const int size = t_size * 0.1f; /* Size of generation sector, also affects density. */
+  float xpos, zpos, dist, rot;
+  static struct v3f sector;
+  static struct v3f normal[SCENERY_SIZE_GRASS];
+  static float height[SCENERY_SIZE_GRASS];
+  static unsigned char type[SCENERY_SIZE_GRASS];
+  GLubyte alpha;
+
+  glMateriali(GL_FRONT, GL_SHININESS, 92);
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE_GRASS]);
+  if (camerapos.x > (sector.x + 2 * t_size) ||
+      camerapos.x < (sector.x - 2 * t_size)) {
+    update = 1;
+    sector.x = camerapos.x;
+  }
+  if (camerapos.z > (sector.y + 2 * t_size) ||
+      camerapos.z < (sector.y - 2 * t_size)) {
+    update = 1;
+    sector.y = camerapos.z;
+  }
+  x = (int) (sector.x / size);
+  z = (int) (sector.y / size);
+  for (xgrid = 0, zgrid = 0, i = 0; i < SCENERY_SIZE_GRASS && xgrid < TERRAIN_GRID_SIZE_HALF && zgrid < TERRAIN_GRID_SIZE_HALF; xgrid++) {
+    xpos = (xgrid - TERRAIN_GRID_SIZE_QUARTER + x) * size;
+    zpos = (zgrid - TERRAIN_GRID_SIZE_QUARTER + z) * size;
+    x1 = sqrt(fabs(xpos * zpos + 83)) * 113;
+    x1 = (int) (x1 + xpos) % 77;
+    z1 = (int) (x1 + zpos) % 73;
+    xpos += z1;
+    zpos += x1;
+    dist = distance3d(camerapos, mv3f(xpos, height[i], zpos));
+    rot = 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos));
+    cull = fabs((int) (camerarot.y - rot));
+    while (cull >= 360)
+      cull -= 360;
+    if (cull <= 85 || cull >= 275 || camerarot.x > 27 || update == 1 || dist < t_size * 2) {
+      if (update) {
+        height[i] = readTerrainHeightPlane(xpos, zpos, &normal[i], t_size);
+        type[i] = readTerrainType(xpos, zpos);
+      }
+      x1 = x1 * x1 + z1 * z1;
+      x1 = x1 % SCENERY_DENSITY_GRASS;
+      switch (type[i]) {
+      case T_TYPE_GRASS1:
+        density = 710;
+        break;
+      case T_TYPE_GRASS2:
+        density = 747;
+        break;
+      case T_TYPE_GRASS3:
+        density = 701;
+        break;
+      case T_TYPE_VILLAGE:
+        density = 880;
+        break;
+      case T_TYPE_FOREST1:
+        density = 970;
+        break;
+      case T_TYPE_FOREST2:
+        density = 920;
+        break;
+      case T_TYPE_DIRT:
+        density = 376;
+        break;
+      case T_TYPE_SNOW:
+        density = 0;
+        break;
+      default:
+        density = 670;
+      }
+      if (dist < VIEW_DISTANCE_HALF) {
+        if (height[i] > TERRAIN_WATER_LEVEL + 50) {
+          if (dist < VIEW_DISTANCE_QUARTER)
+            alpha = 255;
+          else if (dist < VIEW_DISTANCE_HALF)
+            alpha = (GLubyte) (255 - ((dist - VIEW_DISTANCE_HALF) / (float) VIEW_DISTANCE_HALF) * 255);
+          else
+            alpha = 0;
+          if (x1 < density)
+            grassQuad(mv3f(xpos, height[i], zpos), rot, x1 % 7, alpha);
+        }
+      }
+    }
+    i++;
+    if (xgrid >= TERRAIN_GRID_SIZE_HALF - 1) {
+      zgrid++;
+      xgrid = -1;
+    }
+  }
+  update = 0;
+}
+
+
 void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f camerapos,
                          struct v3f camerarot, struct v2f sector, int t_size, char swapb)
 {
@@ -592,7 +749,8 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glEnable(GL_NORMALIZE);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN]);
   drawTerrain(camerapos, camerarot, sector, t_size, &swapb);
-  renderGroundScenery(scene, textures, camerapos, camerarot, *sector, *t_size, swapb);
+  if (camerapos.y < TERRAIN_SCALE_HEIGHT)
+    renderGroundScenery(scene, textures, camerapos, camerarot, *sector, *t_size, swapb);
   if (swapb) {
     glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
     renderWater(camerapos, camerarot, color, *t_size);
@@ -611,6 +769,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
     if (camerapos.y < TERRAIN_SCALE_HEIGHT) {
       renderCloud(camerapos, camerarot, 180, TERRAIN_SCALE_HEIGHT, 0.00005f, *t_size);
       renderCloud(camerapos, camerarot, 100, LOWER_CLOUD_HEIGHT, 0.00001f, *t_size);
+      renderGrass(textures, camerapos, camerarot, *t_size);
     }
     else {
       renderCloud(camerapos, camerarot, 65, LOWER_CLOUD_HEIGHT, 0.00001f, *t_size);

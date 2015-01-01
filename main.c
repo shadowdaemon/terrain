@@ -205,6 +205,9 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   glActiveTextureARB(GL_TEXTURE6_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_AIR_FIGHTER1]);
   loadTexture2D("data/textures/fighter.png", 'n');
+  glActiveTextureARB(GL_TEXTURE7_ARB);
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE_GRASS]);
+  loadTexture2D("data/textures/foliage_grass.png", 'n');
   glActiveTextureARB(GL_TEXTURE0_ARB);
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);

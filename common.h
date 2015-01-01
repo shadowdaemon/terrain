@@ -5,9 +5,6 @@
 #define USE_SHADERS                         0
 #define PI                                  3.14159265358979323846f
 #define PIx180                              180.0f*PI
-#define VIEW_DISTANCE                       2000
-#define VIEW_DISTANCE_HALF                  1000
-#define SCENERY_DENSITY                     1200 /* Lower number is more dense, don't go below 1000. */
 #define WORLD_GRAVITY                       0.4f
 #define TERRAIN_GRID_SIZE                   120
 #define TERRAIN_GRID_SIZE_HALF              60
@@ -17,7 +14,13 @@
 #define TERRAIN_WATER_LEVEL                 0
 #define TERRAIN_SCALE_HEIGHT                9500 /* Also upper cloud height. */
 #define LOWER_CLOUD_HEIGHT                  4500
+#define VIEW_DISTANCE                       2000
+#define VIEW_DISTANCE_HALF                  1000
+#define VIEW_DISTANCE_QUARTER               500
+#define SCENERY_DENSITY                     1200 /* Lower number is more dense, don't go below 1000. */
 #define SCENERY_SIZE                        14400 /* TERRAIN_GRID_SIZE^2. */
+#define SCENERY_DENSITY_GRASS               1000
+#define SCENERY_SIZE_GRASS                  3600 /* TERRAIN_GRID_SIZE_HALF^2. */
 #define T_TYPE_NULL                         0
 #define T_TYPE_CRATER                       1
 #define T_TYPE_VILLAGE                      2
@@ -52,6 +55,7 @@
 #define TEX_RENDER                          4
 #define TEX_BUILDING                        5
 #define TEX_AIR_FIGHTER1                    6
+#define TEX_FOLIAGE_GRASS                   7
 #define MODEL_TREE_POPLAR                   0
 #define MODEL_TREE_OAK                      1
 #define MODEL_TREE_FIR                      2
