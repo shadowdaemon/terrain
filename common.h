@@ -71,6 +71,13 @@
 #define MODEL_BUILDING_HOUSE2               13
 #define MODEL_AIR_FIGHTER1                  14
 #define MODEL_AIR_FIGHTER2                  15
+#define GRASS_GRASS1                        0
+#define GRASS_GRASS2                        1
+#define GRASS_BUSH1                         2
+#define GRASS_BUSH2                         3
+#define GRASS_BAMBOO                        4
+#define GRASS_DEAD                          5
+#define GRASS_FLOWERS                       6
 
 #define glActiveTexureARB _ActiveTexureARB
 #define glCreateProgramARB _CreateProgramARB

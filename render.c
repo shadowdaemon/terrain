@@ -46,30 +46,40 @@ void grassQuad(struct v3f pos, float rot, char type, GLuint alpha)
   float u, v, vv;
 
   switch (type) {
-  case 0:
+  case GRASS_GRASS1:
     h = 1;
     u = 0.0f;
     v = 0.0f;
     break;
-  case 1:
-    h = 1;
-    u = 0.505f;
-    v = 0.0f;
-    break;
-  case 2:
+  case GRASS_GRASS2:
     h = 1;
     u = 0.0f;
     v = 0.25f;
     break;
-  case 3:
+  case GRASS_BUSH1:
+    h = 1;
+    u = 0.505f;
+    v = 0.0f;
+    break;
+  case GRASS_BUSH2:
     h = 1;
     u = 0.505f;
     v = 0.25f;
     break;
-  case 4:
+  case GRASS_BAMBOO:
     h = 2;
     u = 0.0f;
     v = 0.5f;
+    break;
+  case GRASS_DEAD:
+    h = 1;
+    u = 0.505f;
+    v = 0.5f;
+    break;
+  case GRASS_FLOWERS:
+    h = 1;
+    u = 0.505f;
+    v = 0.75f;
     break;
   default:
     h = 1;
@@ -102,7 +112,7 @@ void grassQuad(struct v3f pos, float rot, char type, GLuint alpha)
 
 void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, int t_size, float fps)
 {
-  int xgrid, zgrid, x, z, x1, z1, cull, density, i;
+  int xgrid, zgrid, x, z, x1, z1, cull, density, i, a;
   static char update = 1;
   static float v_dist = VIEW_DISTANCE_HALF;
   const int size = t_size * 0.1f; /* Size of generation sector, also affects density. */
@@ -172,6 +182,9 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
       case T_TYPE_DIRT:
         density = 376;
         break;
+      case T_TYPE_DESERT:
+        density = 261;
+        break;
       case T_TYPE_SNOW:
         density = 0;
         break;
@@ -186,8 +199,21 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
             alpha = (GLubyte) (255 - ((dist - v_dist_half) / v_dist_half) * 255);
           else
             alpha = 0;
-          if (x1 < density)
-            grassQuad(mv3f(xpos, height[i], zpos), rot, x1 % 7, alpha);
+          if (x1 < density) {
+            if (type[i] == T_TYPE_DIRT || type[i] == T_TYPE_DESERT)
+              grassQuad(mv3f(xpos, height[i], zpos), rot, GRASS_DEAD, alpha);
+            else if (type[i] == T_TYPE_GRASS1) {
+              a = x1 % 6;
+              if (a < 2)
+                grassQuad(mv3f(xpos, height[i], zpos), rot, GRASS_GRASS1, alpha);
+              else if (a < 4)
+                grassQuad(mv3f(xpos, height[i], zpos), rot, GRASS_GRASS2, alpha);
+              else
+                grassQuad(mv3f(xpos, height[i], zpos), rot, GRASS_FLOWERS, alpha);
+            }
+            else
+              grassQuad(mv3f(xpos, height[i], zpos), rot, x1 % 8, alpha);
+          }
         }
       }
     }
@@ -272,6 +298,9 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
         break;
       case T_TYPE_DIRT:
         density = 76;
+        break;
+      case T_TYPE_DESERT:
+        density = 52;
         break;
       case T_TYPE_SNOW:
         density = 103;
