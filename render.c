@@ -115,7 +115,7 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
   int xgrid, zgrid, x, z, x1, z1, cull, density, i, a;
   static char update = 1;
   static float v_dist = VIEW_DISTANCE_HALF;
-  const int size = t_size * 0.1f; /* Size of generation sector, also affects density. */
+  const int size = t_size * 0.05f; /* Size of generation sector, also affects density. */
   float xpos, zpos, dist, rot, v_dist_half;
   static struct v3f sector;
   static struct v3f normal[SCENERY_SIZE_GRASS];
@@ -125,14 +125,14 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
 
   glMateriali(GL_FRONT, GL_SHININESS, 92);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE_GRASS]);
-  if (distance2d(camerapos, sector) > 2 * t_size){
+  if (distance2d(camerapos, sector) > t_size){
     sector = camerapos;
     update = 1;
   }
   x = (int) (sector.x / size);
   z = (int) (sector.z / size);
   if (fps < 21.0f && v_dist > 150.0f) {
-    if (fps < 15.0f)
+    if (fps < 17.0f)
       v_dist -= 25.0f;
     else
       v_dist -= 2.5f;
