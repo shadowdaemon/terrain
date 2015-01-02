@@ -100,12 +100,13 @@ void grassQuad(struct v3f pos, float rot, char type, GLuint alpha)
 }
 
 
-void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, int t_size)
+void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, int t_size, float fps)
 {
   int xgrid, zgrid, x, z, x1, z1, cull, density, i;
   static char update = 1;
+  static float v_dist = VIEW_DISTANCE_HALF;
   const int size = t_size * 0.1f; /* Size of generation sector, also affects density. */
-  float xpos, zpos, dist, rot;
+  float xpos, zpos, dist, rot, v_dist_half;
   static struct v3f sector;
   static struct v3f normal[SCENERY_SIZE_GRASS];
   static float height[SCENERY_SIZE_GRASS];
@@ -126,6 +127,15 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
   }
   x = (int) (sector.x / size);
   z = (int) (sector.y / size);
+  if (fps < 20.0f && v_dist > 150.0f) {
+    if (fps < 15.0f)
+      v_dist -= 25.0f;
+    else
+      v_dist -= 2.5f;
+  }
+  else if (v_dist < VIEW_DISTANCE_HALF)
+    v_dist++;
+  v_dist_half = v_dist / 2.0f;
   for (xgrid = 0, zgrid = 0, i = 0; i < SCENERY_SIZE_GRASS && xgrid < TERRAIN_GRID_SIZE_HALF && zgrid < TERRAIN_GRID_SIZE_HALF; xgrid++) {
     xpos = (xgrid - TERRAIN_GRID_SIZE_QUARTER + x) * size;
     zpos = (zgrid - TERRAIN_GRID_SIZE_QUARTER + z) * size;
@@ -174,12 +184,12 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
       default:
         density = 670;
       }
-      if (dist < VIEW_DISTANCE_HALF) {
+      if (dist < v_dist) {
         if (height[i] > TERRAIN_WATER_LEVEL + 50) {
-          if (dist < VIEW_DISTANCE_QUARTER)
+          if (dist < v_dist_half)
             alpha = 255;
-          else if (dist < VIEW_DISTANCE_HALF)
-            alpha = (GLubyte) (255 - ((dist - VIEW_DISTANCE_HALF) / (float) VIEW_DISTANCE_HALF) * 255);
+          else if (dist < v_dist)
+            alpha = (GLubyte) (255 - ((dist - v_dist_half) / v_dist_half) * 255);
           else
             alpha = 0;
           if (x1 < density)
@@ -198,11 +208,13 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
 
 
 void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f camerapos,
-                         struct v3f camerarot, struct v2f sector, int t_size, char swapb)
+                         struct v3f camerarot, struct v2f sector, int t_size, char swapb,
+                         float fps)
 {
   int xgrid, zgrid, x, z, x1, z1, cull, density, i, a;
+  static float v_dist = VIEW_DISTANCE;
   const int size = t_size * 0.2f; /* Size of generation sector, also affects density. */
-  float xpos, zpos, dist;
+  float xpos, zpos, dist, v_dist_half;
   static struct v3f normal[SCENERY_SIZE];
   static float height[SCENERY_SIZE];
   static unsigned char type[SCENERY_SIZE];
@@ -212,6 +224,15 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
   glMateriali(GL_FRONT, GL_SHININESS, 92);
   x = (int) (sector.x / size);
   z = (int) (sector.y / size);
+  if (fps < 20.0f && v_dist > 300.0f) {
+    if (fps < 15.0f)
+      v_dist -= 25.0f;
+    else
+      v_dist -= 2.5f;
+  }
+  else if (v_dist < VIEW_DISTANCE)
+    v_dist++;
+  v_dist_half = v_dist / 2.0f;
   for (xgrid = 0, zgrid = 0, i = 0; i < SCENERY_SIZE && xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
     xpos = (xgrid - TERRAIN_GRID_SIZE_HALF + x) * size;
     zpos = (zgrid - TERRAIN_GRID_SIZE_HALF + z) * size;
@@ -259,12 +280,12 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
       default:
         density = 170;
       }
-      if (dist < VIEW_DISTANCE) {
+      if (dist < v_dist) {
         if (height[i] > TERRAIN_WATER_LEVEL + 50) {
-          if (dist < VIEW_DISTANCE_HALF)
+          if (dist < v_dist_half)
             alpha = 255;
-          else if (dist < VIEW_DISTANCE)
-            alpha = (GLubyte) (255 - ((dist - VIEW_DISTANCE_HALF) / (float) VIEW_DISTANCE_HALF) * 255);
+          else if (dist < v_dist)
+            alpha = (GLubyte) (255 - ((dist - v_dist_half) / v_dist_half) * 255);
           else
             alpha = 0;
           if (x1 < density) {
@@ -750,7 +771,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN]);
   drawTerrain(camerapos, camerarot, sector, t_size, &swapb);
   if (camerapos.y < TERRAIN_SCALE_HEIGHT)
-    renderGroundScenery(scene, textures, camerapos, camerarot, *sector, *t_size, swapb);
+    renderGroundScenery(scene, textures, camerapos, camerarot, *sector, *t_size, swapb, fps2);
   if (swapb) {
     glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
     renderWater(camerapos, camerarot, color, *t_size);
@@ -769,7 +790,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
     if (camerapos.y < TERRAIN_SCALE_HEIGHT) {
       renderCloud(camerapos, camerarot, 180, TERRAIN_SCALE_HEIGHT, 0.00005f, *t_size);
       renderCloud(camerapos, camerarot, 100, LOWER_CLOUD_HEIGHT, 0.00001f, *t_size);
-      renderGrass(textures, camerapos, camerarot, *t_size);
+      renderGrass(textures, camerapos, camerarot, *t_size, fps2);
     }
     else {
       renderCloud(camerapos, camerarot, 65, LOWER_CLOUD_HEIGHT, 0.00001f, *t_size);
