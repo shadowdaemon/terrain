@@ -21,6 +21,7 @@
 #define SCENERY_SIZE                        14400 /* TERRAIN_GRID_SIZE^2. */
 #define SCENERY_DENSITY_GRASS               1000
 #define SCENERY_SIZE_GRASS                  3600 /* TERRAIN_GRID_SIZE_HALF^2. */
+#define SCENERY_STEP_SIZE                   6
 #define T_TYPE_NULL                         0
 #define T_TYPE_CRATER                       1
 #define T_TYPE_VILLAGE                      2

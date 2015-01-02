@@ -115,18 +115,12 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
 
   glMateriali(GL_FRONT, GL_SHININESS, 92);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE_GRASS]);
-  if (camerapos.x > (sector.x + 2 * t_size) ||
-      camerapos.x < (sector.x - 2 * t_size)) {
+  if (distance2d(camerapos, sector) > 2 * t_size){
+    sector = camerapos;
     update = 1;
-    sector.x = camerapos.x;
-  }
-  if (camerapos.z > (sector.y + 2 * t_size) ||
-      camerapos.z < (sector.y - 2 * t_size)) {
-    update = 1;
-    sector.y = camerapos.z;
   }
   x = (int) (sector.x / size);
-  z = (int) (sector.y / size);
+  z = (int) (sector.z / size);
   if (fps < 20.0f && v_dist > 150.0f) {
     if (fps < 15.0f)
       v_dist -= 25.0f;
@@ -139,7 +133,7 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
   for (xgrid = 0, zgrid = 0, i = 0; i < SCENERY_SIZE_GRASS && xgrid < TERRAIN_GRID_SIZE_HALF && zgrid < TERRAIN_GRID_SIZE_HALF; xgrid++) {
     xpos = (xgrid - TERRAIN_GRID_SIZE_QUARTER + x) * size;
     zpos = (zgrid - TERRAIN_GRID_SIZE_QUARTER + z) * size;
-    x1 = fabs(xpos * zpos + 83) * 113;
+    x1 = sqrt(fabs(xpos * zpos + 83)) * 213;
     x1 = (int) (x1 + xpos) % 77;
     z1 = (int) (x1 + zpos) % 73;
     xpos += z1;
@@ -208,13 +202,14 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
 
 
 void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f camerapos,
-                         struct v3f camerarot, struct v2f sector, int t_size, char swapb,
-                         float fps)
+                         struct v3f camerarot, int t_size, float fps)
 {
   int xgrid, zgrid, x, z, x1, z1, cull, density, i, a;
+  static char update = 1;
   static float v_dist = VIEW_DISTANCE;
   const int size = t_size * 0.2f; /* Size of generation sector, also affects density. */
   float xpos, zpos, dist, v_dist_half;
+  static struct v3f sector;
   static struct v3f normal[SCENERY_SIZE];
   static float height[SCENERY_SIZE];
   static unsigned char type[SCENERY_SIZE];
@@ -222,8 +217,12 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
   GLuint color[3];
 
   glMateriali(GL_FRONT, GL_SHININESS, 92);
+  if (distance2d(camerapos, sector) > SCENERY_STEP_SIZE * t_size){
+    sector = camerapos;
+    update = 1;
+  }
   x = (int) (sector.x / size);
-  z = (int) (sector.y / size);
+  z = (int) (sector.z / size);
   if (fps < 20.0f && v_dist > 300.0f) {
     if (fps < 15.0f)
       v_dist -= 25.0f;
@@ -245,8 +244,8 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
     cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
     while (cull >= 360)
       cull -= 360;
-    if (cull <= 85 || cull >= 275 || camerarot.x > 27 || swapb == 0 || dist < t_size * 2) {
-      if (swapb == 0) {
+    if (cull <= 85 || cull >= 275 || camerarot.x > 27 || update == 1 || dist < t_size * 2) {
+      if (update) {
         height[i] = readTerrainHeightPlane(xpos, zpos, &normal[i], t_size);
         type[i] = readTerrainType(xpos, zpos);
       }
@@ -380,6 +379,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
       xgrid = -1;
     }
   }
+  update = 0;
 }
 
 
@@ -771,7 +771,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN]);
   drawTerrain(camerapos, camerarot, sector, t_size, &swapb);
   if (camerapos.y < TERRAIN_SCALE_HEIGHT)
-    renderGroundScenery(scene, textures, camerapos, camerarot, *sector, *t_size, swapb, fps2);
+    renderGroundScenery(scene, textures, camerapos, camerarot, *t_size, fps2);
   if (swapb) {
     glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
     renderWater(camerapos, camerarot, color, *t_size);
