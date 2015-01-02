@@ -121,7 +121,7 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
   }
   x = (int) (sector.x / size);
   z = (int) (sector.z / size);
-  if (fps < 20.0f && v_dist > 150.0f) {
+  if (fps < 21.0f && v_dist > 150.0f) {
     if (fps < 15.0f)
       v_dist -= 25.0f;
     else
@@ -223,7 +223,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
   }
   x = (int) (sector.x / size);
   z = (int) (sector.z / size);
-  if (fps < 20.0f && v_dist > 300.0f) {
+  if (fps < 18.0f && v_dist > 300.0f) {
     if (fps < 15.0f)
       v_dist -= 25.0f;
     else
