@@ -422,13 +422,18 @@ float readTerrainHeightPlane2(float x, float z, int t_size)
 
 void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int t_size, char *swapb)
 {
-  if (camerapos.x > (sector->x + TERRAIN_STEP_SIZE * t_size) ||
-       camerapos.x < (sector->x - TERRAIN_STEP_SIZE * t_size)) {
+  /* if (camerapos.x > (sector->x + TERRAIN_STEP_SIZE * t_size) || */
+  /*      camerapos.x < (sector->x - TERRAIN_STEP_SIZE * t_size)) { */
+  /*   sector->x = camerapos.x; */
+  /*   *swapb = 0; */
+  /* } */
+  /* if (camerapos.z > (sector->y + TERRAIN_STEP_SIZE * t_size) || */
+  /*      camerapos.z < (sector->y - TERRAIN_STEP_SIZE * t_size)) { */
+  /*   sector->y = camerapos.z; */
+  /*   *swapb = 0; */
+  /* } */
+  if (distance2d(camerapos, mv3f(sector->x, 0.0f, sector->y)) > TERRAIN_STEP_SIZE * t_size){
     sector->x = camerapos.x;
-    *swapb = 0;
-  }
-  if (camerapos.z > (sector->y + TERRAIN_STEP_SIZE * t_size) ||
-       camerapos.z < (sector->y - TERRAIN_STEP_SIZE * t_size)) {
     sector->y = camerapos.z;
     *swapb = 0;
   }
