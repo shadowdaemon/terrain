@@ -2,7 +2,7 @@
 
 #define RESX                                1366
 #define RESY                                768
-#define USE_SHADERS                         0
+#define USE_SHADERS                         1
 #define PI                                  3.14159265358979323846f
 #define PIx180                              180.0f*PI
 #define WORLD_GRAVITY                       0.4f
@@ -14,9 +14,9 @@
 #define TERRAIN_WATER_LEVEL                 0
 #define TERRAIN_SCALE_HEIGHT                9500 /* Also upper cloud height. */
 #define LOWER_CLOUD_HEIGHT                  4500
-#define VIEW_DISTANCE                       2000
-#define VIEW_DISTANCE_HALF                  1000
-#define VIEW_DISTANCE_QUARTER               500
+#define VIEW_DISTANCE                       1500
+#define VIEW_DISTANCE_HALF                  750
+#define VIEW_DISTANCE_QUARTER               375
 #define SCENERY_DENSITY                     1200 /* Lower number is more dense, don't go below 1000. */
 #define SCENERY_SIZE                        14400 /* TERRAIN_GRID_SIZE^2. */
 #define SCENERY_DENSITY_GRASS               1000

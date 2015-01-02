@@ -129,7 +129,7 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
   for (xgrid = 0, zgrid = 0, i = 0; i < SCENERY_SIZE_GRASS && xgrid < TERRAIN_GRID_SIZE_HALF && zgrid < TERRAIN_GRID_SIZE_HALF; xgrid++) {
     xpos = (xgrid - TERRAIN_GRID_SIZE_QUARTER + x) * size;
     zpos = (zgrid - TERRAIN_GRID_SIZE_QUARTER + z) * size;
-    x1 = sqrt(fabs(xpos * zpos + 83)) * 113;
+    x1 = fabs(xpos * zpos + 83) * 113;
     x1 = (int) (x1 + xpos) % 77;
     z1 = (int) (x1 + zpos) % 73;
     xpos += z1;
