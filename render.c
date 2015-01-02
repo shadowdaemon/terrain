@@ -156,6 +156,7 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
     if (cull <= 85 || cull >= 275 || camerarot.x > 27 || update == 1 || dist < t_size * 2) {
       if (update) {
         height[i] = readTerrainHeightPlane(xpos, zpos, &normal[i], t_size);
+        height[i] -= distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) * 0.5f;
         type[i] = readTerrainType(xpos, zpos);
       }
       x1 = x1 * x1 + z1 * z1;
