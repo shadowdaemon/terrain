@@ -1,8 +1,8 @@
+#include <stdio.h>
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <assimp/vector3.h>
-#include <stdio.h>
 #include "maths.h"
 
 #define AI_CONFIG_PP_RVC_FLAGS aiComponent_NORMALS

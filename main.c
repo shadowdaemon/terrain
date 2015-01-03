@@ -692,12 +692,12 @@ int main(int argc, char *argv[])
 {
   GLuint textures[7], shaders[5];
   GLFWwindow *window = NULL;
-  int i, t_size;
+  int i, t_size = TERRAIN_SQUARE_SIZE;
   char direction, state = 0;
   float fps = 0.0f;
   struct v2f sector    = {0.0f, 0.0f};
   struct v3f camerarot = {0.0f, 0.0f, 0.0f};
-  struct v3f camerapos = {0.0f, 0.0f, 0.0f};
+  struct v3f camerapos = {0.0f, readTerrainHeightPlane2(0.0f, 0.0f, t_size) + 1.8f, 0.0f};
   const struct aiScene *s_temp;
   struct aiScene *scene = malloc(sizeof(struct aiScene) * 32);
   struct aiScene *textquads = malloc(sizeof(struct aiScene) * 36);
@@ -808,8 +808,12 @@ int main(int argc, char *argv[])
     for (i = 0; i < 15; i++) {
       airunits[i].type = UNIT_AIR_FIGHTER1;
       airunits[i].pos.x = (i - 5) * 50;
+      airunits[i].pos.z = (i - 7) * 23 + 50;
       airunits[i].pos.y = readTerrainHeightPlane2(airunits[i].pos.x, airunits[i].pos.z, t_size);
     }
+    updateCamera(camerarot);
+    glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
+    glfwSwapBuffers(window);
     while (!glfwWindowShouldClose(window)) {
       keyboardInput(window, &direction);
       if (state == 0) {

@@ -6,7 +6,7 @@ void updateFogAndFrustum(GLfloat *clear, struct v3f camerapos, int t_size)
 {
   struct v3f pos;
   float fog_end = t_size * TERRAIN_GRID_SIZE * 0.45f;
-  static float fog_start;
+  static float fog_start = 0.0f;
   float ground = readTerrainHeightPlane(camerapos.x, camerapos.z, &pos, t_size);
   float fstart;
   float temp = camerapos.y - TERRAIN_SCALE_HEIGHT;
