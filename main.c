@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <FreeImage.h>
 #include <assimp/scene.h>
 #include "maths.h"
@@ -804,7 +805,9 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   else
     textquads[10] = *s_temp;
+  sleep(1);
   if ((window = startGraphics(textures, shaders)) != NULL) {
+    sleep(1);
     for (i = 0; i < 15; i++) {
       airunits[i].type = UNIT_AIR_FIGHTER1;
       airunits[i].pos.x = (i - 5) * 50;
