@@ -2,6 +2,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <assimp/vector3.h>
+#include <stdio.h>
 #include "maths.h"
 
 #define AI_CONFIG_PP_RVC_FLAGS aiComponent_NORMALS
@@ -10,7 +11,10 @@
 const struct aiScene *loadModel(const char *file)
 {
   const struct aiScene *scene = aiImportFile(file,  aiProcess_Triangulate | aiProcess_RemoveComponent | aiProcess_GenNormals);
-  aiGetErrorString();
+  const char *err = aiGetErrorString();
+
+  if (*err)
+    printf("Assimp error: %s\n", err);
   return scene;
 }
 
@@ -18,7 +22,10 @@ const struct aiScene *loadModel(const char *file)
 const struct aiScene *loadTextQuad(const char *file)
 {
   const struct aiScene *scene = aiImportFile(file,  aiProcess_RemoveComponent | aiProcess_GenNormals);
-  aiGetErrorString();
+  const char *err = aiGetErrorString();
+
+  if (*err)
+    printf("Assimp error: %s\n", err);
   return scene;
 }
 
