@@ -22,26 +22,18 @@ static void errorFreeImage(FREE_IMAGE_FORMAT fif, const char *err)
 }
 
 
-void loadTexture2D(const char *file, const char contrast)
+void loadTexture2D(const char *file)
 {
-  FIBITMAP *img = FreeImage_Load(FreeImage_GetFileType(file, 0), file, 0);
-  FIBITMAP *foo = FreeImage_Load(FreeImage_GetFileType(file, 0), file, 0);
-  img = FreeImage_ConvertTo32Bits(img);
-  foo = FreeImage_ConvertTo32Bits(foo);
-  GLsizei width = FreeImage_GetWidth(foo);
-  GLsizei height = FreeImage_GetHeight(foo);
-  if (contrast == 'y') {
-    FreeImage_AdjustContrast(img, -70);
-    FreeImage_AdjustContrast(foo, -90);
-  }
-  GLubyte *bits = (GLubyte*) FreeImage_GetBits(foo);
   int i;
+  FIBITMAP *img = FreeImage_Load(FreeImage_GetFileType(file, 0), file, 0);
+  img = FreeImage_ConvertTo32Bits(img);
+  GLsizei width = FreeImage_GetWidth(img);
+  GLsizei height = FreeImage_GetHeight(img);
+  GLubyte *bits = (GLubyte*) FreeImage_GetBits(img);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
   for (i = 1; i < 10; i++){
     width /= 2;
     height /= 2;
-    if (contrast == 'y')
-      FreeImage_AdjustContrast(img, 7 * i);
     bits = (GLubyte*) FreeImage_GetBits(FreeImage_Rescale(img, width, height, FILTER_BICUBIC));
     glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
     if (width == 1 || height == 1)
@@ -49,7 +41,6 @@ void loadTexture2D(const char *file, const char contrast)
   }
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i);
   FreeImage_Unload(img);
-  FreeImage_Unload(foo);
 }
 
 
@@ -185,27 +176,27 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   glGenTextures(5, textures);
   glActiveTextureARB(GL_TEXTURE0_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN]);
-  loadTexture2D("data/textures/terrain.tga", 'y');
+  loadTexture2D("data/textures/terrain.png");
   glActiveTextureARB(GL_TEXTURE1_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE]);
-  loadTexture2D("data/textures/foliage.tga", 'n');
+  loadTexture2D("data/textures/foliage.tga");
   glActiveTextureARB(GL_TEXTURE2_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
-  loadTexture2D("data/textures/cloud_alpha.tga", 'n');
+  loadTexture2D("data/textures/cloud_alpha.tga");
   glActiveTextureARB(GL_TEXTURE3_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_FONT]);
-  loadTexture2D("data/textures/font_alpha.tga", 'n');
+  loadTexture2D("data/textures/font_alpha.tga");
   glActiveTextureARB(GL_TEXTURE4_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_RENDER]); /* Render to texture. */
   glActiveTextureARB(GL_TEXTURE5_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_BUILDING]);
-  loadTexture2D("data/textures/building1.png", 'n');
+  loadTexture2D("data/textures/building1.png");
   glActiveTextureARB(GL_TEXTURE6_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_AIR_FIGHTER1]);
-  loadTexture2D("data/textures/fighter.png", 'n');
+  loadTexture2D("data/textures/fighter.png");
   glActiveTextureARB(GL_TEXTURE7_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE_GRASS]);
-  loadTexture2D("data/textures/foliage_grass.png", 'n');
+  loadTexture2D("data/textures/foliage_grass.png");
   glActiveTextureARB(GL_TEXTURE0_ARB);
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
