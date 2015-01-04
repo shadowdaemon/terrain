@@ -680,6 +680,9 @@ void renderAircraft(struct aiScene *scene, GLuint *textures, struct v3f camerapo
       texture = TEX_AIR_FIGHTER1;
       model = MODEL_AIR_FIGHTER1;
       break;
+    default:
+      texture = TEX_AIR_FIGHTER1;
+      model = MODEL_AIR_FIGHTER1;
     }
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_LIGHTING);
