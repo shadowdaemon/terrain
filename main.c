@@ -138,6 +138,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   if (window == NULL)
     return NULL;
   glfwMakeContextCurrent(window);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glfwSetKeyCallback(window, keyInputGLFW);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_FALSE);
@@ -802,9 +803,6 @@ int main(int argc, char *argv[])
       airunits[i].pos.z = (i - 7) * 23 + 50;
       airunits[i].pos.y = readTerrainHeightPlane2(airunits[i].pos.x, airunits[i].pos.z, t_size);
     }
-    updateCamera(camerarot);
-    glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
-    glfwSwapBuffers(window);
     while (!glfwWindowShouldClose(window)) {
       keyboardInput(window, &direction);
       if (state == 0) {
