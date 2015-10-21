@@ -30,7 +30,7 @@ void loadTexture2D(const char *file)
   GLsizei height = FreeImage_GetHeight(img);
   GLubyte *bits = (GLubyte*) FreeImage_GetBits(img);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
-  for (i = 1; i < 10; i++){
+  for (i = 1; i < 10; i++) {
     width /= 2;
     height /= 2;
     bits = (GLubyte*) FreeImage_GetBits(FreeImage_Rescale(img, width, height, FILTER_BICUBIC));
@@ -671,7 +671,7 @@ void updateAirUnits(struct airunit *units, int t_size)
   struct v3f pos = units[0].pos;
   /* struct v3f pos = mv3f(110000.0f, 0.0f, 55000.0f); */
 
-  for (i = 1; i < 15; i++) {
+  for (i = 1; i < 1; i++) {
     if (distance2d(units[i].pos, pos) < 2500.0f)
       airUnitMoveVTOL(&units[i], pos, t_size);
     else
@@ -693,7 +693,7 @@ int main(int argc, char *argv[])
   const struct aiScene *s_temp;
   struct aiScene *scene = malloc(sizeof(struct aiScene) * 32);
   struct aiScene *textquads = malloc(sizeof(struct aiScene) * 36);
-  struct airunit *airunits = malloc(sizeof(struct airunit) * 16);
+  struct airunit *airunits = malloc(sizeof(struct airunit) * 1);
 
   if ((window = startGraphics(textures, shaders)) != NULL) {
     if ((s_temp = loadModel("data/models/tree1.obj")) == NULL)
@@ -797,7 +797,7 @@ int main(int argc, char *argv[])
       return EXIT_FAILURE;
     else
       textquads[10] = *s_temp;
-    for (i = 0; i < 15; i++) {
+    for (i = 0; i < 1; i++) {
       airunits[i].type = UNIT_AIR_FIGHTER1;
       airunits[i].pos.x = (i - 5) * 50;
       airunits[i].pos.z = (i - 7) * 23 + 50;

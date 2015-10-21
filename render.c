@@ -1,5 +1,6 @@
 #include <assimp/scene.h>
 #include "maths.h"
+#include "stdlib.h"
 
 
 void updateFogAndFrustum(GLfloat *clear, struct v3f camerapos, int t_size)
@@ -40,7 +41,7 @@ void updateFogAndFrustum(GLfloat *clear, struct v3f camerapos, int t_size)
 }
 
 
-void grassQuad(struct v3f pos, float rot, char type, GLuint alpha)
+void grassQuad(struct v3f pos, float rot, float size, char type, GLuint alpha)
 {
   int h;
   float u, v, vv;
@@ -87,13 +88,14 @@ void grassQuad(struct v3f pos, float rot, char type, GLuint alpha)
     v = 0.0f;
   }
   if (h == 1)
-    vv = 0.245f;
+    vv = 0.24f;
   else
     vv = 0.495f;
   glMateriali(GL_FRONT, GL_SHININESS, 170);
   glPushMatrix();
   glTranslatef(pos.x, pos.y, pos.z);
   glRotatef(rot, 0.0f, 1.0f, 0.0f);
+  glScalef(size, size, size);
   glBegin(GL_QUADS);
   glColor4ub(255, 255, 255, alpha);
   glNormal3i(0, 0, 1);
@@ -110,21 +112,42 @@ void grassQuad(struct v3f pos, float rot, char type, GLuint alpha)
 }
 
 
+struct grass {
+  struct v3f p;
+  float r;
+  float s;
+  float d;
+  int t;
+  GLubyte a;
+};
+
+
+int compGrass(const void *b, const void *a)
+{
+  const struct grass *ga = (const struct grass *) a;
+  const struct grass *gb = (const struct grass *) b;
+  return (ga->d > gb->d) - (ga->d < gb->d);
+}
+
+
 void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, int t_size, float fps)
 {
-  int xgrid, zgrid, x, z, x1, z1, cull, density, i, a;
+  int xgrid, zgrid, x, z, x1, z1, cull, density, i = 0, j = 0, a;
   static char update = 1;
-  static float v_dist = 1.0f; // VIEW_DISTANCE_HALF;
+  static float v_dist = VIEW_DISTANCE_HALF * 0.3f;
   const int size = t_size * 0.05f; /* Size of generation sector, also affects density. */
-  float xpos, zpos, dist, rot, v_dist_half;
+  float xpos, zpos, dist, rot, rot2, v_dist_half;
   static struct v3f sector;
   static struct v3f normal[SCENERY_SIZE_GRASS];
   static float height[SCENERY_SIZE_GRASS];
   static unsigned char type[SCENERY_SIZE_GRASS];
   GLubyte alpha;
+  static struct grass grass[SCENERY_SIZE_GRASS];
 
   glMateriali(GL_FRONT, GL_SHININESS, 92);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE_GRASS]);
+  glDisable(GL_CULL_FACE);
+  glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 0.0f);
   if (distance2d(camerapos, sector) > t_size){
     sector = camerapos;
     update = 1;
@@ -140,7 +163,7 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
   else if (v_dist < VIEW_DISTANCE_HALF)
     v_dist++;
   v_dist_half = v_dist / 2.0f;
-  for (xgrid = 0, zgrid = 0, i = 0; i < SCENERY_SIZE_GRASS && xgrid < TERRAIN_GRID_SIZE_HALF && zgrid < TERRAIN_GRID_SIZE_HALF; xgrid++) {
+  for (xgrid = 0, zgrid = 0; i < SCENERY_SIZE_GRASS && xgrid < TERRAIN_GRID_SIZE_HALF && zgrid < TERRAIN_GRID_SIZE_HALF; xgrid++) {
     xpos = (xgrid - TERRAIN_GRID_SIZE_QUARTER + x) * size;
     zpos = (zgrid - TERRAIN_GRID_SIZE_QUARTER + z) * size;
     x1 = sqrt(fabs(xpos * zpos + 83)) * 213;
@@ -149,14 +172,14 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
     xpos += z1;
     zpos += x1;
     dist = distance3d(camerapos, mv3f(xpos, height[i], zpos));
-    rot = 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos));
+    rot  = 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos));
     cull = fabs((int) (camerarot.y - rot));
     while (cull >= 360)
       cull -= 360;
     if (cull <= 85 || cull >= 275 || camerarot.x > 27 || update == 1 || dist < t_size * 2) {
       if (update) {
-        height[i] = readTerrainHeightPlane(xpos, zpos, &normal[i], t_size);
-        height[i] -= distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) * 0.5f;
+        height[i] = readTerrainHeightPlane(xpos, zpos, &normal[i], t_size) - 1.2f;
+        // height[i] -= distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) * 2.5f;
         type[i] = readTerrainType(xpos, zpos);
       }
       x1 = x1 * x1 + z1 * z1;
@@ -193,6 +216,7 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
         density = 670;
       }
       if (dist < v_dist) {
+        rot2 = height[i] * 20;
         if (height[i] > TERRAIN_WATER_LEVEL + 50) {
           if (dist < v_dist_half)
             alpha = 255;
@@ -201,19 +225,25 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
           else
             alpha = 0;
           if (x1 < density) {
+            grass[j].p = mv3f(xpos, height[i], zpos);
+            grass[j].r = rot2;
+            grass[j].s = 5.7f;
+            grass[j].d = dist;
+            grass[j].a = alpha;
             if (type[i] == T_TYPE_DIRT || type[i] == T_TYPE_DESERT)
-              grassQuad(mv3f(xpos, height[i], zpos), rot, GRASS_DEAD, alpha);
+              grass[j].t = GRASS_DEAD;
             else if (type[i] == T_TYPE_GRASS1) {
               a = x1 % 6;
               if (a < 2)
-                grassQuad(mv3f(xpos, height[i], zpos), rot, GRASS_GRASS1, alpha);
+                grass[j].t = GRASS_GRASS1;
               else if (a < 4)
-                grassQuad(mv3f(xpos, height[i], zpos), rot, GRASS_GRASS2, alpha);
+                grass[j].t = GRASS_GRASS2;
               else
-                grassQuad(mv3f(xpos, height[i], zpos), rot, GRASS_FLOWERS, alpha);
+                grass[j].t = GRASS_FLOWERS;
             }
             else
-              grassQuad(mv3f(xpos, height[i], zpos), rot, x1 % 8, alpha);
+              grass[j].t = x1 % 8;
+            j++;
           }
         }
       }
@@ -224,7 +254,12 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
       xgrid = -1;
     }
   }
+  qsort(grass, j, sizeof(struct grass), compGrass);
+  for (i = 0; i <= j; i++)
+    grassQuad(grass[i].p, grass[i].r, grass[i].s, grass[i].t, grass[i].a);
   update = 0;
+  glEnable(GL_CULL_FACE);
+  glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1.0f);
 }
 
 
@@ -233,8 +268,9 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
 {
   int xgrid, zgrid, x, z, x1, z1, cull, density, i, a;
   static char update = 1;
-  static float v_dist = 1.0f; // VIEW_DISTANCE;
+  static float v_dist = VIEW_DISTANCE * 0.3f;
   const int size = t_size * 0.2f; /* Size of generation sector, also affects density. */
+  const float m_size = 0.555f;
   float xpos, zpos, dist, v_dist_half;
   static struct v3f sector;
   static struct v3f normal[SCENERY_SIZE];
@@ -244,7 +280,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
   GLuint color[3];
 
   glMateriali(GL_FRONT, GL_SHININESS, 92);
-  if (distance2d(camerapos, sector) > SCENERY_STEP_SIZE * t_size){
+  if (distance2d(camerapos, sector) > SCENERY_STEP_SIZE * t_size) {
     sector = camerapos;
     update = 1;
   }
@@ -322,9 +358,9 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
             if (type[i] == T_TYPE_GRASS1 || type[i] == T_TYPE_GRASS2) {
               a = x1 % 15;
               if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.1f && height[i] > 250)
-                drawModel((const struct aiScene *) &scene[MODEL_MTREE_SPARSE], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.333f, alpha);
+                drawModel((const struct aiScene *) &scene[MODEL_MTREE_SPARSE], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), m_size, alpha);
               else if (a < 5)
-                drawModel((const struct aiScene *) &scene[MODEL_TREE_POPLAR], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.333f, alpha);
+                drawModel((const struct aiScene *) &scene[MODEL_TREE_POPLAR], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), m_size, alpha);
               else if (a == 6) {
                 color[0] = 95; color[1] = 95; color[2] = 95;
                 glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN]);
@@ -334,27 +370,27 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
               else if (x1 % 15 == 7 && z1 % 7 == 0) {
                 if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.3f) {
                   glBindTexture(GL_TEXTURE_2D, textures[TEX_BUILDING]);
-                  drawModel((const struct aiScene *) &scene[MODEL_BUILDING_HOUSE1], mv3f(xpos, height[i], zpos), mv3f(0, x1 % 90, 0), 0.35f, alpha);
+                  drawModel((const struct aiScene *) &scene[MODEL_BUILDING_HOUSE1], mv3f(xpos, height[i], zpos), mv3f(0, x1 % 90, 0), m_size, alpha);
                 }
               }
               else
-                drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.33f, alpha);
+                drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), m_size, alpha);
             }
             else if (type[i] == T_TYPE_FOREST1) {
               if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.1f)
-                drawModel((const struct aiScene *) &scene[MODEL_MTREE_SPARSE], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.34f, alpha);
+                drawModel((const struct aiScene *) &scene[MODEL_MTREE_SPARSE], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), m_size, alpha);
               else if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.14f)
-                drawModel((const struct aiScene *) &scene[MODEL_MTREE_BIG], mv3f(xpos, height[i] - 1, zpos), mv3f(0, x1, 0), 0.34f, alpha);
+                drawModel((const struct aiScene *) &scene[MODEL_MTREE_BIG], mv3f(xpos, height[i] - 1, zpos), mv3f(0, x1, 0), m_size, alpha);
               else
-                drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.34f, alpha);
+                drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), m_size, alpha);
             }
             else if (type[i] == T_TYPE_FOREST2) {
               if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.1f)
-                drawModel((const struct aiScene *) &scene[MODEL_MTREE_FIR], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.34f, alpha);
+                drawModel((const struct aiScene *) &scene[MODEL_MTREE_FIR], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), m_size, alpha);
               else if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.14f)
-                drawModel((const struct aiScene *) &scene[MODEL_MTREE_BIG], mv3f(xpos, height[i] - 1, zpos), mv3f(0, x1, 0), 0.34f, alpha);
+                drawModel((const struct aiScene *) &scene[MODEL_MTREE_BIG], mv3f(xpos, height[i] - 1, zpos), mv3f(0, x1, 0), m_size, alpha);
               else
-                drawModel((const struct aiScene *) &scene[MODEL_TREE_FIR], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.35f, alpha);
+                drawModel((const struct aiScene *) &scene[MODEL_TREE_FIR], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), m_size, alpha);
             }
             else if (type[i] == T_TYPE_DIRT || type[i] == T_TYPE_DESERT) {
               a = x1 % 3;
@@ -362,7 +398,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
                 drawModel((const struct aiScene *) &scene[MODEL_TREE_STUMP], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.333f, alpha);
               else if (a == 1 && height[i] < 3700) {
                 color[0] = 255; color[1] = 230; color[2] = 240;
-                drawModel2((const struct aiScene *) &scene[MODEL_TREE_BUSH], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.32f, color, alpha);
+                drawModel2((const struct aiScene *) &scene[MODEL_TREE_BUSH], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.333f, color, alpha);
               }
               else {
                 color[0] = 103; color[1] = 111; color[2] = 63;
@@ -374,20 +410,20 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
             else if (type[i] == T_TYPE_VILLAGE) {
               a = (x1 + z1) % 15;
               if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.1f && a < 2)
-                drawModel((const struct aiScene *) &scene[MODEL_MTREE_SPARSE], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.333f, alpha);
+                drawModel((const struct aiScene *) &scene[MODEL_MTREE_SPARSE], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), m_size, alpha);
               else if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.3f) {
                 glBindTexture(GL_TEXTURE_2D, textures[TEX_BUILDING]);
                 if (a < 5)
-                  drawModel((const struct aiScene *) &scene[MODEL_BUILDING_HOUSE2], mv3f(xpos, height[i], zpos), mv3f(0, x1 % 90, 0), 0.4f, alpha);
+                  drawModel((const struct aiScene *) &scene[MODEL_BUILDING_HOUSE2], mv3f(xpos, height[i], zpos), mv3f(0, x1 % 90, 0), m_size, alpha);
                 else if (a < 10)
-                  drawModel((const struct aiScene *) &scene[MODEL_BUILDING_HOUSE1], mv3f(xpos, height[i], zpos), mv3f(0, x1 % 90, 0), 0.35f, alpha);
+                  drawModel((const struct aiScene *) &scene[MODEL_BUILDING_HOUSE1], mv3f(xpos, height[i], zpos), mv3f(0, x1 % 90, 0), m_size, alpha);
                 else {
                   glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE]);
-                  drawModel((const struct aiScene *) &scene[MODEL_TREE_POPLAR], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.333f, alpha);
+                  drawModel((const struct aiScene *) &scene[MODEL_TREE_POPLAR], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), m_size, alpha);
                 }
               }
               else
-                drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.333f, alpha);
+                drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), m_size, alpha);
             }
             else if (type[i] == T_TYPE_SNOW) {
               if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.45f) {
@@ -398,7 +434,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
               }
             }
             else if (height[i] < 3100)
-              drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), 0.333f, alpha);
+              drawModel((const struct aiScene *) &scene[x1 % 6], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), m_size, alpha);
           }
         }
       }
@@ -674,7 +710,7 @@ void renderAircraft(struct aiScene *scene, GLuint *textures, struct v3f camerapo
 {
   int i, texture, model;
 
-  for (i = 0; i < 15; i++) {
+  for (i = 0; i < 1; i++) {
     switch (units[i].type) {
     case UNIT_AIR_FIGHTER1:
       texture = TEX_AIR_FIGHTER1;
