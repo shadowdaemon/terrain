@@ -55,8 +55,8 @@
 #define TEX_FONT                            3
 #define TEX_RENDER                          4
 #define TEX_BUILDING                        5
-#define TEX_AIR_FIGHTER1                    6
-#define TEX_FOLIAGE_GRASS                   7
+#define TEX_FOLIAGE_GRASS                   6
+#define TEX_AIR_FIGHTER1                    7
 #define MODEL_TREE_POPLAR                   0
 #define MODEL_TREE_OAK                      1
 #define MODEL_TREE_FIR                      2

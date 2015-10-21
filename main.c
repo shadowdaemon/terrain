@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <FreeImage.h>
 #include <assimp/scene.h>
 #include "maths.h"
@@ -173,7 +172,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   FreeImage_Initialise(GL_FALSE);
   FreeImage_SetOutputMessage(errorFreeImage);
   glEnable(GL_TEXTURE_2D);
-  glGenTextures(5, textures);
+  glGenTextures(8, textures);
   glActiveTextureARB(GL_TEXTURE0_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN]);
   loadTexture2D("data/textures/terrain.png");
@@ -192,11 +191,11 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   glBindTexture(GL_TEXTURE_2D, textures[TEX_BUILDING]);
   loadTexture2D("data/textures/building1.png");
   glActiveTextureARB(GL_TEXTURE6_ARB);
-  glBindTexture(GL_TEXTURE_2D, textures[TEX_AIR_FIGHTER1]);
-  loadTexture2D("data/textures/fighter.png");
-  glActiveTextureARB(GL_TEXTURE7_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE_GRASS]);
   loadTexture2D("data/textures/foliage_grass.png");
+  glActiveTextureARB(GL_TEXTURE7_ARB);
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_AIR_FIGHTER1]);
+  loadTexture2D("data/textures/fighter.png");
   glActiveTextureARB(GL_TEXTURE0_ARB);
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
@@ -682,7 +681,7 @@ void updateAirUnits(struct airunit *units, int t_size)
 
 int main(int argc, char *argv[])
 {
-  GLuint textures[7], shaders[5];
+  GLuint textures[8], shaders[5];
   GLFWwindow *window = NULL;
   int i, t_size = TERRAIN_SQUARE_SIZE;
   char direction, state = 0;
@@ -695,110 +694,108 @@ int main(int argc, char *argv[])
   struct aiScene *textquads = malloc(sizeof(struct aiScene) * 36);
   struct airunit *airunits = malloc(sizeof(struct airunit) * 16);
 
-  if ((s_temp = loadModel("data/models/tree1.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    scene[MODEL_TREE_POPLAR] = *s_temp; /* Poplar. */
-  if ((s_temp = loadModel("data/models/tree2.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    scene[MODEL_TREE_OAK] = *s_temp; /* Oak. */
-  if ((s_temp = loadModel("data/models/tree3.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    scene[MODEL_TREE_FIR] = *s_temp; /* Fir. */
-  if ((s_temp = loadModel("data/models/tree4.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    scene[MODEL_TREE_BUSH] = *s_temp; /* Bush. */
-  if ((s_temp = loadModel("data/models/mtree1.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    scene[MODEL_MTREE_SMALL] = *s_temp; /* Small multi-trees. */
-  if ((s_temp = loadModel("data/models/stump1.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    scene[MODEL_TREE_STUMP] = *s_temp; /* Stump. */
-  if ((s_temp = loadModel("data/models/rock1.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    scene[MODEL_ROCK1] = *s_temp; /* Rock. */
-  /* These must not be loaded near start of array because of trees appearing above slopes.  See renderGroundScenery(). */
-  if ((s_temp = loadModel("data/models/mtree2.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    scene[MODEL_MTREE_BIG] = *s_temp; /* Sparsely positioned multi-trees. */
-  if ((s_temp = loadModel("data/models/mtree3.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    scene[MODEL_MTREE_SPARSE] = *s_temp; /* More sparsely positioned multi-trees. */
-  if ((s_temp = loadModel("data/models/mtree4.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    scene[MODEL_MTREE_FIR] = *s_temp; /* Sparsely positioned firs. */
-  if ((s_temp = loadModel("data/models/house1.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    scene[MODEL_BUILDING_HOUSE1] = *s_temp;
-  if ((s_temp = loadModel("data/models/house2.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    scene[MODEL_BUILDING_HOUSE2] = *s_temp;
-  if ((s_temp = loadModel("data/models/fighter1.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    scene[MODEL_AIR_FIGHTER1] = *s_temp;
-  if ((s_temp = loadModel("data/models/fighter2.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    scene[MODEL_AIR_FIGHTER2] = *s_temp;
-  if ((s_temp = loadTextQuad("data/models/quads/0.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    textquads[0] = *s_temp;
-  if ((s_temp = loadTextQuad("data/models/quads/1.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    textquads[1] = *s_temp;
-  if ((s_temp = loadTextQuad("data/models/quads/2.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    textquads[2] = *s_temp;
-  if ((s_temp = loadTextQuad("data/models/quads/3.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    textquads[3] = *s_temp;
-  if ((s_temp = loadTextQuad("data/models/quads/4.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    textquads[4] = *s_temp;
-  if ((s_temp = loadTextQuad("data/models/quads/5.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    textquads[5] = *s_temp;
-  if ((s_temp = loadTextQuad("data/models/quads/6.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    textquads[6] = *s_temp;
-  if ((s_temp = loadTextQuad("data/models/quads/7.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    textquads[7] = *s_temp;
-  if ((s_temp = loadTextQuad("data/models/quads/8.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    textquads[8] = *s_temp;
-  if ((s_temp = loadTextQuad("data/models/quads/9.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    textquads[9] = *s_temp;
-  if ((s_temp = loadTextQuad("data/models/quads/minus.obj")) == NULL)
-    return EXIT_FAILURE;
-  else
-    textquads[10] = *s_temp;
-  sleep(1);
   if ((window = startGraphics(textures, shaders)) != NULL) {
-    sleep(1);
+    if ((s_temp = loadModel("data/models/tree1.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      scene[MODEL_TREE_POPLAR] = *s_temp; /* Poplar. */
+    if ((s_temp = loadModel("data/models/tree2.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      scene[MODEL_TREE_OAK] = *s_temp; /* Oak. */
+    if ((s_temp = loadModel("data/models/tree3.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      scene[MODEL_TREE_FIR] = *s_temp; /* Fir. */
+    if ((s_temp = loadModel("data/models/tree4.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      scene[MODEL_TREE_BUSH] = *s_temp; /* Bush. */
+    if ((s_temp = loadModel("data/models/mtree1.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      scene[MODEL_MTREE_SMALL] = *s_temp; /* Small multi-trees. */
+    if ((s_temp = loadModel("data/models/stump1.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      scene[MODEL_TREE_STUMP] = *s_temp; /* Stump. */
+    if ((s_temp = loadModel("data/models/rock1.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      scene[MODEL_ROCK1] = *s_temp; /* Rock. */
+    /* These must not be loaded near start of array because of trees appearing above slopes.  See renderGroundScenery(). */
+    if ((s_temp = loadModel("data/models/mtree2.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      scene[MODEL_MTREE_BIG] = *s_temp; /* Sparsely positioned multi-trees. */
+    if ((s_temp = loadModel("data/models/mtree3.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      scene[MODEL_MTREE_SPARSE] = *s_temp; /* More sparsely positioned multi-trees. */
+    if ((s_temp = loadModel("data/models/mtree4.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      scene[MODEL_MTREE_FIR] = *s_temp; /* Sparsely positioned firs. */
+    if ((s_temp = loadModel("data/models/house1.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      scene[MODEL_BUILDING_HOUSE1] = *s_temp;
+    if ((s_temp = loadModel("data/models/house2.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      scene[MODEL_BUILDING_HOUSE2] = *s_temp;
+    if ((s_temp = loadModel("data/models/fighter1.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      scene[MODEL_AIR_FIGHTER1] = *s_temp;
+    if ((s_temp = loadModel("data/models/fighter2.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      scene[MODEL_AIR_FIGHTER2] = *s_temp;
+    if ((s_temp = loadTextQuad("data/models/quads/0.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      textquads[0] = *s_temp;
+    if ((s_temp = loadTextQuad("data/models/quads/1.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      textquads[1] = *s_temp;
+    if ((s_temp = loadTextQuad("data/models/quads/2.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      textquads[2] = *s_temp;
+    if ((s_temp = loadTextQuad("data/models/quads/3.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      textquads[3] = *s_temp;
+    if ((s_temp = loadTextQuad("data/models/quads/4.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      textquads[4] = *s_temp;
+    if ((s_temp = loadTextQuad("data/models/quads/5.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      textquads[5] = *s_temp;
+    if ((s_temp = loadTextQuad("data/models/quads/6.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      textquads[6] = *s_temp;
+    if ((s_temp = loadTextQuad("data/models/quads/7.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      textquads[7] = *s_temp;
+    if ((s_temp = loadTextQuad("data/models/quads/8.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      textquads[8] = *s_temp;
+    if ((s_temp = loadTextQuad("data/models/quads/9.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      textquads[9] = *s_temp;
+    if ((s_temp = loadTextQuad("data/models/quads/minus.obj")) == NULL)
+      return EXIT_FAILURE;
+    else
+      textquads[10] = *s_temp;
     for (i = 0; i < 15; i++) {
       airunits[i].type = UNIT_AIR_FIGHTER1;
       airunits[i].pos.x = (i - 5) * 50;

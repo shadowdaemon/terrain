@@ -114,7 +114,7 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
 {
   int xgrid, zgrid, x, z, x1, z1, cull, density, i, a;
   static char update = 1;
-  static float v_dist = VIEW_DISTANCE_HALF;
+  static float v_dist = 1.0f; // VIEW_DISTANCE_HALF;
   const int size = t_size * 0.05f; /* Size of generation sector, also affects density. */
   float xpos, zpos, dist, rot, v_dist_half;
   static struct v3f sector;
@@ -233,7 +233,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
 {
   int xgrid, zgrid, x, z, x1, z1, cull, density, i, a;
   static char update = 1;
-  static float v_dist = VIEW_DISTANCE;
+  static float v_dist = 1.0f; // VIEW_DISTANCE;
   const int size = t_size * 0.2f; /* Size of generation sector, also affects density. */
   float xpos, zpos, dist, v_dist_half;
   static struct v3f sector;
