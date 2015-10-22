@@ -403,7 +403,8 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
 
   pos = *camerapos;
   if ((direction | INPUT_LEFT_SHIFT) == direction)
-    speed *= 2.3f;
+    speed *= 55.3f;
+  // speed *= 2.3f;
   switch (direction & ~(INPUT_LEFT_SHIFT | INPUT_SPACE)) {
   case INPUT_UP:
     dir = 0.0f;
@@ -687,6 +688,7 @@ int main(int argc, char *argv[])
   int i, t_size = TERRAIN_SQUARE_SIZE;
   char direction, state = 0;
   float fps = 0.0f;
+  static int st = 0;
   struct v2f sector    = {0.0f, 0.0f};
   struct v3f camerarot = {0.0f, 0.0f, 0.0f};
   struct v3f camerapos = {0.0f, readTerrainHeightPlane2(0.0f, 0.0f, t_size) + 1.8f, 0.0f};
@@ -808,8 +810,10 @@ int main(int argc, char *argv[])
       if (state == 0) {
         mouseLook(window, &camerarot);
         movement(&camerapos, camerarot, direction, 1.0f, t_size);
-        if (distance3d(camerapos, airunits[0].pos) < 10.0f && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
+        if (distance3d(camerapos, airunits[0].pos) < 10.0f && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
           state = 1;
+          st = 10;
+        }
       }
       else {
         if (airunits[0].height > 3.0f)
@@ -817,11 +821,12 @@ int main(int argc, char *argv[])
         flyMovement(&airunits[0], direction, t_size);
         cameraTrailMovement(&camerapos, &camerarot, airunits[0], t_size);
         if (airunits[0].thrust == 0 && airunits[0].height < 3.0f && airunits[0].speed < 2.0f
-            && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
+            && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS && st < 1) {
           state = 0;
           airunits[0].vtol_thrust = 0;
         }
       }
+      st--;
       updateAirUnits(airunits, t_size);
       updateCamera(camerarot);
       glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);

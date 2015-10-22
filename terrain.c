@@ -221,6 +221,42 @@ float algorithmicTerrainHeight7(float x, float z)
 }
 
 
+float algorithmicTerrainHeight8a(float x, float z)
+{
+  float height = 0;
+  int x1, z1, h, g1, g2;
+
+  g1 = fabs(sinf(x * 0.00013f) + sinf(z * 0.00015f));
+  g2 = g1 * 127 + 2213;
+  x1 = x / g2;
+  z1 = z / g2;
+  h  = floor(fabs(x1 * z1));
+  height = (h % 5) + 5.2f;
+  h = floor(height * fabs((0.09f + x1) * 0.71f - (0.12f + z1) * 0.77f));
+  height = (height * 0.8f + (h % 3) * 1.23f) * 343 - g1 * 671 - 1200;
+
+  return height;
+}
+
+
+float algorithmicTerrainHeight8b(float x, float z, float o)
+{
+  float h1, h2;
+
+  h1 = algorithmicTerrainHeight8a(x + o, z + o);
+  h2 = algorithmicTerrainHeight8a(x - o, z - o);
+
+  return (h1 + h2) * 0.5f;
+}
+
+
+float algorithmicTerrainHeight8(float x, float z)
+{
+  float o = (sinf(x * 0.00021f) + sinf(z * 0.00022f)) * 857;
+  return (algorithmicTerrainHeight8b(x, z, 2312 + o) + algorithmicTerrainHeight8b(x, z, 1721 + o)) * 0.5f;
+}
+
+
 char calculateTerrainType(float height)
 {
   char type = T_TYPE_DIRT;
@@ -244,11 +280,11 @@ char calculateTerrainType(float height)
 }
 
 
-struct terrain algorithmicTerrainTest(float x, float z)
+struct terrain algorithmicTerrain2(float x, float z)
 {
   struct terrain temp;
 
-  temp.height = algorithmicTerrainHeight7(z * 0.3f, x * 0.3f);
+  temp.height = algorithmicTerrainHeight6(x, z);
   temp.type = calculateTerrainType(temp.height);
 
   return temp;
@@ -260,12 +296,13 @@ struct terrain algorithmicTerrain(float x, float z)
   struct terrain temp;
   float a, b, c, x1, z1;
 
-  temp.height = 0;
+  temp.height = 0.0f;
+  temp.mod = 0.0f;
   temp.type = T_TYPE_NULL;
   x1 = 1.0f - fabs(sinf(x * 0.000037f));
   z1 = 1.0f - fabs(cosf(z * 0.000043f + x1 * 0.01f));
-  a = (x1 + 0.13f) * z1;
-  b = 1 - (x1 * (z1 + 0.71f));
+  a = (x1 + 0.13f) * z1 - 0.1f;
+  b = 0.7f - (x1 * (z1 + 0.71f));
   if (a > 1) {
     a = 1;
     temp.height += algorithmicTerrainHeight1(z * 0.53f, x * 0.59f) * 0.75f;
@@ -276,12 +313,14 @@ struct terrain algorithmicTerrain(float x, float z)
     temp.height += algorithmicTerrainHeight1(z * 0.53f, x * 0.59f) * 0.75f * a;
   if (b > 1) {
     b = 1;
-    temp.height += algorithmicTerrainHeight6(z * 0.2f, x * 0.2f) * 2.0f;
+    temp.height += algorithmicTerrainHeight6(z * 0.2f, x * 0.2f) * 1.5f;
   }
   else if (b < 0)
     b = 0;
   else
-    temp.height += algorithmicTerrainHeight6(z * 0.2f, x * 0.2f) * 2.0f * b;
+    temp.height += algorithmicTerrainHeight6(z * 0.2f, x * 0.2f) * 1.5f * b;
+  if (a + b < 0.4f)
+    temp.height += algorithmicTerrainHeight8(x, z) * (0.4f - a - b) * 1.37f;
   if (temp.height > 2500) {
     c = (temp.height - 2500) * 0.0005f;
     if (c > 0.2f)
@@ -290,7 +329,7 @@ struct terrain algorithmicTerrain(float x, float z)
   }
   if (temp.height > TERRAIN_WATER_LEVEL)
     temp.height += 35.0f;
-  if (temp.height < 400) {
+  if (temp.height < 600) {
     x1 = 0.96f - fabs(sinf(x * 0.00007f + a));
     if (x1 < 0)
       x1 = 0;
@@ -302,10 +341,11 @@ struct terrain algorithmicTerrain(float x, float z)
     else if (z1 > 1)
       z1 = 1;
     temp.height += algorithmicTerrainHeight7(z * 0.4f, x * 0.4f) * x1 * z1;
-    if (x1 * z1 > 0.21f)
+    temp.mod = x1 * z1;
+    if (temp.mod > 0.21f)
       temp.type = T_TYPE_DESERT;
   }
-  else if (temp.height > 400 && temp.height < 1000) {
+  else if (temp.height > 600 && temp.height < 1000) {
     x1 = 1.0f - fabs(sinf(x * 0.00041f + a * 2.3f));
     if (x1 < 0)
       x1 = 0;
@@ -316,6 +356,7 @@ struct terrain algorithmicTerrain(float x, float z)
       z1 = 0;
     else if (z1 > 1)
       z1 = 1;
+    temp.mod = x1 * z1;
     if (x1 * z1 > 0.31f)
       temp.type = T_TYPE_FOREST1;
   }
@@ -330,6 +371,7 @@ struct terrain algorithmicTerrain(float x, float z)
       z1 = 0;
     else if (z1 > 1)
       z1 = 1;
+    temp.mod = x1 * z1;
     if (x1 * z1 > 0.35f)
         temp.type = T_TYPE_FOREST2;
   }
@@ -490,7 +532,7 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   z = (int) (sector->y / *t_size);
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
-  glScalef(0.0015f, 0.0015f, 0.0015f);
+  glScalef(0.015f, 0.015f, 0.015f);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
     xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) * *t_size + x * *t_size;
     zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) * *t_size + z * *t_size;
@@ -520,16 +562,18 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
         SWy[xgrid][zgrid] = (int) readTerrainHeight (SWx[xgrid][zgrid], SWz[xgrid][zgrid]);
         switch (temp2.type) {
         case T_TYPE_GRASS1:
+          x1 = temp2.mod > 0.15f ? temp2.height < 300.0f ? 11 : -29 : 0;
           x2 = ((1000 - SEy[xgrid][zgrid]) / 900.0f) * 70.0f;
-          SEcolorR[xgrid][zgrid] = 40 + x2;
+          SEcolorR[xgrid][zgrid] = 40 + x1 + x2;
           SEcolorG[xgrid][zgrid] = 108;
           SEcolorB[xgrid][zgrid] = 15;
           break;
         case T_TYPE_GRASS2:
-          z1 = ((2000 - SEy[xgrid][zgrid]) / 1000.0f) * 25.0f;
-          SEcolorR[xgrid][zgrid] = 65 - z1;
-          SEcolorG[xgrid][zgrid] = 100;
-          SEcolorB[xgrid][zgrid] = 15;
+          z1 = temp2.mod > 0.11f ? 5 : 0;
+          z2 = ((2000 - SEy[xgrid][zgrid]) / 1000.0f) * 25.0f;
+          SEcolorR[xgrid][zgrid] = 65 - z1 - z2;
+          SEcolorG[xgrid][zgrid] = 100 - z1;
+          SEcolorB[xgrid][zgrid] = 15 + z1;
           break;
         case T_TYPE_GRASS3:
           x1 = ((5000 - SEy[xgrid][zgrid]) / 3000.0f) * 45.0f;
@@ -592,16 +636,18 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
         }
         switch (temp1.type) {
         case T_TYPE_GRASS1:
+          x1 = temp1.mod > 0.15f ? temp1.height < 300.0f ? 11 : -29 : 0;
           x2 = ((1000 - NEy[xgrid][zgrid]) / 900.0f) * 70.0f;
-          NEcolorR[xgrid][zgrid] = 40 + x2;
+          NEcolorR[xgrid][zgrid] = 40 + x1 + x2;
           NEcolorG[xgrid][zgrid] = 108;
           NEcolorB[xgrid][zgrid] = 15;
           break;
         case T_TYPE_GRASS2:
-          z1 = ((2000 - NEy[xgrid][zgrid]) / 1000.0f) * 25.0f;
-          NEcolorR[xgrid][zgrid] = 65 - z1;
-          NEcolorG[xgrid][zgrid] = 100;
-          NEcolorB[xgrid][zgrid] = 15;
+          z1 = temp1.mod > 0.11f ? 5 : 0;
+          z2 = ((2000 - NEy[xgrid][zgrid]) / 1000.0f) * 25.0f;
+          NEcolorR[xgrid][zgrid] = 65 - z1 - z2;
+          NEcolorG[xgrid][zgrid] = 100 - z1;
+          NEcolorB[xgrid][zgrid] = 15 + z1;
           break;
         case T_TYPE_GRASS3:
           x1 = ((5000 - NEy[xgrid][zgrid]) / 3000.0f) * 45.0f;

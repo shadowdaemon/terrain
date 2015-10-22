@@ -14,9 +14,9 @@
 #define TERRAIN_WATER_LEVEL                 0
 #define TERRAIN_SCALE_HEIGHT                9500 /* Also upper cloud height. */
 #define LOWER_CLOUD_HEIGHT                  4500
-#define VIEW_DISTANCE                       3000
-#define VIEW_DISTANCE_HALF                  1500
-#define VIEW_DISTANCE_QUARTER               750
+#define VIEW_DISTANCE                       12000
+#define VIEW_DISTANCE_HALF                  6000
+#define VIEW_DISTANCE_QUARTER               3000
 #define SCENERY_DENSITY                     1200 /* Lower number is more dense, don't go below 1000. */
 #define SCENERY_SIZE                        14400 /* TERRAIN_GRID_SIZE^2. */
 #define SCENERY_DENSITY_GRASS               1000
@@ -152,6 +152,7 @@ struct v3f {
 
 struct terrain {
   float height;
+  float mod;
   unsigned char type;
 };
 
