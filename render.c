@@ -6,7 +6,7 @@
 void updateFogAndFrustum(GLfloat *clear, struct v3f camerapos, int t_size)
 {
   struct v3f pos;
-  float fog_end = t_size * TERRAIN_GRID_SIZE * 0.45f;
+  float fog_end = t_size * TERRAIN_GRID_SIZE * 0.65f;
   static float fog_start = 0.0f;
   float ground = readTerrainHeightPlane(camerapos.x, camerapos.z, &pos, t_size);
   float fstart;
@@ -364,7 +364,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
                 drawModel((const struct aiScene *) &scene[MODEL_TREE_POPLAR], mv3f(xpos, height[i], zpos), mv3f(0, x1, 0), m_size, alpha);
               else if (a == 6) {
                 color[0] = 95; color[1] = 95; color[2] = 95;
-                glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN]);
+                glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_1]);
                 drawModel2((const struct aiScene *) &scene[MODEL_ROCK1], mv3f(xpos, height[i], zpos), mv3f(x1, z1, 0),
                   1.8f + (z1 % 10) * 0.23f, color, alpha);
               }
@@ -403,7 +403,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
               }
               else {
                 color[0] = 103; color[1] = 111; color[2] = 63;
-                glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN]);
+                glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_1]);
                 drawModel2((const struct aiScene *) &scene[MODEL_ROCK1], mv3f(xpos, height[i], zpos), mv3f(x1, z1, 0),
                   2.3f + (z1 % 10) * 0.23f, color, alpha);
               }
@@ -429,7 +429,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
             else if (type[i] == T_TYPE_SNOW) {
               if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.45f) {
                 color[0] = 155; color[1] = 155; color[2] = 155;
-                glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN]);
+                glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_1]);
                 drawModel2((const struct aiScene *) &scene[MODEL_ROCK1], mv3f(xpos, height[i], zpos), mv3f(x1, z1, 0),
                            2.35f + (z1 % 10) * 0.71f, color, alpha);
               }
@@ -713,12 +713,12 @@ void renderAircraft(struct aiScene *scene, GLuint *textures, struct v3f camerapo
 
   for (i = 0; i < 1; i++) {
     switch (units[i].type) {
-    case UNIT_AIR_FIGHTER1:
-      texture = TEX_AIR_FIGHTER1;
+    case UNIT_AIR_FIGHTER_1:
+      texture = TEX_AIR_FIGHTER_1;
       model = MODEL_AIR_FIGHTER1;
       break;
     default:
-      texture = TEX_AIR_FIGHTER1;
+      texture = TEX_AIR_FIGHTER_1;
       model = MODEL_AIR_FIGHTER1;
     }
     glEnable(GL_TEXTURE_2D);
@@ -734,17 +734,18 @@ void renderAircraft(struct aiScene *scene, GLuint *textures, struct v3f camerapo
 
 void sceneQuad(void)
 {
-  glDisable(GL_DEPTH_TEST);
-  glDisable(GL_FOG);
-  glColor3ub(255, 255, 255);
   glBegin(GL_QUADS);
-  glMultiTexCoord2i(4, 0, 0);
+  //glVertexAttrib3fARB(0, 0, 0, 0);
+  glMultiTexCoord2i(GL_TEXTURE4_ARB, 0, 0);
   glVertex3i(0, 0, 0);
-  glMultiTexCoord2i(4, 1, 0);
+  //glVertexAttrib3fARB(0, RESX, 0, 0);
+  glMultiTexCoord2i(GL_TEXTURE4_ARB, 1, 0);
   glVertex3i(RESX, 0, 0);
-  glMultiTexCoord2i(4, 1, 1);
+  //glVertexAttrib3fARB(0, RESX, RESY, 0);
+  glMultiTexCoord2i(GL_TEXTURE4_ARB, 1, 1);
   glVertex3i(RESX, RESY, 0);
-  glMultiTexCoord2i(4, 0, 1);
+  //glVertexAttrib3fARB(0, 0, RESY, 0);
+  glMultiTexCoord2i(GL_TEXTURE4_ARB, 0, 1);
   glVertex3i(0, RESY, 0);
   glEnd();
 }
@@ -756,9 +757,15 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
 {
   GLfloat color[4], temp;
   GLint lpos[4], mpos[4];
+  struct v3f n;
+  float camHeight = fabs(camerapos.y - readTerrainHeightPlane(camerapos.x, camerapos.z, &n, *t_size));
   static double time = 0;
   static float fps2 = 0;
   static char swapb = 1;
+  /* const GLfloat projmat[] = {1.0f, 0.0f, 0.0f, 0.0f, */
+  /*                            0.0f, 1.0f, 0.0f, 0.0f, */
+  /*                            0.0f, 0.0f, 1.0f, 0.0f, */
+  /*                            0.0f, 0.0f, 0.0f, 1.0f}; */
 
   *fps = 1 / (glfwGetTime() - time);
   fps2 += (*fps - fps2) * 0.05f;
@@ -789,8 +796,8 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   color[1] = 0.1f;
   color[2] = 0.12f;
   glLightfv(GL_LIGHT1, GL_SPECULAR, color);
-  if (lpos[1] < -300)
-    temp = 0.35f * (1 - (-300 - lpos[1]) / 700.0f);
+  if (lpos[1] < 0)
+    temp = 0.35f * (1 + lpos[1] / 1000.0f);
   else
     temp = 0.35f;
   color[0] = temp;
@@ -810,8 +817,8 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   color[1] = lpos[1] > -400 ? (lpos[1] + 400) / 1400.0f : 0;
   color[2] = lpos[1] > -200 ? (lpos[1] + 200) / 1200.0f : 0;
   glLightfv(GL_LIGHT0, GL_DIFFUSE, color);
-  color[0] = 0.2f;
-  color[1] = 0.2f;
+  color[0] = 0.18f;
+  color[1] = 0.18f;
   color[2] = 0.22f;
   glLightfv(GL_LIGHT1, GL_DIFFUSE, color);
   color[0] = 0.8f;
@@ -838,9 +845,19 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_LIGHTING);
   glEnable(GL_NORMALIZE);
-  glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN]);
+  glActiveTextureARB(GL_TEXTURE1_ARB);
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_2]);
+  glActiveTextureARB(GL_TEXTURE0_ARB);
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_1]);
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
+  glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
   drawTerrain(camerapos, camerarot, sector, t_size, &swapb);
-  if (camerapos.y < TERRAIN_SCALE_HEIGHT)
+  glActiveTextureARB(GL_TEXTURE1_ARB);
+  glDisable(GL_TEXTURE_2D);
+  glActiveTextureARB(GL_TEXTURE0_ARB);
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  if (camerapos.y < TERRAIN_SCALE_HEIGHT && camHeight < VIEW_DISTANCE)
     renderGroundScenery(scene, textures, camerapos, camerarot, *t_size, fps2);
   if (swapb) {
     glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
@@ -851,16 +868,17 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
     /* glUseProgramARB(shaders[2]); */
     /* glUniform1iARB(glGetUniformLocationARB(shaders[2], "texture"), 1); */
     /* glUniform1fARB(glGetUniformLocationARB(shaders[2], "size"), 10.0f); */
-    /* glUniform2fARB(glGetUniformLocationARB(shaders[2], "screensize"), 1366, 768); */
+    /* glUniform2fARB(glGetUniformLocationARB(shaders[2], "screensize"), RESX, RESY); */
     /* renderFX(); */
     /* glUseProgramARB(0); */
-    glEnable(GL_LIGHTING);
-    glEnable(GL_TEXTURE_2D);
+    /* glEnable(GL_LIGHTING); */
+    /* glEnable(GL_TEXTURE_2D); */
     glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
     if (camerapos.y < TERRAIN_SCALE_HEIGHT) {
       renderCloud(camerapos, camerarot, 180, TERRAIN_SCALE_HEIGHT, 0.00005f, *t_size);
       renderCloud(camerapos, camerarot, 100, LOWER_CLOUD_HEIGHT, 0.00001f, *t_size);
-      renderGrass(textures, camerapos, camerarot, *t_size, fps2);
+      if (camHeight < VIEW_DISTANCE_HALF)
+        renderGrass(textures, camerapos, camerarot, *t_size, fps2);
     }
     else {
       renderCloud(camerapos, camerarot, 65, LOWER_CLOUD_HEIGHT, 0.00001f, *t_size);
@@ -873,6 +891,31 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
+    if (USE_SHADERS) {
+      glDisable(GL_DEPTH_TEST);
+      glDisable(GL_FOG);
+      glBindTexture(GL_TEXTURE_2D, textures[TEX_RENDER]);
+      glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      // glReadBuffer(GL_BACK);
+      glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0);
+      glUseProgramARB(shaders[0]);
+      glUniform1iARB(glGetUniformLocationARB(shaders[0], "scene"), 4);
+      glUniform1fARB(glGetUniformLocationARB(shaders[0], "gamma"), 0.6f);
+      glUniform1fARB(glGetUniformLocationARB(shaders[0], "numcolors"), 64.0f);
+      glUniform2fARB(glGetUniformLocationARB(shaders[0], "steps"), RESX * 2, RESY * 2);
+      glUniform4fvARB(glGetUniformLocationARB(shaders[0], "clear"), 0, color);
+      sceneQuad();
+      /* glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0); */
+      /* glUseProgramARB(shaders[3]); */
+      /* glUniform1iARB(glGetUniformLocationARB(shaders[3], "scene"), 4); */
+      /* glUniformMatrix4fvARB(glGetUniformLocationARB(shaders[3], "projmat"), 1, GL_TRUE, projmat); */ /* Not needed, keep as example. */
+      /* glUniform2fARB(glGetUniformLocationARB(shaders[3], "steps"), RESX, RESY); */
+      /* glUniform4fvARB(glGetUniformLocationARB(shaders[3], "clear"), 0, color); */
+      /* sceneQuad(); */
+    }
+    glUseProgramARB(0);
     glBindTexture(GL_TEXTURE_2D, textures[TEX_FONT]);
     renderNumber(camerapos.x, textquads, mv2f(250, 120));
     renderNumber(camerapos.z, textquads, mv2f(250, 70));
@@ -880,28 +923,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
     renderNumber(airunits[0].height, textquads, mv2f(RESX - 100, 120));
     renderNumber(airunits[0].speed * 10.0f, textquads, mv2f(RESX - 100, 70));
     renderNumber(airunits[0].thrust * 100, textquads, mv2f(RESX - 100, 20));
-    if (USE_SHADERS) {
-      glReadBuffer(GL_BACK);
-      glBindTexture(GL_TEXTURE_2D, textures[TEX_RENDER]);
-      glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0);
-      glUseProgramARB(shaders[0]);
-      glUniform1iARB(glGetUniformLocationARB(shaders[0], "scene"), 4);
-      glUniform1fARB(glGetUniformLocationARB(shaders[0], "gamma"), 0.6f);
-      glUniform1fARB(glGetUniformLocationARB(shaders[0], "numcolors"), 64.0f);
-      glUniform4fvARB(glGetUniformLocationARB(shaders[0], "clear"), 0, color);
-      sceneQuad();
-      glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0);
-      glUseProgramARB(shaders[1]);
-      glUniform1iARB(glGetUniformLocationARB(shaders[1], "scene"), 4);
-      glUniform2fARB(glGetUniformLocationARB(shaders[1], "steps"), RESX, RESY);
-      glUniform4fvARB(glGetUniformLocationARB(shaders[1], "clear"), 0, color);
-      sceneQuad();
-    }
   }
-  glUseProgramARB(0);
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
   glMatrixMode(GL_MODELVIEW);

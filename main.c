@@ -173,31 +173,38 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   FreeImage_Initialise(GL_FALSE);
   FreeImage_SetOutputMessage(errorFreeImage);
   glEnable(GL_TEXTURE_2D);
-  glGenTextures(8, textures);
-  glActiveTextureARB(GL_TEXTURE0_ARB);
-  glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN]);
-  loadTexture2D("data/textures/terrain.png");
-  glActiveTextureARB(GL_TEXTURE1_ARB);
-  glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE]);
-  loadTexture2D("data/textures/foliage.tga");
-  glActiveTextureARB(GL_TEXTURE2_ARB);
-  glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
-  loadTexture2D("data/textures/cloud_alpha.tga");
-  glActiveTextureARB(GL_TEXTURE3_ARB);
-  glBindTexture(GL_TEXTURE_2D, textures[TEX_FONT]);
-  loadTexture2D("data/textures/font_alpha.tga");
+  glGenTextures(10, textures);
   glActiveTextureARB(GL_TEXTURE4_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_RENDER]); /* Render to texture. */
-  glActiveTextureARB(GL_TEXTURE5_ARB);
+  glActiveTextureARB(GL_TEXTURE1_ARB);
+  //glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_1]);
+  loadTexture2D("data/textures/terrain.png");
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
+  glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
+  glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  //glDisable(GL_TEXTURE_2D);
+  glActiveTextureARB(GL_TEXTURE0_ARB);
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_2]);
+  loadTexture2D("data/textures/terrain.png");
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE]);
+  loadTexture2D("data/textures/foliage.tga");
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
+  loadTexture2D("data/textures/cloud_alpha.tga");
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_FONT]);
+  loadTexture2D("data/textures/font_alpha.tga");
   glBindTexture(GL_TEXTURE_2D, textures[TEX_BUILDING]);
   loadTexture2D("data/textures/building1.png");
-  glActiveTextureARB(GL_TEXTURE6_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE_GRASS]);
   loadTexture2D("data/textures/foliage_grass.png");
-  glActiveTextureARB(GL_TEXTURE7_ARB);
-  glBindTexture(GL_TEXTURE_2D, textures[TEX_AIR_FIGHTER1]);
+  glBindTexture(GL_TEXTURE_2D, textures[TEX_AIR_FIGHTER_1]);
   loadTexture2D("data/textures/fighter.png");
-  glActiveTextureARB(GL_TEXTURE0_ARB);
+  // Six texture functions may be specified: GL_ADD, GL_MODULATE, GL_DECAL, GL_BLEND, GL_REPLACE, or GL_COMBINE.
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
@@ -209,7 +216,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   printf("%s\n", glGetString(GL_VERSION));
   printf("%s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-  glActiveTexureARB = (PFNGLACTIVETEXTUREARBPROC) glfwGetProcAddress("glActiveTexureARB");
+  /* glActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC) glfwGetProcAddress("glActiveTextureARB"); */
   glCreateProgramARB = (PFNGLCREATEPROGRAMPROC) glfwGetProcAddress("glCreateProgram");
   glCreateShaderARB = (PFNGLCREATESHADERPROC) glfwGetProcAddress("glCreateShader");
   glShaderSourceARB = (PFNGLSHADERSOURCEARBPROC) glfwGetProcAddress("glShaderSourceARB");
@@ -230,23 +237,32 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   glGetUniformLocationARB = (PFNGLGETUNIFORMLOCATIONARBPROC) glfwGetProcAddress("glGetUniformLocationARB");
   glGetAttribLocationARB = (PFNGLGETATTRIBLOCATIONARBPROC) glfwGetProcAddress("glGetAttribLocationARB");
   glBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC) glfwGetProcAddress("glBindAttribLocationARB");
+  glVertexAttrib3fARB = (PFNGLVERTEXATTRIB3FARBPROC) glfwGetProcAddress("glVertexAttrib3fARB");
   glVertexAttrib3fvARB = (PFNGLVERTEXATTRIB3FVARBPROC) glfwGetProcAddress("glVertexAttrib3fvARB");
   glMultiTexCoordPointerEXT = (PFNGLMULTITEXCOORDPOINTEREXTPROC) glfwGetProcAddress("glMultiTexCoordPointerEXT");
+
+  // glBindAttribLocationARB(shaders[3], 23, "Position");
 
   linkShader(&shaders[0], "data/shaders/1.vsh", "data/shaders/1.fsh");
   linkShader(&shaders[1], "data/shaders/2.vsh", "data/shaders/2.fsh");
   linkShader(&shaders[2], "data/shaders/3.vsh", "data/shaders/3.fsh");
+  linkShader(&shaders[3], "data/shaders/5.vsh", "data/shaders/5.fsh");
+
+  // int al = glGetAttribLocationARB(shaders[3], "pos"); printf("attrib: %d\n", al);
+  int maxt = 0;
+  glGetIntegerv(GL_MAX_TEXTURE_COORDS, &maxt);
+  printf("max tex units: %d\n", maxt);
 
   return window;
 }
 
 
-void axisMultiplier(float *quat1_in, float *quat2_in, float *quat3_in)
+void axisMultiplier(float *quat1, float *quat2, float *quat3)
 {
-  quat1_in[0] = quat2_in[0] * quat3_in[0] - quat2_in[0] * quat3_in[1] - quat2_in[2] * quat3_in[2] - quat2_in[3] * quat3_in[3];
-  quat1_in[1] = quat2_in[0] * quat3_in[1] + quat2_in[1] * quat3_in[0] + quat2_in[2] * quat3_in[3] - quat2_in[3] * quat3_in[2];
-  quat1_in[2] = quat2_in[0] * quat3_in[2] + quat2_in[2] * quat3_in[0] + quat2_in[3] * quat3_in[1] - quat2_in[1] * quat3_in[3];
-  quat1_in[3] = quat2_in[0] * quat3_in[3] + quat2_in[3] * quat3_in[0] + quat2_in[1] * quat3_in[2] - quat2_in[2] * quat3_in[1];
+  quat1[0] = quat2[0] * quat3[0] - quat2[0] * quat3[1] - quat2[2] * quat3[2] - quat2[3] * quat3[3];
+  quat1[1] = quat2[0] * quat3[1] + quat2[1] * quat3[0] + quat2[2] * quat3[3] - quat2[3] * quat3[2];
+  quat1[2] = quat2[0] * quat3[2] + quat2[2] * quat3[0] + quat2[3] * quat3[1] - quat2[1] * quat3[3];
+  quat1[3] = quat2[0] * quat3[3] + quat2[3] * quat3[0] + quat2[1] * quat3[2] - quat2[2] * quat3[1];
 }
 
 
@@ -398,13 +414,12 @@ void keyboardInput(GLFWwindow *window, char *direction)
 void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float speed, int t_size)
 {
   struct v3f normal, pos;
-  float ground, temp, dir = 0.0f;
+  float ground, temp, dir = 0.0f, moar;
   char a = 0;
 
   pos = *camerapos;
   if ((direction | INPUT_LEFT_SHIFT) == direction)
-    speed *= 55.3f;
-  // speed *= 2.3f;
+    speed *= 2.3f;
   switch (direction & ~(INPUT_LEFT_SHIFT | INPUT_SPACE)) {
   case INPUT_UP:
     dir = 0.0f;
@@ -440,18 +455,20 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
     break;
   default: break;
   }
-  degreestovector3d(&pos, camerarot, mv3f(0.0f, dir, 0.0f), a);
-  temp = readTerrainHeightPlane(pos.x, pos.z, &normal, t_size);
+  degreestovector3d(&pos, camerarot, mv3f(0.0f, dir, 0.0f), a * speed);
+  temp   = readTerrainHeightPlane(pos.x, pos.z, &normal, t_size);
   ground = readTerrainHeightPlane(camerapos->x, camerapos->z, &normal, t_size);
-  if (temp > ground + 1.0f)
-    speed = 0.0f;
+  if (temp > ground + 1.3f)
+    speed = 0.041f;
   else if (temp > ground)
-    speed *= 1 - ((temp - ground) / 1.0f);
+    speed *= 1 - ((temp - ground) / 1.3f);
+  moar = camerapos->y;
   degreestovector3d(camerapos, camerarot, mv3f(0.0f, dir, 0.0f), a * speed);
   ground = readTerrainHeightPlane(camerapos->x, camerapos->z, &normal, t_size);
   ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
   ground += 1.8f;
-  camerapos->y += (ground - camerapos->y) * 0.5f;
+  camerapos->y = (moar + temp + 1.8f) / 2.0f;
+  camerapos->y = camerapos->y < ground ? ground : camerapos->y;
 }
 
 
@@ -462,7 +479,7 @@ void flyMovement(struct airunit *unit, char input, int t_size)
     thrust_ceiling, tlapse, aero, drag, lift, glide, pressure, temp;
 
   switch (unit->type) {
-  case UNIT_AIR_FIGHTER1:
+  case UNIT_AIR_FIGHTER_1:
     max_thrust = WORLD_GRAVITY + 0.6f;
     max_vtol_thrust = WORLD_GRAVITY + 0.12f;
     thrust_step = 0.01f;
@@ -683,7 +700,7 @@ void updateAirUnits(struct airunit *units, int t_size)
 
 int main(int argc, char *argv[])
 {
-  GLuint textures[8], shaders[5];
+  GLuint textures[10], shaders[5];
   GLFWwindow *window = NULL;
   int i, t_size = TERRAIN_SQUARE_SIZE;
   char direction, state = 0;
@@ -800,7 +817,7 @@ int main(int argc, char *argv[])
     else
       textquads[10] = *s_temp;
     for (i = 0; i < 1; i++) {
-      airunits[i].type = UNIT_AIR_FIGHTER1;
+      airunits[i].type = UNIT_AIR_FIGHTER_1;
       airunits[i].pos.x = (i - 5) * 50;
       airunits[i].pos.z = (i - 7) * 23 + 50;
       airunits[i].pos.y = readTerrainHeightPlane2(airunits[i].pos.x, airunits[i].pos.z, t_size);

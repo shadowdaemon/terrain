@@ -6,9 +6,9 @@
 #define PI                                  3.14159265358979323846f
 #define PIx180                              180.0f*PI
 #define WORLD_GRAVITY                       0.4f
-#define TERRAIN_GRID_SIZE                   120
-#define TERRAIN_GRID_SIZE_HALF              60
-#define TERRAIN_GRID_SIZE_QUARTER           30
+#define TERRAIN_GRID_SIZE                   100
+#define TERRAIN_GRID_SIZE_HALF              50
+#define TERRAIN_GRID_SIZE_QUARTER           25
 #define TERRAIN_SQUARE_SIZE                 500
 #define TERRAIN_STEP_SIZE                   10
 #define TERRAIN_WATER_LEVEL                 0
@@ -18,9 +18,9 @@
 #define VIEW_DISTANCE_HALF                  6000
 #define VIEW_DISTANCE_QUARTER               3000
 #define SCENERY_DENSITY                     1200 /* Lower number is more dense, don't go below 1000. */
-#define SCENERY_SIZE                        14400 /* TERRAIN_GRID_SIZE^2. */
+#define SCENERY_SIZE                        10000 /* TERRAIN_GRID_SIZE^2. */
 #define SCENERY_DENSITY_GRASS               1000
-#define SCENERY_SIZE_GRASS                  3600 /* TERRAIN_GRID_SIZE_HALF^2. */
+#define SCENERY_SIZE_GRASS                  2500 /* TERRAIN_GRID_SIZE_HALF^2. */
 #define SCENERY_STEP_SIZE                   6
 #define T_TYPE_NULL                         0
 #define T_TYPE_CRATER                       1
@@ -48,15 +48,16 @@
 #define INPUT_SPACE                         16
 #define INPUT_LEFT_SHIFT                    32
 
-#define UNIT_AIR_FIGHTER1                   0
-#define TEX_TERRAIN                         0
-#define TEX_FOLIAGE                         1
-#define TEX_CLOUD                           2
-#define TEX_FONT                            3
-#define TEX_RENDER                          4
-#define TEX_BUILDING                        5
-#define TEX_FOLIAGE_GRASS                   6
-#define TEX_AIR_FIGHTER1                    7
+#define UNIT_AIR_FIGHTER_1                  0
+#define TEX_TERRAIN_1                       0
+#define TEX_TERRAIN_2                       1
+#define TEX_FOLIAGE                         2
+#define TEX_CLOUD                           3
+#define TEX_FONT                            4
+#define TEX_RENDER                          5
+#define TEX_BUILDING                        6
+#define TEX_FOLIAGE_GRASS                   7
+#define TEX_AIR_FIGHTER_1                   8
 #define MODEL_TREE_POPLAR                   0
 #define MODEL_TREE_OAK                      1
 #define MODEL_TREE_FIR                      2
@@ -79,7 +80,7 @@
 #define GRASS_DEAD                          5
 #define GRASS_FLOWERS                       6
 
-#define glActiveTexureARB _ActiveTexureARB
+/* #define glActiveTextureARB _ActiveTextureARB */
 #define glCreateProgramARB _CreateProgramARB
 #define glCreateShaderARB _CreateShaderARB
 #define glShaderSourceARB _ShaderSourceARB
@@ -100,9 +101,10 @@
 #define glGetUniformLocationARB _GetUniformLocationARB
 #define glGetAttribLocationARB _GetAttribLocationARB
 #define glBindAttribLocationARB _BindAttribLocationARB
+#define glVertexAttrib3fARB _VertexAttrib3fARB
 #define glVertexAttrib3fvARB _VertexAttrib3fvARB
 #define glMultiTexCoordPointerEXT _MultiTexCoordPointerEXT
-PFNGLACTIVETEXTUREARBPROC _ActiveTexureARB;
+/* PFNGLACTIVETEXTUREARBPROC _ActiveTextureARB; */
 PFNGLCREATEPROGRAMPROC _CreateProgramARB;
 PFNGLCREATESHADERPROC _CreateShaderARB;
 PFNGLSHADERSOURCEARBPROC _ShaderSourceARB;
@@ -123,6 +125,7 @@ PFNGLUNIFORMMATRIX4FVARBPROC _UniformMatrix4fvARB;
 PFNGLGETUNIFORMLOCATIONARBPROC _GetUniformLocationARB;
 PFNGLGETATTRIBLOCATIONARBPROC _GetAttribLocationARB;
 PFNGLBINDATTRIBLOCATIONARBPROC _BindAttribLocationARB;
+PFNGLVERTEXATTRIB3FARBPROC _VertexAttrib3fARB;
 PFNGLVERTEXATTRIB3FVARBPROC _VertexAttrib3fvARB;
 PFNGLMULTITEXCOORDPOINTEREXTPROC _MultiTexCoordPointerEXT;
 

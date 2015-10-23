@@ -284,17 +284,18 @@ struct terrain algorithmicTerrain2(float x, float z)
 {
   struct terrain temp;
 
-  temp.height = algorithmicTerrainHeight6(x, z);
+  temp.height = algorithmicTerrainHeight7(x, z);
   temp.type = calculateTerrainType(temp.height);
 
   return temp;
 }
 
 
-struct terrain algorithmicTerrain(float x, float z)
+struct terrain algorithmicTerrain(float xi, float zi)
 {
   struct terrain temp;
   float a, b, c, x1, z1;
+  float x = xi * 2.3f, z = zi * 2.3f;
 
   temp.height = 0.0f;
   temp.mod = 0.0f;
@@ -305,12 +306,12 @@ struct terrain algorithmicTerrain(float x, float z)
   b = 0.7f - (x1 * (z1 + 0.71f));
   if (a > 1) {
     a = 1;
-    temp.height += algorithmicTerrainHeight1(z * 0.53f, x * 0.59f) * 0.75f;
+    temp.height += algorithmicTerrainHeight1(z * 0.53f, x * 0.59f);
   }
   else if (a < 0)
     a = 0;
   else
-    temp.height += algorithmicTerrainHeight1(z * 0.53f, x * 0.59f) * 0.75f * a;
+    temp.height += algorithmicTerrainHeight1(z * 0.53f, x * 0.59f) * a;
   if (b > 1) {
     b = 1;
     temp.height += algorithmicTerrainHeight6(z * 0.2f, x * 0.2f) * 1.5f;
@@ -357,7 +358,7 @@ struct terrain algorithmicTerrain(float x, float z)
     else if (z1 > 1)
       z1 = 1;
     temp.mod = x1 * z1;
-    if (x1 * z1 > 0.31f)
+    if (x1 * z1 > 0.19f)
       temp.type = T_TYPE_FOREST1;
   }
   else if (temp.height > 1000 && temp.height < 2000) {
@@ -372,7 +373,7 @@ struct terrain algorithmicTerrain(float x, float z)
     else if (z1 > 1)
       z1 = 1;
     temp.mod = x1 * z1;
-    if (x1 * z1 > 0.35f)
+    if (x1 * z1 > 0.21f)
         temp.type = T_TYPE_FOREST2;
   }
   if (temp.height > 0 && temp.height < 1200) {
@@ -478,7 +479,7 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   struct terrain temp1, temp2;
   struct v3f temp3f;
   static int size = 0;
-  int xgrid, zgrid, x1, z1, x2, z2, cull;
+  int xgrid, zgrid, x1, z1, x2, z2, x3, z3, cull;
   float x, z, xpos = 0.0f, zpos = 0.0f, dist;
   float v1[3], v2[3], v3[3];
   static unsigned char NEcolorR [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
@@ -532,15 +533,37 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
   z = (int) (sector->y / *t_size);
   glMatrixMode(GL_TEXTURE);
   glPushMatrix();
-  glScalef(0.015f, 0.015f, 0.015f);
+  glScalef(0.00015f, 0.00035f, 0.00035f);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
-    xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) * *t_size + x * *t_size;
-    zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) * *t_size + z * *t_size;
+    x3 = fabs(TERRAIN_GRID_SIZE_HALF - xgrid) - 20; x3 = x3 < 0 ? 0 : (x3 + 20) * 8;
+    z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) - 20; z3 = z3 < 0 ? 0 : (z3 + 20) * 8;
+    xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) * (x3 + *t_size) + x * *t_size;
+    zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) * (z3 + *t_size) + z * *t_size;
     dist = distance2d(camerapos, mv3f(xpos, 0.0f, zpos));
-    x1 = xpos + *t_size / 2;
-    x2 = xpos - *t_size / 2;
-    z1 = zpos + *t_size / 2;
-    z2 = zpos - *t_size / 2;
+    if (xgrid > TERRAIN_GRID_SIZE_HALF + 19) {
+      x1 = xpos + x3 - 3040.0f + *t_size / 2;
+      x2 = xpos - x3 - 3040.0f - *t_size / 2;
+    }
+    else if (xgrid < TERRAIN_GRID_SIZE_HALF - 19) {
+      x1 = xpos + x3 + 3040.0f + *t_size / 2;
+      x2 = xpos - x3 + 3040.0f - *t_size / 2;
+    }
+    else {
+      x1 = xpos + x3 + *t_size / 2;
+      x2 = xpos - x3 - *t_size / 2;
+    }
+    if (zgrid > TERRAIN_GRID_SIZE_HALF + 19) {
+      z1 = zpos + z3 - 3040.0f + *t_size / 2;
+      z2 = zpos - z3 - 3040.0f - *t_size / 2;
+    }
+    else if (zgrid < TERRAIN_GRID_SIZE_HALF - 19) {
+      z1 = zpos + z3 + 3040.0f + *t_size / 2;
+      z2 = zpos - z3 + 3040.0f - *t_size / 2;
+    }
+    else {
+      z1 = zpos + z3 + *t_size / 2;
+      z2 = zpos - z3 - *t_size / 2;
+    }
     cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
     while (cull >= 360)
       cull -= 360;
@@ -779,29 +802,37 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
           glColor3ub(122, 122, 122);
         else
           glColor3ub(SEcolorR[xgrid-1][zgrid], SEcolorG[xgrid-1][zgrid], SEcolorB[xgrid-1][zgrid]);
+        //glVertexAttrib3fARB(0, SWnormx[xgrid][zgrid], SWnormy[xgrid][zgrid], SWnormz[xgrid][zgrid]);
         glNormal3f(SWnormx[xgrid][zgrid], SWnormy[xgrid][zgrid], SWnormz[xgrid][zgrid]);
-        glTexCoord2i((SWx[xgrid][zgrid]), (SWz[xgrid][zgrid]));
+        glMultiTexCoord2i(GL_TEXTURE0_ARB, SWx[xgrid][zgrid], SWz[xgrid][zgrid]);
+        glMultiTexCoord2i(GL_TEXTURE1_ARB, SWx[xgrid][zgrid]*0.015, SWz[xgrid][zgrid]*0.015);
         glVertex3d(SWx[xgrid][zgrid], SWy[xgrid][zgrid], SWz[xgrid][zgrid]);
         if (xgrid >= TERRAIN_GRID_SIZE - 1)
           glColor3ub(122, 122, 122);
         else
           glColor3ub(SEcolorR[xgrid][zgrid], SEcolorG[xgrid][zgrid], SEcolorB[xgrid][zgrid]);
+        //glVertexAttrib3fARB(0, SEx[xgrid][zgrid], SEy[xgrid][zgrid], SEz[xgrid][zgrid]);
         glNormal3f(SEnormx[xgrid][zgrid], SEnormy[xgrid][zgrid], SEnormz[xgrid][zgrid]);
-        glTexCoord2i((SEx[xgrid][zgrid]), (SEz[xgrid][zgrid]));
+        glMultiTexCoord2i(GL_TEXTURE0_ARB, SEx[xgrid][zgrid], SEz[xgrid][zgrid]);
+        glMultiTexCoord2i(GL_TEXTURE1_ARB, SEx[xgrid][zgrid]*0.015, SEz[xgrid][zgrid]*0.015);
         glVertex3d(SEx[xgrid][zgrid], SEy[xgrid][zgrid], SEz[xgrid][zgrid]);
         if (xgrid <= 0)
           glColor3ub(122, 122, 122);
         else
           glColor3ub(NEcolorR[xgrid-1][zgrid], NEcolorG[xgrid-1][zgrid], NEcolorB[xgrid-1][zgrid]);
+        //glVertexAttrib3fARB(0, NWx[xgrid][zgrid], NWy[xgrid][zgrid], NWz[xgrid][zgrid]);
         glNormal3f(NWnormx[xgrid][zgrid], NWnormy[xgrid][zgrid], NWnormz[xgrid][zgrid]);
-        glTexCoord2i((NWx[xgrid][zgrid]), (NWz[xgrid][zgrid]));
+        glMultiTexCoord2i(GL_TEXTURE0_ARB, NWx[xgrid][zgrid], NWz[xgrid][zgrid]);
+        glMultiTexCoord2i(GL_TEXTURE1_ARB, NWx[xgrid][zgrid]*0.015, NWz[xgrid][zgrid]*0.015);
         glVertex3d(NWx[xgrid][zgrid], NWy[xgrid][zgrid], NWz[xgrid][zgrid]);
         if (xgrid >= TERRAIN_GRID_SIZE - 1)
           glColor3ub(122, 122, 122);
         else
           glColor3ub(NEcolorR[xgrid][zgrid], NEcolorG[xgrid][zgrid], NEcolorB[xgrid][zgrid]);
+        //glVertexAttrib3fARB(0, NEx[xgrid][zgrid], NEy[xgrid][zgrid], NEz[xgrid][zgrid]);
         glNormal3f(NEnormx[xgrid][zgrid], NEnormy[xgrid][zgrid], NEnormz[xgrid][zgrid]);
-        glTexCoord2i((NEx[xgrid][zgrid]), (NEz[xgrid][zgrid]));
+        glMultiTexCoord2i(GL_TEXTURE0_ARB, NEx[xgrid][zgrid], NEz[xgrid][zgrid]);
+        glMultiTexCoord2i(GL_TEXTURE1_ARB, NEx[xgrid][zgrid]*0.015, NEz[xgrid][zgrid]*0.015);
         glVertex3d(NEx[xgrid][zgrid], NEy[xgrid][zgrid], NEz[xgrid][zgrid]);
         glEnd();
       }
