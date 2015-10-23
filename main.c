@@ -43,6 +43,35 @@ void loadTexture2D(const char *file)
 }
 
 
+void loadTexTerrain(const char *file)
+{
+  FIBITMAP *img = FreeImage_Load(FreeImage_GetFileType(file, 0), file, 0);
+  FIBITMAP *foo = FreeImage_Load(FreeImage_GetFileType(file, 0), file, 0);
+  img = FreeImage_ConvertTo32Bits(img);
+  foo = FreeImage_ConvertTo32Bits(foo);
+  GLsizei width = FreeImage_GetWidth(foo);
+  GLsizei height = FreeImage_GetHeight(foo);
+  FreeImage_AdjustContrast(img, -30);
+  FreeImage_AdjustContrast(foo, -50);
+  GLubyte *bits = (GLubyte*) FreeImage_GetBits(foo);
+  int i;
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
+  for (i = 1; i < 10; i++){
+    width /= 2;
+    height /= 2;
+    FreeImage_AdjustContrast(img, 13 * i);
+    FreeImage_AdjustBrightness(img, -2 * i);
+    bits = (GLubyte*) FreeImage_GetBits(FreeImage_Rescale(img, width, height, FILTER_BICUBIC));
+    glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
+    if (width == 1 || height == 1)
+      break;
+  }
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i);
+  FreeImage_Unload(img);
+  FreeImage_Unload(foo);
+}
+
+
 long fileLength(const char *file)
 {
   FILE *fp = NULL;
@@ -177,9 +206,8 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   glActiveTextureARB(GL_TEXTURE4_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_RENDER]); /* Render to texture. */
   glActiveTextureARB(GL_TEXTURE1_ARB);
-  //glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_1]);
-  loadTexture2D("data/textures/terrain.png");
+  loadTexTerrain("data/textures/terrain2.png");
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
   glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
@@ -188,10 +216,9 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  //glDisable(GL_TEXTURE_2D);
   glActiveTextureARB(GL_TEXTURE0_ARB);
   glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_2]);
-  loadTexture2D("data/textures/terrain.png");
+  loadTexture2D("data/textures/terrain2.png");
   glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE]);
   loadTexture2D("data/textures/foliage.tga");
   glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);

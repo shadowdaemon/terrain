@@ -528,12 +528,9 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
     size = *t_size;
     *swapb = 0;
   }
-  moveTerrain(camerapos, camerarot, sector, *t_size, swapb);
+  moveTerrain (camerapos, camerarot, sector, *t_size, swapb);
   x = (int) (sector->x / *t_size);
   z = (int) (sector->y / *t_size);
-  glMatrixMode(GL_TEXTURE);
-  glPushMatrix();
-  glScalef(0.00015f, 0.00035f, 0.00035f);
   for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
     x3 = fabs(TERRAIN_GRID_SIZE_HALF - xgrid) - 20; x3 = x3 < 0 ? 0 : (x3 + 20) * 8;
     z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) - 20; z3 = z3 < 0 ? 0 : (z3 + 20) * 8;
@@ -804,8 +801,8 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
           glColor3ub(SEcolorR[xgrid-1][zgrid], SEcolorG[xgrid-1][zgrid], SEcolorB[xgrid-1][zgrid]);
         //glVertexAttrib3fARB(0, SWnormx[xgrid][zgrid], SWnormy[xgrid][zgrid], SWnormz[xgrid][zgrid]);
         glNormal3f(SWnormx[xgrid][zgrid], SWnormy[xgrid][zgrid], SWnormz[xgrid][zgrid]);
-        glMultiTexCoord2i(GL_TEXTURE0_ARB, SWx[xgrid][zgrid], SWz[xgrid][zgrid]);
-        glMultiTexCoord2i(GL_TEXTURE1_ARB, SWx[xgrid][zgrid]*0.015, SWz[xgrid][zgrid]*0.015);
+        glMultiTexCoord2f(GL_TEXTURE0_ARB, SWx[xgrid][zgrid] * 0.00012f, SWz[xgrid][zgrid] * 0.00012f);
+        glMultiTexCoord2f(GL_TEXTURE1_ARB, SWx[xgrid][zgrid] * 0.047f, SWz[xgrid][zgrid] * 0.047f);
         glVertex3d(SWx[xgrid][zgrid], SWy[xgrid][zgrid], SWz[xgrid][zgrid]);
         if (xgrid >= TERRAIN_GRID_SIZE - 1)
           glColor3ub(122, 122, 122);
@@ -813,8 +810,8 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
           glColor3ub(SEcolorR[xgrid][zgrid], SEcolorG[xgrid][zgrid], SEcolorB[xgrid][zgrid]);
         //glVertexAttrib3fARB(0, SEx[xgrid][zgrid], SEy[xgrid][zgrid], SEz[xgrid][zgrid]);
         glNormal3f(SEnormx[xgrid][zgrid], SEnormy[xgrid][zgrid], SEnormz[xgrid][zgrid]);
-        glMultiTexCoord2i(GL_TEXTURE0_ARB, SEx[xgrid][zgrid], SEz[xgrid][zgrid]);
-        glMultiTexCoord2i(GL_TEXTURE1_ARB, SEx[xgrid][zgrid]*0.015, SEz[xgrid][zgrid]*0.015);
+        glMultiTexCoord2f(GL_TEXTURE0_ARB, SEx[xgrid][zgrid] * 0.00012f, SEz[xgrid][zgrid] * 0.00012f);
+        glMultiTexCoord2f(GL_TEXTURE1_ARB, SEx[xgrid][zgrid] * 0.047f, SEz[xgrid][zgrid] * 0.047f);
         glVertex3d(SEx[xgrid][zgrid], SEy[xgrid][zgrid], SEz[xgrid][zgrid]);
         if (xgrid <= 0)
           glColor3ub(122, 122, 122);
@@ -822,8 +819,8 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
           glColor3ub(NEcolorR[xgrid-1][zgrid], NEcolorG[xgrid-1][zgrid], NEcolorB[xgrid-1][zgrid]);
         //glVertexAttrib3fARB(0, NWx[xgrid][zgrid], NWy[xgrid][zgrid], NWz[xgrid][zgrid]);
         glNormal3f(NWnormx[xgrid][zgrid], NWnormy[xgrid][zgrid], NWnormz[xgrid][zgrid]);
-        glMultiTexCoord2i(GL_TEXTURE0_ARB, NWx[xgrid][zgrid], NWz[xgrid][zgrid]);
-        glMultiTexCoord2i(GL_TEXTURE1_ARB, NWx[xgrid][zgrid]*0.015, NWz[xgrid][zgrid]*0.015);
+        glMultiTexCoord2f(GL_TEXTURE0_ARB, NWx[xgrid][zgrid] * 0.00012f, NWz[xgrid][zgrid] * 0.00012f);
+        glMultiTexCoord2f(GL_TEXTURE1_ARB, NWx[xgrid][zgrid] * 0.047f, NWz[xgrid][zgrid] * 0.047f);
         glVertex3d(NWx[xgrid][zgrid], NWy[xgrid][zgrid], NWz[xgrid][zgrid]);
         if (xgrid >= TERRAIN_GRID_SIZE - 1)
           glColor3ub(122, 122, 122);
@@ -831,8 +828,8 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
           glColor3ub(NEcolorR[xgrid][zgrid], NEcolorG[xgrid][zgrid], NEcolorB[xgrid][zgrid]);
         //glVertexAttrib3fARB(0, NEx[xgrid][zgrid], NEy[xgrid][zgrid], NEz[xgrid][zgrid]);
         glNormal3f(NEnormx[xgrid][zgrid], NEnormy[xgrid][zgrid], NEnormz[xgrid][zgrid]);
-        glMultiTexCoord2i(GL_TEXTURE0_ARB, NEx[xgrid][zgrid], NEz[xgrid][zgrid]);
-        glMultiTexCoord2i(GL_TEXTURE1_ARB, NEx[xgrid][zgrid]*0.015, NEz[xgrid][zgrid]*0.015);
+        glMultiTexCoord2f(GL_TEXTURE0_ARB, NEx[xgrid][zgrid] * 0.00012f, NEz[xgrid][zgrid] * 0.00012f);
+        glMultiTexCoord2f(GL_TEXTURE1_ARB, NEx[xgrid][zgrid] * 0.047f, NEz[xgrid][zgrid] * 0.047f);
         glVertex3d(NEx[xgrid][zgrid], NEy[xgrid][zgrid], NEz[xgrid][zgrid]);
         glEnd();
       }
@@ -842,6 +839,4 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
       xgrid = -1;
     }
   }
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
 }

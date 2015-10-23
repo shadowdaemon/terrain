@@ -2,13 +2,13 @@
 
 #define RESX                                1366
 #define RESY                                768
-#define USE_SHADERS                         0
+#define USE_SHADERS                         1
 #define PI                                  3.14159265358979323846f
 #define PIx180                              180.0f*PI
 #define WORLD_GRAVITY                       0.4f
-#define TERRAIN_GRID_SIZE                   100
-#define TERRAIN_GRID_SIZE_HALF              50
-#define TERRAIN_GRID_SIZE_QUARTER           25
+#define TERRAIN_GRID_SIZE                   60
+#define TERRAIN_GRID_SIZE_HALF              30
+#define TERRAIN_GRID_SIZE_QUARTER           15
 #define TERRAIN_SQUARE_SIZE                 500
 #define TERRAIN_STEP_SIZE                   10
 #define TERRAIN_WATER_LEVEL                 0
@@ -18,10 +18,9 @@
 #define VIEW_DISTANCE_HALF                  6000
 #define VIEW_DISTANCE_QUARTER               3000
 #define SCENERY_DENSITY                     1200 /* Lower number is more dense, don't go below 1000. */
-#define SCENERY_SIZE                        10000 /* TERRAIN_GRID_SIZE^2. */
+#define SCENERY_SIZE                        3600 /* TERRAIN_GRID_SIZE^2. */
 #define SCENERY_DENSITY_GRASS               1000
-#define SCENERY_SIZE_GRASS                  2500 /* TERRAIN_GRID_SIZE_HALF^2. */
-#define SCENERY_STEP_SIZE                   6
+#define SCENERY_SIZE_GRASS                  900 /* TERRAIN_GRID_SIZE_HALF^2. */
 #define T_TYPE_NULL                         0
 #define T_TYPE_CRATER                       1
 #define T_TYPE_VILLAGE                      2

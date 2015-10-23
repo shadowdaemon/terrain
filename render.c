@@ -148,7 +148,7 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
   glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE_GRASS]);
   glDisable(GL_CULL_FACE);
   glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 0.0f);
-  if (distance2d(camerapos, sector) > t_size) {
+  if (distance2d(camerapos, sector) > 0.5f * t_size) {
     sector = camerapos;
     update = 1;
   }
@@ -281,7 +281,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
   GLuint color[3];
 
   glMateriali(GL_FRONT, GL_SHININESS, 92);
-  if (distance2d(camerapos, sector) > SCENERY_STEP_SIZE * t_size) {
+  if (distance2d(camerapos, sector) > 4 * t_size) {
     sector = camerapos;
     update = 1;
   }
