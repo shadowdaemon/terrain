@@ -135,7 +135,7 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
   int xgrid, zgrid, x, z, x1, z1, cull, density, i = 0, j = 0, a;
   static char update = 1;
   static float v_dist = VIEW_DISTANCE_HALF * 0.3f;
-  const int size = 500 * 0.05f; // t_size * 0.05f; /* Size of generation sector, also affects density. */
+  const int size = 30;
   float xpos, zpos, dist, rot, rot2, v_dist_half, h2;
   static struct v3f sector;
   static struct v3f normal[SCENERY_SIZE_GRASS];
@@ -270,7 +270,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
   int xgrid, zgrid, x, z, x1, z1, cull, density, i, a;
   static char update = 1;
   static float v_dist = VIEW_DISTANCE * 0.3f;
-  const int size = 500 * 0.2f; // t_size * 0.2f; /* Size of generation sector, also affects density. */
+  const int size = 100;
   const float m_size = 0.655f;
   float xpos, zpos, dist, v_dist_half;
   static struct v3f sector;
@@ -281,7 +281,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
   GLuint color[3];
 
   glMateriali(GL_FRONT, GL_SHININESS, 92);
-  if (distance2d(camerapos, sector) > 4 * t_size) {
+  if (distance2d(camerapos, sector) > 2 * t_size) {
     sector = camerapos;
     update = 1;
   }
@@ -907,13 +907,13 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
       glUniform2fARB(glGetUniformLocationARB(shaders[0], "steps"), RESX * 2, RESY * 2);
       glUniform4fvARB(glGetUniformLocationARB(shaders[0], "clear"), 0, color);
       sceneQuad();
-      /* glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0); */
-      /* glUseProgramARB(shaders[3]); */
-      /* glUniform1iARB(glGetUniformLocationARB(shaders[3], "scene"), 4); */
-      /* glUniformMatrix4fvARB(glGetUniformLocationARB(shaders[3], "projmat"), 1, GL_TRUE, projmat); */ /* Not needed, keep as example. */
-      /* glUniform2fARB(glGetUniformLocationARB(shaders[3], "steps"), RESX, RESY); */
-      /* glUniform4fvARB(glGetUniformLocationARB(shaders[3], "clear"), 0, color); */
-      /* sceneQuad(); */
+      glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0);
+      glUseProgramARB(shaders[3]);
+      glUniform1iARB(glGetUniformLocationARB(shaders[3], "scene"), 4);
+      // glUniformMatrix4fvARB(glGetUniformLocationARB(shaders[3], "projmat"), 1, GL_TRUE, projmat); /* Not needed, keep as example. */
+      glUniform2fARB(glGetUniformLocationARB(shaders[3], "steps"), RESX, RESY);
+      glUniform4fvARB(glGetUniformLocationARB(shaders[3], "clear"), 0, color);
+      sceneQuad();
     }
     glUseProgramARB(0);
     glBindTexture(GL_TEXTURE_2D, textures[TEX_FONT]);

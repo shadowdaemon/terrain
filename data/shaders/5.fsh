@@ -6,8 +6,10 @@ varying vec2 coords;
 varying vec2 offset;
 void main()
 {
-  vec4 c = texture2D(scene, coords);
-  vec4 maxv = c;
+  float alpha = (1 - clear.r + clear.g + clear.b) / 7.0;
+  if (all(greaterThan(texture2D(scene, coords), clear + 0.23)))
+    alpha = 0.17;
+  vec4 maxv = texture2D(scene, coords);
   vec4 s0, s1, s2, s3, o0, o1, tmax;
   // float w, u, v;
   // for(u = 0.0; u <= radius; u += 1.0) {
@@ -30,8 +32,7 @@ void main()
   o0 = max(s0, s1);
   o1 = max(s2, s3);
   maxv = max(o0, o1);
-  gl_FragColor = mix(vec4(maxv.rgb, 1), vec4(0,0,0,1), 0.1);
-  //gl_FragColor = vec4(maxv.rgb, c.a);
+  gl_FragColor = mix(vec4(maxv.rgb, alpha), vec4(0,0,0,1), 0.1);
 }
 
 
