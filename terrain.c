@@ -446,7 +446,7 @@ void moveTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
 }
 
 
-void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
+void drawTerrain(GLuint *textures, struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
                  int *t_size, char *swapb)
 {
      struct terrain temp1, temp2;
@@ -491,6 +491,19 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
      static float SWnormx [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
      static float SWnormy [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
      static float SWnormz [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
+     glEnable(GL_DEPTH_TEST);
+     glDepthFunc(GL_LESS);
+     glEnable(GL_FOG);
+     glEnable(GL_TEXTURE_2D);
+     glEnable(GL_LIGHTING);
+     glEnable(GL_NORMALIZE);
+     glActiveTextureARB(GL_TEXTURE1_ARB);
+     glEnable(GL_TEXTURE_2D);
+     glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_2]);
+     glActiveTextureARB(GL_TEXTURE0_ARB);
+     glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_1]);
+     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
+     glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
      glMateriali(GL_FRONT, GL_SHININESS, 11);
      if (camerapos.y < TERRAIN_SCALE_HEIGHT)
           *t_size = TERRAIN_SQUARE_SIZE;
@@ -770,39 +783,79 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
                     if (xgrid <= 0)
                          glColor3ub(122, 122, 122);
                     else
-                         glColor3ub(SEcolorR[xgrid-1][zgrid], SEcolorG[xgrid-1][zgrid], SEcolorB[xgrid-1][zgrid]);
+                         glColor3ub(SEcolorR[xgrid-1][zgrid],
+                                    SEcolorG[xgrid-1][zgrid],
+                                    SEcolorB[xgrid-1][zgrid]);
                     //glVertexAttrib3fARB(7, SWnormx[xgrid][zgrid], SWnormy[xgrid][zgrid], SWnormz[xgrid][zgrid]);
-                    glNormal3f(SWnormx[xgrid][zgrid], SWnormy[xgrid][zgrid], SWnormz[xgrid][zgrid]);
-                    glMultiTexCoord2f(GL_TEXTURE0_ARB, SWx[xgrid][zgrid] * 0.00012f, SWz[xgrid][zgrid] * 0.00012f);
-                    glMultiTexCoord2f(GL_TEXTURE1_ARB, SWx[xgrid][zgrid] * 0.047f, SWz[xgrid][zgrid] * 0.047f);
-                    glVertex3d(SWx[xgrid][zgrid], SWy[xgrid][zgrid], SWz[xgrid][zgrid]);
+                    glNormal3f(SWnormx[xgrid][zgrid],
+                               SWnormy[xgrid][zgrid],
+                               SWnormz[xgrid][zgrid]);
+                    glMultiTexCoord2f(GL_TEXTURE0_ARB,
+                                      SWx[xgrid][zgrid] * 0.00012f,
+                                      SWz[xgrid][zgrid] * 0.00012f);
+                    glMultiTexCoord2f(GL_TEXTURE1_ARB,
+                                      SWx[xgrid][zgrid] * 0.047f,
+                                      SWz[xgrid][zgrid] * 0.047f);
+                    glVertex3d(SWx[xgrid][zgrid],
+                               SWy[xgrid][zgrid],
+                               SWz[xgrid][zgrid]);
                     if (xgrid >= TERRAIN_GRID_SIZE - 1)
                          glColor3ub(122, 122, 122);
                     else
-                         glColor3ub(SEcolorR[xgrid][zgrid], SEcolorG[xgrid][zgrid], SEcolorB[xgrid][zgrid]);
+                         glColor3ub(SEcolorR[xgrid][zgrid],
+                                    SEcolorG[xgrid][zgrid],
+                                    SEcolorB[xgrid][zgrid]);
                     //glVertexAttrib3fARB(7, SEx[xgrid][zgrid], SEy[xgrid][zgrid], SEz[xgrid][zgrid]);
-                    glNormal3f(SEnormx[xgrid][zgrid], SEnormy[xgrid][zgrid], SEnormz[xgrid][zgrid]);
-                    glMultiTexCoord2f(GL_TEXTURE0_ARB, SEx[xgrid][zgrid] * 0.00012f, SEz[xgrid][zgrid] * 0.00012f);
-                    glMultiTexCoord2f(GL_TEXTURE1_ARB, SEx[xgrid][zgrid] * 0.047f, SEz[xgrid][zgrid] * 0.047f);
-                    glVertex3d(SEx[xgrid][zgrid], SEy[xgrid][zgrid], SEz[xgrid][zgrid]);
+                    glNormal3f(SEnormx[xgrid][zgrid],
+                               SEnormy[xgrid][zgrid],
+                               SEnormz[xgrid][zgrid]);
+                    glMultiTexCoord2f(GL_TEXTURE0_ARB,
+                                      SEx[xgrid][zgrid] * 0.00012f,
+                                      SEz[xgrid][zgrid] * 0.00012f);
+                    glMultiTexCoord2f(GL_TEXTURE1_ARB,
+                                      SEx[xgrid][zgrid] * 0.047f,
+                                      SEz[xgrid][zgrid] * 0.047f);
+                    glVertex3d(SEx[xgrid][zgrid],
+                               SEy[xgrid][zgrid],
+                               SEz[xgrid][zgrid]);
                     if (xgrid <= 0)
                          glColor3ub(122, 122, 122);
                     else
-                         glColor3ub(NEcolorR[xgrid-1][zgrid], NEcolorG[xgrid-1][zgrid], NEcolorB[xgrid-1][zgrid]);
+                         glColor3ub(NEcolorR[xgrid-1][zgrid],
+                                    NEcolorG[xgrid-1][zgrid],
+                                    NEcolorB[xgrid-1][zgrid]);
                     //glVertexAttrib3fARB(7, NWx[xgrid][zgrid], NWy[xgrid][zgrid], NWz[xgrid][zgrid]);
-                    glNormal3f(NWnormx[xgrid][zgrid], NWnormy[xgrid][zgrid], NWnormz[xgrid][zgrid]);
-                    glMultiTexCoord2f(GL_TEXTURE0_ARB, NWx[xgrid][zgrid] * 0.00012f, NWz[xgrid][zgrid] * 0.00012f);
-                    glMultiTexCoord2f(GL_TEXTURE1_ARB, NWx[xgrid][zgrid] * 0.047f, NWz[xgrid][zgrid] * 0.047f);
-                    glVertex3d(NWx[xgrid][zgrid], NWy[xgrid][zgrid], NWz[xgrid][zgrid]);
+                    glNormal3f(NWnormx[xgrid][zgrid],
+                               NWnormy[xgrid][zgrid],
+                               NWnormz[xgrid][zgrid]);
+                    glMultiTexCoord2f(GL_TEXTURE0_ARB,
+                                      NWx[xgrid][zgrid] * 0.00012f,
+                                      NWz[xgrid][zgrid] * 0.00012f);
+                    glMultiTexCoord2f(GL_TEXTURE1_ARB,
+                                      NWx[xgrid][zgrid] * 0.047f,
+                                      NWz[xgrid][zgrid] * 0.047f);
+                    glVertex3d(NWx[xgrid][zgrid],
+                               NWy[xgrid][zgrid],
+                               NWz[xgrid][zgrid]);
                     if (xgrid >= TERRAIN_GRID_SIZE - 1)
                          glColor3ub(122, 122, 122);
                     else
-                         glColor3ub(NEcolorR[xgrid][zgrid], NEcolorG[xgrid][zgrid], NEcolorB[xgrid][zgrid]);
+                         glColor3ub(NEcolorR[xgrid][zgrid],
+                                    NEcolorG[xgrid][zgrid],
+                                    NEcolorB[xgrid][zgrid]);
                     //glVertexAttrib3fARB(7, NEx[xgrid][zgrid], NEy[xgrid][zgrid], NEz[xgrid][zgrid]);
-                    glNormal3f(NEnormx[xgrid][zgrid], NEnormy[xgrid][zgrid], NEnormz[xgrid][zgrid]);
-                    glMultiTexCoord2f(GL_TEXTURE0_ARB, NEx[xgrid][zgrid] * 0.00012f, NEz[xgrid][zgrid] * 0.00012f);
-                    glMultiTexCoord2f(GL_TEXTURE1_ARB, NEx[xgrid][zgrid] * 0.047f, NEz[xgrid][zgrid] * 0.047f);
-                    glVertex3d(NEx[xgrid][zgrid], NEy[xgrid][zgrid], NEz[xgrid][zgrid]);
+                    glNormal3f(NEnormx[xgrid][zgrid],
+                               NEnormy[xgrid][zgrid],
+                               NEnormz[xgrid][zgrid]);
+                    glMultiTexCoord2f(GL_TEXTURE0_ARB,
+                                      NEx[xgrid][zgrid] * 0.00012f,
+                                      NEz[xgrid][zgrid] * 0.00012f);
+                    glMultiTexCoord2f(GL_TEXTURE1_ARB,
+                                      NEx[xgrid][zgrid] * 0.047f,
+                                      NEz[xgrid][zgrid] * 0.047f);
+                    glVertex3d(NEx[xgrid][zgrid],
+                               NEy[xgrid][zgrid],
+                               NEz[xgrid][zgrid]);
                     glEnd();
                }
           }
@@ -811,4 +864,8 @@ void drawTerrain(struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
                xgrid = -1;
           }
      }
+     glActiveTextureARB(GL_TEXTURE1_ARB);
+     glDisable(GL_TEXTURE_2D);
+     glActiveTextureARB(GL_TEXTURE0_ARB);
+     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }

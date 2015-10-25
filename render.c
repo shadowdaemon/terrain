@@ -3,20 +3,20 @@
 #include "stdlib.h"
 
 
-void updateFogAndFrustum(GLfloat *clear, struct v3f camerapos, int t_size)
+void renderClear(GLfloat *color, struct v3f cpos, int tsize)
 {
      struct v3f pos;
-     float fog_end = t_size * TERRAIN_GRID_SIZE * 0.65f;
+     float fog_end = tsize * TERRAIN_GRID_SIZE * 0.65f;
      static float fog_start = 0.0f;
-     float ground = readTerrainHeightPlane(camerapos.x, camerapos.z, &pos, t_size);
+     float ground = readTerrainHeightPlane
+          (cpos.x, cpos.z, &pos, tsize);
      float fstart;
-     float temp = camerapos.y - TERRAIN_SCALE_HEIGHT;
-
-     if (temp < 1250.0f && camerapos.y > TERRAIN_SCALE_HEIGHT)
+     float temp = cpos.y - TERRAIN_SCALE_HEIGHT;
+     if (temp < 1250.0f && cpos.y > TERRAIN_SCALE_HEIGHT)
           fog_end -= (1 - temp / 1250.0f) * (fog_end * 0.66667f);
-     if (camerapos.y < LOWER_CLOUD_HEIGHT)
+     if (cpos.y < LOWER_CLOUD_HEIGHT)
           temp = fog_end * 0.3f;
-     else if (camerapos.y < TERRAIN_SCALE_HEIGHT)
+     else if (cpos.y < TERRAIN_SCALE_HEIGHT)
           temp = fog_end * 0.5f;
      else
           temp = fog_end * 0.7f;
@@ -25,19 +25,25 @@ void updateFogAndFrustum(GLfloat *clear, struct v3f camerapos, int t_size)
      else
           fog_start += (temp - fog_start) * 0.1f;
      ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
-     fstart = (camerapos.y - ground) * 0.1f;
+     fstart = (cpos.y - ground) * 0.1f;
      if (fstart > 10.0f)
           fstart = 10.0f;
      else if (fstart < 1.0f)
           fstart = 1.0f;
-     glFogfv(GL_FOG_COLOR, clear);
+     glFogfv(GL_FOG_COLOR, color);
      glFogf(GL_FOG_START, fog_start);
      glFogf(GL_FOG_END, fog_end);
      glMatrixMode(GL_PROJECTION);
      glLoadIdentity();
-     glFrustum(-0.54f * fstart, 0.54f * fstart, -0.4f * fstart, 0.4f * fstart,
+     glFrustum(-0.54f * fstart, 0.54f * fstart,
+               -0.4f * fstart, 0.4f * fstart,
                0.8f * fstart, fog_end * 1.1f);
      glMatrixMode(GL_MODELVIEW);
+     glClearColor(color[0], color[1], color[2], color[3]);
+     glClear(GL_COLOR_BUFFER_BIT |
+             GL_DEPTH_BUFFER_BIT |
+             GL_STENCIL_BUFFER_BIT);
+     glShadeModel(GL_SMOOTH);
 }
 
 
@@ -792,14 +798,15 @@ void renderAircraft(struct aiScene *scene, GLuint *textures, struct v3f camerapo
 }
 
 
-void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads, GLuint *textures,
-            GLuint *shaders, struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
-            int *t_size, float *fps, struct airunit *airunits)
-{
+void render(GLFWwindow *window, struct aiScene *scene, struct aiScene
+            *textquads, GLuint *textures, GLuint *shaders, struct v3f
+            camerapos, struct v3f camerarot, struct v2f *sector, int
+            *t_size, float *fps, struct airunit *airunits) {
      GLfloat color[4], temp;
      GLint lpos[4], mpos[4];
      struct v3f n;
-     float camHeight = fabs(camerapos.y - readTerrainHeightPlane(camerapos.x, camerapos.z, &n, *t_size));
+     float camHeight = fabs(camerapos.y - readTerrainHeightPlane
+                            (camerapos.x, camerapos.z, &n, *t_size));
      static double time = 0;
      static float fps2 = 0;
      static char swapb = 1;
@@ -866,33 +873,15 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
      /* glMaterialfv(GL_FRONT, GL_EMISSION, color); */
      color[0] = 0.4588235294117647f * temp;
      color[0] += lpos[0] > 800 ? (lpos[0] - 800) * 0.005f * 0.1f : 0;
-     color[1] = 0.5176470588235295f * (lpos[1] > -400 ? (lpos[1] + 400) / 1400.0f : 0);
-     color[2] = 0.8431372549019608f * (lpos[1] > -200 ? 0.05f + (lpos[1] + 200) / 1200.0f : 0.05f);
-     updateFogAndFrustum(color, camerapos, *t_size);
-     glClearColor(color[0], color[1], color[2], color[3]);
-     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-     glShadeModel(GL_SMOOTH);
+     color[1] = 0.5176470588235295f *
+          (lpos[1] > -400 ? (lpos[1] + 400) / 1400.0f : 0);
+     color[2] = 0.8431372549019608f *
+          (lpos[1] > -200 ? 0.05f + (lpos[1] + 200) / 1200.0f : 0.05f);
+     renderClear(color, camerapos, *t_size);
      renderSky(camerapos, camerarot, color, *t_size);
      renderSun(shaders, textures, camerapos, lpos);
      renderMoon(camerapos, mpos, 60);
-     glEnable(GL_DEPTH_TEST);
-     glDepthFunc(GL_LESS);
-     glEnable(GL_FOG);
-     glEnable(GL_TEXTURE_2D);
-     glEnable(GL_LIGHTING);
-     glEnable(GL_NORMALIZE);
-     glActiveTextureARB(GL_TEXTURE1_ARB);
-     glEnable(GL_TEXTURE_2D);
-     glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_2]);
-     glActiveTextureARB(GL_TEXTURE0_ARB);
-     glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_1]);
-     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
-     glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
-     drawTerrain(camerapos, camerarot, sector, t_size, &swapb);
-     glActiveTextureARB(GL_TEXTURE1_ARB);
-     glDisable(GL_TEXTURE_2D);
-     glActiveTextureARB(GL_TEXTURE0_ARB);
-     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+     drawTerrain(textures, camerapos, camerarot, sector, t_size, &swapb);
      if (camerapos.y < TERRAIN_SCALE_HEIGHT && camHeight < VIEW_DISTANCE)
           renderGroundScenery(scene, textures, camerapos, camerarot, *t_size, fps2);
      if (swapb) {
