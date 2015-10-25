@@ -274,6 +274,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
   linkShader(&shaders[1], "data/shaders/2.vsh", "data/shaders/2.fsh");
   linkShader(&shaders[2], "data/shaders/3.vsh", "data/shaders/3.fsh");
   linkShader(&shaders[3], "data/shaders/5.vsh", "data/shaders/5.fsh");
+  linkShader(&shaders[4], "data/shaders/6.vsh", "data/shaders/6.fsh");
 
   // int al = glGetAttribLocationARB(shaders[3], "pos"); printf("attrib: %d\n", al);
   int maxt = 0;
