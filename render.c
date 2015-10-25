@@ -638,7 +638,6 @@ void renderSun(GLuint *shaders, GLuint *textures, struct v3f camerapos, GLint su
           glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
           glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
           glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0);
-          glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
           glUseProgramARB(shaders[4]);
           glUniform1iARB(glGetUniformLocationARB(shaders[4], "scene"), 4);
           glUniform2fARB(glGetUniformLocationARB(shaders[4], "steps"), RESX, RESY);
@@ -809,8 +808,7 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads
      time = glfwGetTime();
      glEnable(GL_LIGHT0); /* sun */
      glEnable(GL_LIGHT1); /* moon */
-     //temp = time * 0.003f;
-     temp = time * 0.05f;
+     temp = time * 0.003f;
      lpos[0] = -1000 * sinf(temp);
      lpos[1] = 1000 * cosf(temp);
      lpos[2] = 0;
