@@ -149,6 +149,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
 {
      GLFWwindow *window = NULL;
      int width, height;
+     /* Set up GLFW. */
      glfwSetErrorCallback(errorGLFW);
      if (glfwInit() == GL_FALSE)
           return NULL;
@@ -166,16 +167,21 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
      width = RESX;
      height = RESY;
-     window = glfwCreateWindow(width, height, "test", glfwGetPrimaryMonitor(), NULL);
+     window = glfwCreateWindow(width, height, "terrain",
+                               glfwGetPrimaryMonitor(), NULL);
      if (window == NULL)
           return NULL;
      glfwMakeContextCurrent(window);
-     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+     /* Clear the screen immediately. */
+     glClear(GL_COLOR_BUFFER_BIT |
+             GL_DEPTH_BUFFER_BIT |
+             GL_STENCIL_BUFFER_BIT);
      glfwSetKeyCallback(window, keyInputGLFW);
      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
      glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_FALSE);
      glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GL_TRUE);
      glfwSwapInterval(1);
+     /* Set up OpenGL state. */
      glEnable(GL_DEPTH_TEST);
      glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
      glClearDepth(1.0f);
@@ -201,13 +207,16 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      glEnableClientState(GL_VERTEX_ARRAY);
      glEnableClientState(GL_NORMAL_ARRAY);
      glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+     /* Set up FreeImage and textures. */
      FreeImage_Initialise(GL_FALSE);
      FreeImage_SetOutputMessage(errorFreeImage);
      glEnable(GL_TEXTURE_2D);
      glGenTextures(10, textures);
      glActiveTextureARB(GL_TEXTURE4_ARB);
-     glBindTexture(GL_TEXTURE_2D, textures[TEX_RENDER]); /* Render to texture. */
+      /* Render to texture. */
+     glBindTexture(GL_TEXTURE_2D, textures[TEX_RENDER]);
      glActiveTextureARB(GL_TEXTURE1_ARB);
+     /* Terrain textures. */
      glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_1]);
      loadTexTerrain("data/textures/terrain2.png");
      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
@@ -221,6 +230,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      glActiveTextureARB(GL_TEXTURE0_ARB);
      glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_2]);
      loadTexture2D("data/textures/terrain2.png");
+     /* Other textures. */
      glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE]);
      loadTexture2D("data/textures/foliage.tga");
      glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
@@ -233,50 +243,79 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      loadTexture2D("data/textures/foliage_grass.png");
      glBindTexture(GL_TEXTURE_2D, textures[TEX_AIR_FIGHTER_1]);
      loadTexture2D("data/textures/fighter.png");
-     // Six texture functions may be specified: GL_ADD, GL_MODULATE, GL_DECAL, GL_BLEND, GL_REPLACE, or GL_COMBINE.
+     /* Six texture functions may be specified:
+        GL_ADD, GL_MODULATE, GL_DECAL, GL_BLEND,
+        GL_REPLACE, or GL_COMBINE. */
      glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
      glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                     GL_LINEAR_MIPMAP_LINEAR);
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+     /* Some debug info. */
      printf("GL_VERSION: %s\n", glGetString(GL_VERSION));
-     printf("GL_SHADING_LANGUAGE_VERSION: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-     /* glActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC) glfwGetProcAddress("glActiveTextureARB"); */
-     glCreateProgramARB = (PFNGLCREATEPROGRAMPROC) glfwGetProcAddress("glCreateProgram");
-     glCreateShaderARB = (PFNGLCREATESHADERPROC) glfwGetProcAddress("glCreateShader");
-     glShaderSourceARB = (PFNGLSHADERSOURCEARBPROC) glfwGetProcAddress("glShaderSourceARB");
-     glGetShaderSourceARB = (PFNGLGETSHADERSOURCEARBPROC) glfwGetProcAddress("glGetShaderSourceARB");
-     glCompileShaderARB = (PFNGLCOMPILESHADERARBPROC) glfwGetProcAddress("glCompileShaderARB");
-     glGetShaderInfoLogARB = (PFNGLGETSHADERINFOLOGPROC) glfwGetProcAddress("glGetShaderInfoLog");
-     glGetProgramInfoLogARB = (PFNGLGETPROGRAMINFOLOGPROC) glfwGetProcAddress("glGetProgramInfoLog");
-     glGetProgramivARB = (PFNGLGETPROGRAMIVARBPROC) glfwGetProcAddress("glGetProgramivARB");
-     glAttachShaderARB = (PFNGLATTACHSHADERPROC) glfwGetProcAddress("glAttachShader");
-     glLinkProgramARB = (PFNGLLINKPROGRAMARBPROC) glfwGetProcAddress("glLinkProgramARB");
-     glUseProgramARB = (PFNGLUSEPROGRAMPROC) glfwGetProcAddress("glUseProgram");
-     glUniform1iARB = (PFNGLUNIFORM1IARBPROC) glfwGetProcAddress("glUniform1iARB");
-     glUniform1fARB = (PFNGLUNIFORM1FARBPROC) glfwGetProcAddress("glUniform1fARB");
-     glUniform2fARB = (PFNGLUNIFORM2FARBPROC) glfwGetProcAddress("glUniform2fARB");
-     glUniform2fvARB = (PFNGLUNIFORM2FVARBPROC) glfwGetProcAddress("glUniform2fvARB");
-     glUniform4fvARB = (PFNGLUNIFORM4FVARBPROC) glfwGetProcAddress("glUniform4fvARB");
-     glUniformMatrix4fvARB = (PFNGLUNIFORMMATRIX4FVARBPROC) glfwGetProcAddress("glUniformMatrix4fvARB");
-     glGetUniformLocationARB = (PFNGLGETUNIFORMLOCATIONARBPROC) glfwGetProcAddress("glGetUniformLocationARB");
-     glGetAttribLocationARB = (PFNGLGETATTRIBLOCATIONARBPROC) glfwGetProcAddress("glGetAttribLocationARB");
-     glBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC) glfwGetProcAddress("glBindAttribLocationARB");
-     glVertexAttrib3fARB = (PFNGLVERTEXATTRIB3FARBPROC) glfwGetProcAddress("glVertexAttrib3fARB");
-     glVertexAttrib3fvARB = (PFNGLVERTEXATTRIB3FVARBPROC) glfwGetProcAddress("glVertexAttrib3fvARB");
-     glMultiTexCoordPointerEXT = (PFNGLMULTITEXCOORDPOINTEREXTPROC) glfwGetProcAddress("glMultiTexCoordPointerEXT");
-     // glBindAttribLocationARB(shaders[3], 23, "Position");
+     printf("GL_SHADING_LANGUAGE_VERSION: %s\n",
+            glGetString(GL_SHADING_LANGUAGE_VERSION));
+     int maxt = 0;
+     glGetIntegerv(GL_MAX_TEXTURE_COORDS, &maxt);
+     printf("GL_MAX_TEXTURE_COORDS: %d\n", maxt);
+     /* Set up ARB function pointers. */
+     /* glActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC)
+          glfwGetProcAddress("glActiveTextureARB"); */
+     glCreateProgramARB = (PFNGLCREATEPROGRAMPROC)
+          glfwGetProcAddress("glCreateProgram");
+     glCreateShaderARB = (PFNGLCREATESHADERPROC)
+          glfwGetProcAddress("glCreateShader");
+     glShaderSourceARB = (PFNGLSHADERSOURCEARBPROC)
+          glfwGetProcAddress("glShaderSourceARB");
+     glGetShaderSourceARB = (PFNGLGETSHADERSOURCEARBPROC)
+          glfwGetProcAddress("glGetShaderSourceARB");
+     glCompileShaderARB = (PFNGLCOMPILESHADERARBPROC)
+          glfwGetProcAddress("glCompileShaderARB");
+     glGetShaderInfoLogARB = (PFNGLGETSHADERINFOLOGPROC)
+          glfwGetProcAddress("glGetShaderInfoLog");
+     glGetProgramInfoLogARB = (PFNGLGETPROGRAMINFOLOGPROC)
+          glfwGetProcAddress("glGetProgramInfoLog");
+     glGetProgramivARB = (PFNGLGETPROGRAMIVARBPROC)
+          glfwGetProcAddress("glGetProgramivARB");
+     glAttachShaderARB = (PFNGLATTACHSHADERPROC)
+          glfwGetProcAddress("glAttachShader");
+     glLinkProgramARB = (PFNGLLINKPROGRAMARBPROC)
+          glfwGetProcAddress("glLinkProgramARB");
+     glUseProgramARB = (PFNGLUSEPROGRAMPROC)
+          glfwGetProcAddress("glUseProgram");
+     glUniform1iARB = (PFNGLUNIFORM1IARBPROC)
+          glfwGetProcAddress("glUniform1iARB");
+     glUniform1fARB = (PFNGLUNIFORM1FARBPROC)
+          glfwGetProcAddress("glUniform1fARB");
+     glUniform2fARB = (PFNGLUNIFORM2FARBPROC)
+          glfwGetProcAddress("glUniform2fARB");
+     glUniform2fvARB = (PFNGLUNIFORM2FVARBPROC)
+          glfwGetProcAddress("glUniform2fvARB");
+     glUniform4fvARB = (PFNGLUNIFORM4FVARBPROC)
+          glfwGetProcAddress("glUniform4fvARB");
+     glUniformMatrix4fvARB = (PFNGLUNIFORMMATRIX4FVARBPROC)
+          glfwGetProcAddress("glUniformMatrix4fvARB");
+     glGetUniformLocationARB = (PFNGLGETUNIFORMLOCATIONARBPROC)
+          glfwGetProcAddress("glGetUniformLocationARB");
+     glGetAttribLocationARB = (PFNGLGETATTRIBLOCATIONARBPROC)
+          glfwGetProcAddress("glGetAttribLocationARB");
+     glBindAttribLocationARB = (PFNGLBINDATTRIBLOCATIONARBPROC)
+          glfwGetProcAddress("glBindAttribLocationARB");
+     glVertexAttrib3fARB = (PFNGLVERTEXATTRIB3FARBPROC)
+          glfwGetProcAddress("glVertexAttrib3fARB");
+     glVertexAttrib3fvARB = (PFNGLVERTEXATTRIB3FVARBPROC)
+          glfwGetProcAddress("glVertexAttrib3fvARB");
+     glMultiTexCoordPointerEXT = (PFNGLMULTITEXCOORDPOINTEREXTPROC)
+          glfwGetProcAddress("glMultiTexCoordPointerEXT");
+     /* Compiler shaders. */
      linkShader(&shaders[0], "data/shaders/1.vsh", "data/shaders/1.fsh");
      linkShader(&shaders[1], "data/shaders/2.vsh", "data/shaders/2.fsh");
      linkShader(&shaders[2], "data/shaders/3.vsh", "data/shaders/3.fsh");
      linkShader(&shaders[3], "data/shaders/5.vsh", "data/shaders/5.fsh");
      linkShader(&shaders[4], "data/shaders/sun.vsh", "data/shaders/sun.fsh");
-     // int al = glGetAttribLocationARB(shaders[3], "pos"); printf("attrib: %d\n", al);
-     int maxt = 0;
-     glGetIntegerv(GL_MAX_TEXTURE_COORDS, &maxt);
-     printf("max tex units: %d\n", maxt);
      return window;
 }
 
@@ -376,22 +415,22 @@ void cameraTrailMovement(struct v3f *cpos, struct v3f *crot,
 
 void mouseLook(GLFWwindow *window, struct v3f *crot)
 {
-     const float mouse_sensitivity = 0.1f;
-     struct v2d mouse_pos;
-     glfwGetCursorPos (window, &mouse_pos.x, &mouse_pos.y);
+     const float sens = 0.1f; /* Mouse sensitivity. */
+     struct v2d pos;          /* Mouse position. */
+     glfwGetCursorPos (window, &pos.x, &pos.y);
      if (crot->x > 90.0f)
-          glfwSetCursorPos (window, mouse_pos.x,
-                            (int) (90 / mouse_sensitivity));
+          glfwSetCursorPos (window, pos.x,
+                            (int) (90 / sens));
      if (crot->x < -90.0f)
-          glfwSetCursorPos (window, mouse_pos.x,
-                            (int) (-90 / mouse_sensitivity));
+          glfwSetCursorPos (window, pos.x,
+                            (int) (-90 / sens));
      while (crot->y >= 360.0f)
           crot->y -= 360.0f;
      while (crot->y < 0.0f)
           crot->y += 360.0f;
      /* Mouse x, y and view x, y swapped here. */
-     crot->y = mouse_pos.x * mouse_sensitivity;
-     crot->x = mouse_pos.y * mouse_sensitivity;
+     crot->y = pos.x * sens;
+     crot->x = pos.y * sens;
 }
 
 
@@ -444,7 +483,8 @@ void keyboardInput(GLFWwindow *window, char *direction)
 }
 
 
-void movement(struct v3f *cpos, struct v3f crot, char direction, float speed, int tsize)
+void movement(struct v3f *cpos, struct v3f crot, char direction,
+              float speed, int tsize)
 {
      struct v3f normal, pos;
      float ground, temp, dir = 0.0f, moar;
@@ -559,14 +599,17 @@ void flyMovement(struct airunit *unit, char input, int tsize)
      unit->speed = distance3d(mv3f(0.0f, 0.0f, 0.0f), unit->vec);
      pressure = unit->pos.y < 30000.0f ?
           (30000.0f - unit->pos.y) / 30000.0f : 0.0f;
-     /* Thrust lapse, atmospheric density.  See https://en.wikipedia.org/wiki/Jet_engine_performance */
+     /* Thrust lapse, atmospheric density.  See
+        https://en.wikipedia.org/wiki/Jet_engine_performance */
      tlapse = unit->pos.y < thrust_ceiling ?
           (thrust_ceiling - unit->pos.y) / (thrust_ceiling * 0.7f) : 0.0f;
      tlapse = tlapse > 1.0f ? 1.0f : tlapse;
      pos = mv3f(0.0f, 0.0f, 0.0f);
      /* VTOL thrust. */
      if ((input | INPUT_SPACE) == input) {
-          unit->vtol_thrust = unit->vtol_thrust + 0.05f > max_vtol_thrust ? max_vtol_thrust : unit->vtol_thrust + 0.05f;
+          unit->vtol_thrust = unit->vtol_thrust + 0.05f >
+               max_vtol_thrust ? max_vtol_thrust :
+               unit->vtol_thrust + 0.05f;
           degreestovector3d(&pos, unit->rot, mv3f(90.0f, 180.0f, 0.0f),
                             unit->vtol_thrust * tlapse);
      }
@@ -749,10 +792,9 @@ int main(int argc, char *argv[])
 {
      GLuint textures[10], shaders[5];
      GLFWwindow *window = NULL;
-     int i, tsize = TERRAIN_SQUARE_SIZE;
+     int i, tsize = TERRAIN_SQUARE_SIZE, st = 0;
      char direction, state = 0;
      float fps = 0.0f;
-     static int st = 0;
      struct v2f sector = {0.0f, 0.0f}; /* Terrain update sector. */
      struct v3f crot = {0.0f, 0.0f, 0.0f};            /* Camera rotation. */
      struct v3f cpos = {0.0f, readTerrainHeightPlane2 /* Camera position. */
@@ -763,6 +805,7 @@ int main(int argc, char *argv[])
      struct airunit *airunits  = malloc(sizeof(struct airunit) * 1);
 
      if ((window = startGraphics(textures, shaders)) != NULL) {
+          /* Load model data. */
           if ((stemp = loadModel("data/models/tree1.obj")) == NULL)
                return EXIT_FAILURE;
           else
@@ -791,19 +834,20 @@ int main(int argc, char *argv[])
                return EXIT_FAILURE;
           else
                scene[MODEL_ROCK1] = *stemp; /* Rock. */
-          /* These must not be loaded near start of array because of trees appearing above slopes.  See renderGroundScenery(). */
+          /* These must not be loaded near start of array because of
+             trees appearing above slopes.  See renderGroundScenery(). */
           if ((stemp = loadModel("data/models/mtree2.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               scene[MODEL_MTREE_BIG] = *stemp; /* Sparsely positioned multi-trees. */
+               scene[MODEL_MTREE_BIG] = *stemp; /* Sparse multi-trees. */
           if ((stemp = loadModel("data/models/mtree3.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               scene[MODEL_MTREE_SPARSE] = *stemp; /* More sparsely positioned multi-trees. */
+               scene[MODEL_MTREE_SPARSE] = *stemp; /* Ditto. */
           if ((stemp = loadModel("data/models/mtree4.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               scene[MODEL_MTREE_FIR] = *stemp; /* Sparsely positioned firs. */
+               scene[MODEL_MTREE_FIR] = *stemp; /* Sparse firs. */
           if ((stemp = loadModel("data/models/house1.obj")) == NULL)
                return EXIT_FAILURE;
           else
@@ -815,11 +859,12 @@ int main(int argc, char *argv[])
           if ((stemp = loadModel("data/models/fighter1.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               scene[MODEL_AIR_FIGHTER1] = *stemp;
+               scene[MODEL_AIR_FIGHTER1] = *stemp; /* More models, etc. */
           if ((stemp = loadModel("data/models/fighter2.obj")) == NULL)
                return EXIT_FAILURE;
           else
                scene[MODEL_AIR_FIGHTER2] = *stemp;
+          /* Load text quad data. */
           if ((stemp = loadTextQuad("data/models/quads/0.obj")) == NULL)
                return EXIT_FAILURE;
           else
@@ -864,18 +909,22 @@ int main(int argc, char *argv[])
                return EXIT_FAILURE;
           else
                textquads[10] = *stemp;
+          /* Position some air units around. */
           for (i = 0; i < 1; i++) {
                airunits[i].type = UNIT_AIR_FIGHTER_1;
                airunits[i].pos.x = (i - 5) * 50;
                airunits[i].pos.z = (i - 7) * 23 + 50;
-               airunits[i].pos.y = readTerrainHeightPlane2(airunits[i].pos.x, airunits[i].pos.z, tsize);
+               airunits[i].pos.y = readTerrainHeightPlane2
+                    (airunits[i].pos.x, airunits[i].pos.z, tsize);
           }
+          /* Main loop. */
           while (!glfwWindowShouldClose(window)) {
                keyboardInput(window, &direction);
                if (state == 0) {
                     mouseLook(window, &crot);
                     movement(&cpos, crot, direction, 1.0f, tsize);
-                    if (distance3d(cpos, airunits[0].pos) < 10.0f && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
+                    if (distance3d(cpos, airunits[0].pos) < 10.0f
+                        && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
                          state = 1;
                          st = 10;
                     }
@@ -885,8 +934,10 @@ int main(int argc, char *argv[])
                          mouseLook(window, &airunits[0].rot);
                     flyMovement(&airunits[0], direction, tsize);
                     cameraTrailMovement(&cpos, &crot, airunits[0], tsize);
-                    if (airunits[0].thrust == 0 && airunits[0].height < 3.0f && airunits[0].speed < 2.0f
-                        && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS && st < 1) {
+                    if (airunits[0].thrust == 0 && airunits[0].height
+                        < 3.0f && airunits[0].speed < 2.0f
+                        && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS
+                        && st < 1) {
                          state = 0;
                          airunits[0].vtol_thrust = 0;
                     }
@@ -905,6 +956,6 @@ int main(int argc, char *argv[])
           glfwTerminate();
           return EXIT_SUCCESS;
      }
-     else
+     else /* Awww. */
           return EXIT_FAILURE;
 }
