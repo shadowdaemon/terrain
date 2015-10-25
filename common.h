@@ -131,60 +131,67 @@ PFNGLMULTITEXCOORDPOINTEREXTPROC _MultiTexCoordPointerEXT;
 
 
 struct v2i {
-  int x;
-  int y;
+     int x;
+     int y;
 };
 struct v2f {
-  float x;
-  float y;
+     float x;
+     float y;
 };
 struct v2d {
-  double x;
-  double y;
+     double x;
+     double y;
 };
 struct v3i {
-  int x;
-  int y;
-  int z;
+     int x;
+     int y;
+     int z;
 };
 struct v3f {
-  float x;
-  float y;
-  float z;
+     float x;
+     float y;
+     float z;
 };
 
 struct terrain {
-  float height;
-  float mod;
-  unsigned char type;
+     float height;
+     float mod;
+     unsigned char type;
 };
 
 struct fx {
-  struct v3f pos;
-  unsigned char type;
-  unsigned char life;
+     struct v3f pos;
+     unsigned char type;
+     unsigned char life;
 };
 
 struct airunit {
-  int type;
-  struct v3f pos;
-  struct v3f rot;
-  struct v3f vec;
-  float thrust;
-  float vtol_thrust;
-  float speed;
-  float height;
+     int type;
+     struct v3f pos;
+     struct v3f rot;
+     struct v3f vec;
+     float thrust;
+     float vtol_thrust;
+     float speed;
+     float height;
 };
 
 struct terrain algorithmicTerrain(float x, float z);
 float readTerrainHeight(float x, float y);
-float readTerrainHeightPlane(float x, float z, struct v3f *normal, int t_size);
-float readTerrainHeightPlane2(float x, float z, int t_size);
+float readTerrainHeightPlane(float x, float z, struct v3f *normal, int tsize);
+float readTerrainHeightPlane2(float x, float z, int tsize);
 unsigned char readTerrainType(float x, float z);
-void drawTerrain(GLuint *textures, struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int *t_size, char *swapb);
+void drawTerrain(GLuint *textures, struct v3f camerapos,
+                 struct v3f camerarot, struct v2f *sector,
+                 int *tsize, char *swapb);
 const struct aiScene *loadModel(const char *file);
 const struct aiScene *loadTextQuad(const char *file);
-void drawModel(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfloat size, GLuint alpha);
-void drawModel2(const struct aiScene *scene, struct v3f pos, struct v3f rot, GLfloat size, const GLuint *color, GLuint alpha);
-void render(GLFWwindow *window, struct aiScene *scene, struct aiScene *textquads, GLuint *textures, GLuint *shaders,
-  struct v3f camerapos, struct v3f camerarot, struct v2f *sector, int *t_size, float *fps, struct airunit *airunits);
+void drawModel(const struct aiScene *scene, struct v3f pos,
+               struct v3f rot, GLfloat size, GLuint alpha);
+void drawModel2(const struct aiScene *scene, struct v3f pos,
+                struct v3f rot, GLfloat size, const GLuint *color,
+                GLuint alpha);
+void render(GLFWwindow *window, struct aiScene *scene,
+            struct aiScene *textquads, GLuint *textures, GLuint *shaders,
+            struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
+            int *tsize, float *fps, struct airunit *airunits);
