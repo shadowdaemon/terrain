@@ -6,6 +6,8 @@
 #include "maths.h"
 
 
+float pgrad[PERLIN_SIZE][PERLIN_SIZE][2];
+
 static void keyInputGLFW(GLFWwindow* window, int key,
                          int scancode, int action, int mods);
 
@@ -32,6 +34,7 @@ void loadTexture2D(const char *file)
      GLubyte *bits = (GLubyte*) FreeImage_GetBits(img);
      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
                   GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
+     /* Set up mipmapping. */
      for (i = 1; i < 10; i++) {
           width /= 2;
           height /= 2;
@@ -47,6 +50,7 @@ void loadTexture2D(const char *file)
 }
 
 
+/* Texture for terrain with mipmapping hack. */
 void loadTexTerrain(const char *file)
 {
      FIBITMAP *img = FreeImage_Load(FreeImage_GetFileType(file, 0), file, 0);
@@ -76,6 +80,49 @@ void loadTexTerrain(const char *file)
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i);
      FreeImage_Unload(img);
      FreeImage_Unload(foo);
+}
+
+
+void createPerlinTexture(int size)
+{
+     typedef struct {
+          GLubyte r;
+          GLubyte g;
+          GLubyte b;
+          GLubyte a;
+     } bit;
+     int i, k, x, y;
+     float r;
+     bit *b = (bit *) malloc(sizeof(bit) * size * size);
+     GLubyte *bits = malloc(sizeof(GLubyte) * 4 * size * size);
+     createGradient();
+     for(x = 0; x < size; x++)
+     {
+          for(y = 0; y < size; y++)
+          {
+               k = x * size + y;
+               r = 126 + 126 * fabs(perlin(x, y));
+               b[k].r = r;
+               b[k].g = r;
+               b[k].b = r;
+               b[k].a = 255;
+          }
+     }
+     FIBITMAP *img = FreeImage_ConvertFromRawBits
+          ((BYTE*) b, size, size, size, 32, FI_RGBA_RED_MASK,
+           FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, FALSE);
+     for (i = 0; i < 10; i++){
+          bits = (GLubyte *) FreeImage_GetBits
+               (FreeImage_Rescale(img, size, size, FILTER_BICUBIC));
+          glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, size, size,
+                       0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
+          size /= 2;
+          if (size == 1)
+               break;
+     }
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i);
+     FreeImage_Unload(img);
+     //free(b);
 }
 
 
@@ -213,7 +260,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      glEnable(GL_TEXTURE_2D);
      glGenTextures(10, textures);
      glActiveTextureARB(GL_TEXTURE4_ARB);
-      /* Render to texture. */
+     /* Render to texture. */
      glBindTexture(GL_TEXTURE_2D, textures[TEX_RENDER]);
      glActiveTextureARB(GL_TEXTURE1_ARB);
      /* Terrain textures. */
@@ -243,6 +290,8 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      loadTexture2D("data/textures/foliage_grass.png");
      glBindTexture(GL_TEXTURE_2D, textures[TEX_AIR_FIGHTER_1]);
      loadTexture2D("data/textures/fighter.png");
+     glBindTexture(GL_TEXTURE_2D, textures[TEX_PERLIN_1]);
+     createPerlinTexture(64);
      /* Six texture functions may be specified:
         GL_ADD, GL_MODULATE, GL_DECAL, GL_BLEND,
         GL_REPLACE, or GL_COMBINE. */
@@ -263,7 +312,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      printf("GL_MAX_TEXTURE_COORDS: %d\n", maxt);
      /* Set up ARB function pointers. */
      /* glActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC)
-          glfwGetProcAddress("glActiveTextureARB"); */
+        glfwGetProcAddress("glActiveTextureARB"); */
      glCreateProgramARB = (PFNGLCREATEPROGRAMPROC)
           glfwGetProcAddress("glCreateProgram");
      glCreateShaderARB = (PFNGLCREATESHADERPROC)

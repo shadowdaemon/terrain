@@ -499,9 +499,9 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
      glEnable(GL_NORMALIZE);
      glActiveTextureARB(GL_TEXTURE1_ARB);
      glEnable(GL_TEXTURE_2D);
-     glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_2]);
+     glBindTexture(GL_TEXTURE_2D, textures[TEX_PERLIN_1]);
      glActiveTextureARB(GL_TEXTURE0_ARB);
-     glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_1]);
+     glBindTexture(GL_TEXTURE_2D, textures[TEX_PERLIN_1]);
      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
      glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
      glMateriali(GL_FRONT, GL_SHININESS, 11);

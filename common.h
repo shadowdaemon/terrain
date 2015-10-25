@@ -58,6 +58,7 @@
 #define TEX_BUILDING                        6
 #define TEX_FOLIAGE_GRASS                   7
 #define TEX_AIR_FIGHTER_1                   8
+#define TEX_PERLIN_1                        9
 #define MODEL_TREE_POPLAR                   0
 #define MODEL_TREE_OAK                      1
 #define MODEL_TREE_FIR                      2
