@@ -136,7 +136,7 @@ int compGrass(const void *b, const void *a)
 }
 
 
-void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, int tsize, float fps)
+void renderGrass(GLuint *textures, struct v3f cpos, struct v3f crot, int tsize, float fps)
 {
      int xgrid, zgrid, x, z, x1, z1, cull, density, i = 0, j = 0, a;
      static char update = 1;
@@ -154,8 +154,8 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
      glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE_GRASS]);
      glDisable(GL_CULL_FACE);
      glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 0.0f);
-     if (distance2d(camerapos, sector) > 0.5f * tsize) {
-          sector = camerapos;
+     if (distance2d(cpos, sector) > 0.5f * tsize) {
+          sector = cpos;
           update = 1;
      }
      x = (int) (sector.x / size);
@@ -177,12 +177,12 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
           z1 = (int) (x1 + zpos) % 73;
           xpos += z1;
           zpos += x1;
-          dist = distance3d(camerapos, mv3f(xpos, height[i], zpos));
-          rot  = 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos));
-          cull = fabs((int) (camerarot.y - rot));
+          dist = distance3d(cpos, mv3f(xpos, height[i], zpos));
+          rot  = 180 - vectorstodegree2d(cpos, mv3f(xpos, 0, zpos));
+          cull = fabs((int) (crot.y - rot));
           while (cull >= 360)
                cull -= 360;
-          if (cull <= 85 || cull >= 275 || camerarot.x > 27 || update == 1 || dist < tsize * 2) {
+          if (cull <= 85 || cull >= 275 || crot.x > 27 || update == 1 || dist < tsize * 2) {
                if (update) {
                     height[i] = readTerrainHeightPlane(xpos, zpos, &normal[i], tsize) - 1.2f;
                     h2 = fabs(distance3d(mv3f(0, 1, 0), normal[i]));
@@ -270,8 +270,8 @@ void renderGrass(GLuint *textures, struct v3f camerapos, struct v3f camerarot, i
 }
 
 
-void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f camerapos,
-                         struct v3f camerarot, int tsize, float fps)
+void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cpos,
+                         struct v3f crot, int tsize, float fps)
 {
      int xgrid, zgrid, x, z, x1, z1, cull, density, i, a;
      static char update = 1;
@@ -287,8 +287,8 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
      GLuint color[3];
 
      glMateriali(GL_FRONT, GL_SHININESS, 92);
-     if (distance2d(camerapos, sector) > 2 * tsize) {
-          sector = camerapos;
+     if (distance2d(cpos, sector) > 2 * tsize) {
+          sector = cpos;
           update = 1;
      }
      x = (int) (sector.x / size);
@@ -310,11 +310,11 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures, struct v3f cam
           z1 = (int) (x1 + zpos) % 85;
           xpos += z1;
           zpos += x1;
-          dist = distance3d(camerapos, mv3f(xpos, height[i], zpos));
-          cull = fabs((int) (camerarot.y - 180 - vectorstodegree2d(camerapos, mv3f(xpos, 0, zpos))));
+          dist = distance3d(cpos, mv3f(xpos, height[i], zpos));
+          cull = fabs((int) (crot.y - 180 - vectorstodegree2d(cpos, mv3f(xpos, 0, zpos))));
           while (cull >= 360)
                cull -= 360;
-          if (cull <= 85 || cull >= 275 || camerarot.x > 27 || update == 1 || dist < tsize * 2) {
+          if (cull <= 85 || cull >= 275 || crot.x > 27 || update == 1 || dist < tsize * 2) {
                if (update) {
                     height[i] = readTerrainHeightPlane(xpos, zpos, &normal[i], tsize) - 0.5f;
                     type[i] = readTerrainType(xpos, zpos);
@@ -475,15 +475,15 @@ void sceneQuad(void)
 }
 
 
-void renderSky(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, int tsize)
+void renderSky(struct v3f cpos, struct v3f crot, GLfloat *clear, int tsize)
 {
      float fog_end = tsize * TERRAIN_GRID_SIZE * 0.45f;
 
      glPushMatrix();
      glDisable(GL_DEPTH_TEST);
      glDisable(GL_FOG);
-     glTranslatef(camerapos.x, camerapos.y, camerapos.z);
-     glRotatef(-camerarot.y, 0.0f, 1.0f, 0.0f);
+     glTranslatef(cpos.x, cpos.y, cpos.z);
+     glRotatef(-crot.y, 0.0f, 1.0f, 0.0f);
      glDisable(GL_TEXTURE_2D);
      glDisable(GL_LIGHTING);
      glBegin(GL_QUADS);
@@ -509,7 +509,7 @@ void renderSky(struct v3f camerapos, struct v3f camerarot, GLfloat *clear, int t
 }
 
 
-void renderWater(struct v3f camerapos, struct v3f camerarot, GLfloat color[4], int tsize)
+void renderWater(struct v3f cpos, struct v3f crot, GLfloat color[4], int tsize)
 {
      int xshift, zshift, xgrid, zgrid, size = tsize * 8;
      float xpos, zpos;
@@ -518,11 +518,11 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, GLfloat color[4], i
      glMateriali(GL_FRONT, GL_SHININESS, 97);
      glDisable(GL_CULL_FACE);
      glPushMatrix();
-     glTranslatef(camerapos.x, 0.0f, camerapos.z);
+     glTranslatef(cpos.x, 0.0f, cpos.z);
      glMatrixMode(GL_TEXTURE);
      glPushMatrix();
      glScalef(scale, scale, scale);
-     glTranslatef(camerapos.x, camerapos.z, 0.0f);
+     glTranslatef(cpos.x, cpos.z, 0.0f);
      glBegin(GL_QUADS);
      color[3] = 0.7f;
      glColor4fv(color);
@@ -553,24 +553,24 @@ void renderWater(struct v3f camerapos, struct v3f camerarot, GLfloat color[4], i
 }
 
 
-void renderCloud(struct v3f camerapos, struct v3f camerarot, GLubyte alpha, float height, float scale, int tsize)
+void renderCloud(struct v3f cpos, struct v3f crot, GLubyte alpha, float height, float scale, int tsize)
 {
      int i, size;
      float rot, x, z;
      int temp;
      size = TERRAIN_GRID_SIZE * tsize * 0.5f;
-     temp = fabs(height - camerapos.y) * 0.1f;
+     temp = fabs(height - cpos.y) * 0.1f;
      temp = temp > alpha ? alpha : temp;
      glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 0.0f);
      glMateriali(GL_FRONT, GL_SHININESS, 31);
      glDisable(GL_CULL_FACE);
      glEnable(GL_TEXTURE_2D);
      glPushMatrix();
-     glTranslatef(camerapos.x, 0.0f, camerapos.z);
+     glTranslatef(cpos.x, 0.0f, cpos.z);
      glMatrixMode(GL_TEXTURE);
      glPushMatrix();
      glScalef(scale, scale, scale);
-     glTranslatef(camerapos.x, camerapos.z, 0.0f);
+     glTranslatef(cpos.x, cpos.z, 0.0f);
      glColor4ub(128, 128, 128, (GLubyte) temp);
      glNormal3i(0, -1, 0);
      glBegin(GL_TRIANGLE_FAN);
@@ -593,16 +593,15 @@ void renderCloud(struct v3f camerapos, struct v3f camerarot, GLubyte alpha, floa
 }
 
 
-void renderSun(GLuint *shaders, GLuint *textures, struct v3f camerapos, GLint sunpos[4])
+void renderSun(GLuint *shaders, GLuint *textures,
+               struct v3f cpos, GLint sunpos[4])
 {
      int i;
      float r, x, z;
-     /* const GLfloat projmat[] = {1.0f, 0.0f, 0.0f, 0.0f, */
-     /*                            0.0f, 1.0f, 0.0f, 0.0f, */
-     /*                            0.0f, 0.0f, 1.0f, 0.0f, */
-     /*                            0.0f, 0.0f, 0.0f, 1.0f}; */
      glPushMatrix();
-     glTranslatef(camerapos.x + sunpos[0], camerapos.y + sunpos[1], camerapos.z + sunpos[2]);
+     glTranslatef(cpos.x + sunpos[0],
+                  cpos.y + sunpos[1],
+                  cpos.z + sunpos[2]);
      r = atan2(sunpos[0], sunpos[1]) * -180 / PI;
      glRotatef(r, 0.0f, 0.0f, 1.0f);
      glBegin(GL_TRIANGLE_FAN);
@@ -645,9 +644,10 @@ void renderSun(GLuint *shaders, GLuint *textures, struct v3f camerapos, GLint su
           glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
           glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0);
           glUseProgramARB(shaders[4]);
-          glUniform1iARB(glGetUniformLocationARB(shaders[4], "scene"), 4);
-          glUniform2fARB(glGetUniformLocationARB(shaders[4], "steps"), RESX, RESY);
-          /* glUniformMatrix4fvARB(glGetUniformLocationARB(shaders[4], "projmat"), 1, GL_TRUE, projmat); */
+          glUniform1iARB(glGetUniformLocationARB
+                         (shaders[4], "scene"), 4);
+          glUniform2fARB(glGetUniformLocationARB
+                         (shaders[4], "steps"), RESX, RESY);
           sceneQuad();
           glUseProgramARB(0);
           glEnable(GL_DEPTH_TEST);
@@ -661,12 +661,12 @@ void renderSun(GLuint *shaders, GLuint *textures, struct v3f camerapos, GLint su
 }
 
 
-void renderMoon(struct v3f camerapos, GLint pos[4], float size)
+void renderMoon(struct v3f cpos, GLint pos[4], float size)
 {
      int i;
      float r, x, z;
      glPushMatrix();
-     glTranslatef(camerapos.x + pos[0], camerapos.y + pos[1], camerapos.z + pos[2]);
+     glTranslatef(cpos.x + pos[0], cpos.y + pos[1], cpos.z + pos[2]);
      r = atan2(pos[0], pos[1]) * -180 / PI;
      glRotatef(r, 0.0f, 0.0f, 1.0f);
      glColor3ub(210, 210, 212);
@@ -698,7 +698,8 @@ void renderExhaust(struct v3f pos, struct v3f rot, float scale, float size)
      glRotatef(rot.z, 0.0f, 0.0f, 1.0f);
      glBegin(GL_TRIANGLE_FAN);
      glColor4ub(195, 110, 30, 185);
-     glVertex3f(1.4286f, 1.4286f, -powf(size, 1.5f) * 5.0f - 14.857f * size);
+     glVertex3f(1.4286f, 1.4286f, -powf(size, 1.5f)
+                * 5.0f - 14.857f * size);
      glColor4ub(255, 225, 90, 30);
      for (i = 0; i <= 360; i += 60) {
           r = i / PIx180;
@@ -718,7 +719,8 @@ void renderExhaust(struct v3f pos, struct v3f rot, float scale, float size)
      glEnd();
      glBegin(GL_TRIANGLE_FAN);
      glColor4ub(195, 110, 30, 185);
-     glVertex3f(-1.4286f, 1.4286f, -powf(size, 1.5f) * 5.0f - 14.857f * size);
+     glVertex3f(-1.4286f, 1.4286f, -powf(size, 1.5f) *
+                5.0f - 14.857f * size);
      glColor4ub(255, 225, 90, 30);
      for (i = 0; i <= 360; i += 60) {
           r = i / PIx180;
@@ -745,14 +747,19 @@ void renderNumber(int num, struct aiScene *textquads, struct v2f pos)
 {
      int i = 0, j = num;
      num = fabs(num);
-     drawModel((const struct aiScene *) &textquads[num % 10], mv3f(pos.x, pos.y, 0), mv3f(0, 0, 0), 250, 255);
+     drawModel((const struct aiScene *) &textquads[num % 10],
+               mv3f(pos.x, pos.y, 0), mv3f(0, 0, 0), 250, 255);
      while (num > 9) {
           num -= num % 10;
           num /= 10;
-          drawModel((const struct aiScene *) &textquads[num % 10], mv3f(pos.x - 50 * ++i, pos.y, 0), mv3f(0, 0, 0), 250, 255);
+          drawModel((const struct aiScene *) &textquads[num % 10],
+                    mv3f(pos.x - 50 * ++i, pos.y, 0), mv3f(0, 0, 0),
+                    250, 255);
      }
      if (j < 0)
-          drawModel((const struct aiScene *) &textquads[10], mv3f(pos.x - 50 * ++i, pos.y, 0), mv3f(0, 0, 0), 250, 255);
+          drawModel((const struct aiScene *) &textquads[10],
+                    mv3f(pos.x - 50 * ++i, pos.y, 0), mv3f(0, 0, 0),
+                    250, 255);
 }
 
 
@@ -772,11 +779,10 @@ void renderFX(void)
 }
 
 
-void renderAircraft(struct aiScene *scene, GLuint *textures, struct v3f camerapos,
-                    struct airunit *units)
+void renderAircraft(struct aiScene *scene, GLuint *textures,
+                    struct v3f cpos, struct airunit *units)
 {
      int i, texture, model;
-
      for (i = 0; i < 1; i++) {
           switch (units[i].type) {
           case UNIT_AIR_FIGHTER_1:
@@ -790,23 +796,28 @@ void renderAircraft(struct aiScene *scene, GLuint *textures, struct v3f camerapo
           glEnable(GL_TEXTURE_2D);
           glEnable(GL_LIGHTING);
           glBindTexture(GL_TEXTURE_2D, textures[texture]);
-          drawModel((const struct aiScene *) &scene[model], units[i].pos, units[i].rot, 0.7f, 255);
+          drawModel((const struct aiScene *) &scene[model], units[i].pos,
+                    units[i].rot, 0.7f, 255);
           glDisable(GL_TEXTURE_2D);
           glDisable(GL_LIGHTING);
-          renderExhaust(units[i].pos, units[i].rot, 0.7f, units[i].thrust * 1.5f);
+          renderExhaust(units[i].pos, units[i].rot, 0.7f,
+                        units[i].thrust * 1.5f);
      }
 }
 
 
-void render(GLFWwindow *window, struct aiScene *scene, struct aiScene
-            *textquads, GLuint *textures, GLuint *shaders, struct v3f
-            camerapos, struct v3f camerarot, struct v2f *sector, int
-            *tsize, float *fps, struct airunit *airunits) {
+void render(GLFWwindow *window, struct aiScene *scene,
+            struct aiScene *textquads,
+            GLuint *textures, GLuint *shaders,
+            struct v3f cpos, /* Camera position. */
+            struct v3f crot, /* Camera rotation. */
+            struct v2f *sector, int *tsize, float *fps,
+            struct airunit *airunits) {
      GLfloat color[4], temp;
      GLint lpos[4], mpos[4];
      struct v3f n;
-     float camHeight = fabs(camerapos.y - readTerrainHeightPlane
-                            (camerapos.x, camerapos.z, &n, *tsize));
+     float camHeight = fabs(cpos.y - readTerrainHeightPlane
+                            (cpos.x, cpos.z, &n, *tsize));
      static double time = 0;
      static float fps2 = 0;
      static char swapb = 1;
@@ -877,37 +888,46 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene
           (lpos[1] > -400 ? (lpos[1] + 400) / 1400.0f : 0);
      color[2] = 0.8431372549019608f *
           (lpos[1] > -200 ? 0.05f + (lpos[1] + 200) / 1200.0f : 0.05f);
-     renderClear(color, camerapos, *tsize);
-     renderSky(camerapos, camerarot, color, *tsize);
-     renderSun(shaders, textures, camerapos, lpos);
-     renderMoon(camerapos, mpos, 60);
-     drawTerrain(textures, camerapos, camerarot, sector, tsize, &swapb);
-     if (camerapos.y < TERRAIN_SCALE_HEIGHT && camHeight < VIEW_DISTANCE)
-          renderGroundScenery(scene, textures, camerapos, camerarot, *tsize, fps2);
+     renderClear(color, cpos, *tsize);
+     renderSky(cpos, crot, color, *tsize);
+     renderSun(shaders, textures, cpos, lpos);
+     renderMoon(cpos, mpos, 60);
+     drawTerrain(textures, cpos, crot, sector, tsize, &swapb);
+     if (cpos.y < TERRAIN_SCALE_HEIGHT && camHeight < VIEW_DISTANCE)
+          renderGroundScenery(scene, textures, cpos, crot, *tsize, fps2);
      if (swapb) {
           glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
-          renderWater(camerapos, camerarot, color, *tsize);
-          renderAircraft(scene, textures, camerapos, airunits);
-          /* glEnable(GL_POINT_SPRITE); */
-          /* glEnable(GL_PROGRAM_POINT_SIZE); */
-          /* glUseProgramARB(shaders[2]); */
-          /* glUniform1iARB(glGetUniformLocationARB(shaders[2], "texture"), 1); */
-          /* glUniform1fARB(glGetUniformLocationARB(shaders[2], "size"), 10.0f); */
-          /* glUniform2fARB(glGetUniformLocationARB(shaders[2], "screensize"), RESX, RESY); */
-          /* renderFX(); */
-          /* glUseProgramARB(0); */
+          renderWater(cpos, crot, color, *tsize);
+          renderAircraft(scene, textures, cpos, airunits);
+          if (0) { /* Just disable for now. */
+               glEnable(GL_POINT_SPRITE);
+               glEnable(GL_PROGRAM_POINT_SIZE);
+               glUseProgramARB(shaders[2]);
+               glUniform1iARB(glGetUniformLocationARB
+                              (shaders[2], "texture"), 1);
+               glUniform1fARB(glGetUniformLocationARB
+                              (shaders[2], "size"), 10.0f);
+               glUniform2fARB(glGetUniformLocationARB
+                              (shaders[2], "screensize"), RESX, RESY);
+               renderFX();
+               glUseProgramARB(0);
+          }
           glEnable(GL_LIGHTING);
           glEnable(GL_TEXTURE_2D);
           glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
-          if (camerapos.y < TERRAIN_SCALE_HEIGHT) {
-               renderCloud(camerapos, camerarot, 180 * CLOUD_DENSITY, TERRAIN_SCALE_HEIGHT, 0.00005f, *tsize);
-               renderCloud(camerapos, camerarot, 100 * CLOUD_DENSITY, LOWER_CLOUD_HEIGHT, 0.00001f, *tsize);
+          if (cpos.y < TERRAIN_SCALE_HEIGHT) {
+               renderCloud(cpos, crot, 180 * CLOUD_DENSITY,
+                           TERRAIN_SCALE_HEIGHT, 0.00005f, *tsize);
+               renderCloud(cpos, crot, 100 * CLOUD_DENSITY,
+                           LOWER_CLOUD_HEIGHT, 0.00001f, *tsize);
                if (camHeight < VIEW_DISTANCE_HALF)
-                    renderGrass(textures, camerapos, camerarot, *tsize, fps2);
+                    renderGrass(textures, cpos, crot, *tsize, fps2);
           }
           else {
-               renderCloud(camerapos, camerarot, 65 * CLOUD_DENSITY, LOWER_CLOUD_HEIGHT, 0.00001f, *tsize);
-               renderCloud(camerapos, camerarot, 120 * CLOUD_DENSITY, TERRAIN_SCALE_HEIGHT, 0.00005f, *tsize);
+               renderCloud(cpos, crot, 65 * CLOUD_DENSITY,
+                           LOWER_CLOUD_HEIGHT, 0.00001f, *tsize);
+               renderCloud(cpos, crot, 120 * CLOUD_DENSITY,
+                           TERRAIN_SCALE_HEIGHT, 0.00005f, *tsize);
           }
           glMatrixMode(GL_PROJECTION);
           glPushMatrix();
@@ -921,32 +941,45 @@ void render(GLFWwindow *window, struct aiScene *scene, struct aiScene
                glDisable(GL_FOG);
                glBindTexture(GL_TEXTURE_2D, textures[TEX_RENDER]);
                glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
-               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-               glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0);
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                               GL_LINEAR);
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+                               GL_LINEAR);
+               glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0,
+                                RESX, RESY, 0);
                glUseProgramARB(shaders[0]);
-               glUniform1iARB(glGetUniformLocationARB(shaders[0], "scene"), 4);
-               glUniform1fARB(glGetUniformLocationARB(shaders[0], "gamma"), 0.6f);
-               glUniform1fARB(glGetUniformLocationARB(shaders[0], "numcolors"), 64.0f);
-               glUniform2fARB(glGetUniformLocationARB(shaders[0], "steps"), RESX * 2, RESY * 2);
-               glUniform4fvARB(glGetUniformLocationARB(shaders[0], "clear"), 0, color);
+               glUniform1iARB(glGetUniformLocationARB
+                              (shaders[0], "scene"), 4);
+               glUniform1fARB(glGetUniformLocationARB
+                              (shaders[0], "gamma"), 0.6f);
+               glUniform1fARB(glGetUniformLocationARB
+                              (shaders[0], "numcolors"), 64.0f);
+               glUniform2fARB(glGetUniformLocationARB
+                              (shaders[0], "steps"), RESX * 2, RESY * 2);
+               glUniform4fvARB(glGetUniformLocationARB
+                               (shaders[0], "clear"), 0, color);
                sceneQuad();
-               glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, RESX, RESY, 0);
+               glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0,
+                                RESX, RESY, 0);
                glUseProgramARB(shaders[3]);
-               glUniform1iARB(glGetUniformLocationARB(shaders[3], "scene"), 4);
-               // glUniformMatrix4fvARB(glGetUniformLocationARB(shaders[3], "projmat"), 1, GL_TRUE, projmat); /* Not needed, keep as example. */
-               glUniform2fARB(glGetUniformLocationARB(shaders[3], "steps"), RESX, RESY);
-               glUniform4fvARB(glGetUniformLocationARB(shaders[3], "clear"), 0, color);
+               glUniform1iARB(glGetUniformLocationARB
+                              (shaders[3], "scene"), 4);
+               glUniform2fARB(glGetUniformLocationARB
+                              (shaders[3], "steps"), RESX, RESY);
+               glUniform4fvARB(glGetUniformLocationARB
+                               (shaders[3], "clear"), 0, color);
                sceneQuad();
           }
           glUseProgramARB(0);
           glBindTexture(GL_TEXTURE_2D, textures[TEX_FONT]);
-          renderNumber(camerapos.x, textquads, mv2f(250, 120));
-          renderNumber(camerapos.z, textquads, mv2f(250, 70));
+          renderNumber(cpos.x, textquads, mv2f(250, 120));
+          renderNumber(cpos.z, textquads, mv2f(250, 70));
           renderNumber(fps2, textquads, mv2f(250, 20));
           renderNumber(airunits[0].height, textquads, mv2f(RESX - 100, 120));
-          renderNumber(airunits[0].speed * 10.0f, textquads, mv2f(RESX - 100, 70));
-          renderNumber(airunits[0].thrust * 100, textquads, mv2f(RESX - 100, 20));
+          renderNumber(airunits[0].speed * 10.0f, textquads,
+                       mv2f(RESX - 100, 70));
+          renderNumber(airunits[0].thrust * 100, textquads,
+                       mv2f(RESX - 100, 20));
      }
      glMatrixMode(GL_PROJECTION);
      glPopMatrix();

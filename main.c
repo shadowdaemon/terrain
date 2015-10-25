@@ -6,7 +6,8 @@
 #include "maths.h"
 
 
-static void keyInputGLFW(GLFWwindow* window, int key, int scancode, int action, int mods);
+static void keyInputGLFW(GLFWwindow* window, int key,
+                         int scancode, int action, int mods);
 
 
 static void errorGLFW(int error, const char* err)
@@ -29,12 +30,15 @@ void loadTexture2D(const char *file)
      GLsizei width = FreeImage_GetWidth(img);
      GLsizei height = FreeImage_GetHeight(img);
      GLubyte *bits = (GLubyte*) FreeImage_GetBits(img);
-     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
+     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+                  GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
      for (i = 1; i < 10; i++) {
           width /= 2;
           height /= 2;
-          bits = (GLubyte*) FreeImage_GetBits(FreeImage_Rescale(img, width, height, FILTER_BICUBIC));
-          glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
+          bits = (GLubyte*) FreeImage_GetBits
+               (FreeImage_Rescale(img, width, height, FILTER_BICUBIC));
+          glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, width, height,
+                       0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
           if (width == 1 || height == 1)
                break;
      }
@@ -55,14 +59,17 @@ void loadTexTerrain(const char *file)
      FreeImage_AdjustContrast(foo, -50);
      GLubyte *bits = (GLubyte*) FreeImage_GetBits(foo);
      int i;
-     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
+     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+                  GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
      for (i = 1; i < 10; i++){
           width /= 2;
           height /= 2;
           FreeImage_AdjustContrast(img, 13 * i);
           FreeImage_AdjustBrightness(img, -2 * i);
-          bits = (GLubyte*) FreeImage_GetBits(FreeImage_Rescale(img, width, height, FILTER_BICUBIC));
-          glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
+          bits = (GLubyte*) FreeImage_GetBits
+               (FreeImage_Rescale(img, width, height, FILTER_BICUBIC));
+          glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, width, height,
+                       0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
           if (width == 1 || height == 1)
                break;
      }
@@ -276,10 +283,14 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
 
 void axisMultiplier(float *quat1, float *quat2, float *quat3)
 {
-     quat1[0] = quat2[0] * quat3[0] - quat2[0] * quat3[1] - quat2[2] * quat3[2] - quat2[3] * quat3[3];
-     quat1[1] = quat2[0] * quat3[1] + quat2[1] * quat3[0] + quat2[2] * quat3[3] - quat2[3] * quat3[2];
-     quat1[2] = quat2[0] * quat3[2] + quat2[2] * quat3[0] + quat2[3] * quat3[1] - quat2[1] * quat3[3];
-     quat1[3] = quat2[0] * quat3[3] + quat2[3] * quat3[0] + quat2[1] * quat3[2] - quat2[2] * quat3[1];
+     quat1[0] = quat2[0] * quat3[0] - quat2[0] * quat3[1]
+          - quat2[2] * quat3[2] - quat2[3] * quat3[3];
+     quat1[1] = quat2[0] * quat3[1] + quat2[1] * quat3[0]
+          + quat2[2] * quat3[3] - quat2[3] * quat3[2];
+     quat1[2] = quat2[0] * quat3[2] + quat2[2] * quat3[0]
+          + quat2[3] * quat3[1] - quat2[1] * quat3[3];
+     quat1[3] = quat2[0] * quat3[3] + quat2[3] * quat3[0]
+          + quat2[1] * quat3[2] - quat2[2] * quat3[1];
 }
 
 
@@ -301,44 +312,45 @@ void createQuats(float *quat, char axis, float degrees)
 }
 
 
-void createMatrix(float *quat, float *viewmatrix)
+void createMatrix(float *quat, float *vmat)
 {
-     viewmatrix[0] = 1.0f - 2.0f * (quat[2] * quat[2] + quat[3] * quat[3]);
-     viewmatrix[1] = 2.0f * (quat[1] * quat[2] + quat[3] * quat[0]);
-     viewmatrix[2] = 2.0f * (quat[1] * quat[3] - quat[2] * quat[0]);
-     viewmatrix[3] = 0.0f;
-     viewmatrix[4] = 2.0f * (quat[1]* quat[2] - quat[3] * quat[0]);
-     viewmatrix[5] = 1.0f - 2.0f * (quat[1] * quat[1] + quat[3] * quat[3]);
-     viewmatrix[6] = 2.0f * (quat[3] * quat[2] + quat[1] * quat[0]);
-     viewmatrix[7] = 0.0f;
-     viewmatrix[8] = 2.0f * (quat[1] * quat[3] + quat[2] * quat[0]);
-     viewmatrix[9] = 2.0f * (quat[2]* quat[3] - quat[1] * quat[0]);
-     viewmatrix[10] = 1.0f - 2.0f * (quat[1] * quat[1] + quat[2] * quat[2]);
-     viewmatrix[11] = 0.0f;
-     viewmatrix[12] = 0;
-     viewmatrix[13] = 0;
-     viewmatrix[14] = 0;
-     viewmatrix[15] = 1.0f;
+     vmat[0] = 1.0f - 2.0f * (quat[2] * quat[2] + quat[3] * quat[3]);
+     vmat[1] = 2.0f * (quat[1] * quat[2] + quat[3] * quat[0]);
+     vmat[2] = 2.0f * (quat[1] * quat[3] - quat[2] * quat[0]);
+     vmat[3] = 0.0f;
+     vmat[4] = 2.0f * (quat[1]* quat[2] - quat[3] * quat[0]);
+     vmat[5] = 1.0f - 2.0f * (quat[1] * quat[1] + quat[3] * quat[3]);
+     vmat[6] = 2.0f * (quat[3] * quat[2] + quat[1] * quat[0]);
+     vmat[7] = 0.0f;
+     vmat[8] = 2.0f * (quat[1] * quat[3] + quat[2] * quat[0]);
+     vmat[9] = 2.0f * (quat[2]* quat[3] - quat[1] * quat[0]);
+     vmat[10] = 1.0f - 2.0f * (quat[1] * quat[1] + quat[2] * quat[2]);
+     vmat[11] = 0.0f;
+     vmat[12] = 0;
+     vmat[13] = 0;
+     vmat[14] = 0;
+     vmat[15] = 1.0f;
 }
 
 
-void updateCamera(struct v3f cameraRot)
+void updateCamera(struct v3f crot)
 {
      static float q1[4], q2[4], q3[4];
-     static float viewmatrix[16];
+     static float vmat[16];
      glLoadIdentity();
-     createQuats(q3, 'x', cameraRot.x);
+     createQuats(q3, 'x', crot.x);
      axisMultiplier(q1, q2, q3);
      q2[0] = q3[0];
      q2[1] = q3[1];
-     createQuats(q3, 'y', cameraRot.y);
+     createQuats(q3, 'y', crot.y);
      axisMultiplier(q1, q2, q3);
-     createMatrix(q1, viewmatrix);
-     glMultMatrixf(viewmatrix);
+     createMatrix(q1, vmat);
+     glMultMatrixf(vmat);
 }
 
 
-void cameraTrailMovement(struct v3f *camerapos, struct v3f *camerarot, struct airunit unit, int tsize)
+void cameraTrailMovement(struct v3f *cpos, struct v3f *crot,
+                         struct airunit unit, int tsize)
 {
      struct v3f temppos = unit.pos;
      float temp = 0.0f;
@@ -349,38 +361,42 @@ void cameraTrailMovement(struct v3f *camerapos, struct v3f *camerarot, struct ai
      else
           temp = 0.37f;
      degreestovector3d(&temppos, unit.rot, mv3f(0, 180, 0), 25.0f);
-     camerapos->x -= (camerapos->x - temppos.x) * temp;
-     camerapos->y -= (camerapos->y - temppos.y) * temp;
-     camerapos->z -= (camerapos->z - temppos.z) * temp;
-     camerarot->x = unit.rot.x;
-     camerarot->y = vectorstodegree2d(unit.pos, *camerapos);
-     temp = readTerrainHeightPlane(camerapos->x, camerapos->z, &temppos, tsize);
+     cpos->x -= (cpos->x - temppos.x) * temp;
+     cpos->y -= (cpos->y - temppos.y) * temp;
+     cpos->z -= (cpos->z - temppos.z) * temp;
+     crot->x = unit.rot.x;
+     crot->y = vectorstodegree2d(unit.pos, *cpos);
+     temp = readTerrainHeightPlane(cpos->x, cpos->z, &temppos, tsize);
      temp += 5.0f;
-     temp = temp < TERRAIN_WATER_LEVEL + 10 ? TERRAIN_WATER_LEVEL + 10 : temp;
-     camerapos->y = camerapos->y < temp ? temp : camerapos->y;
+     temp = temp < TERRAIN_WATER_LEVEL + 10 ?
+          TERRAIN_WATER_LEVEL + 10 : temp;
+     cpos->y = cpos->y < temp ? temp : cpos->y;
 }
 
 
-void mouseLook(GLFWwindow *window, struct v3f *camerarot)
+void mouseLook(GLFWwindow *window, struct v3f *crot)
 {
      const float mouse_sensitivity = 0.1f;
      struct v2d mouse_pos;
      glfwGetCursorPos (window, &mouse_pos.x, &mouse_pos.y);
-     if (camerarot->x > 90.0f)
-          glfwSetCursorPos (window, mouse_pos.x, (int) (90 / mouse_sensitivity));
-     if (camerarot->x < -90.0f)
-          glfwSetCursorPos (window, mouse_pos.x, (int) (-90 / mouse_sensitivity));
-     while (camerarot->y >= 360.0f)
-          camerarot->y -= 360.0f;
-     while (camerarot->y < 0.0f)
-          camerarot->y += 360.0f;
+     if (crot->x > 90.0f)
+          glfwSetCursorPos (window, mouse_pos.x,
+                            (int) (90 / mouse_sensitivity));
+     if (crot->x < -90.0f)
+          glfwSetCursorPos (window, mouse_pos.x,
+                            (int) (-90 / mouse_sensitivity));
+     while (crot->y >= 360.0f)
+          crot->y -= 360.0f;
+     while (crot->y < 0.0f)
+          crot->y += 360.0f;
      /* Mouse x, y and view x, y swapped here. */
-     camerarot->y = mouse_pos.x * mouse_sensitivity;
-     camerarot->x = mouse_pos.y * mouse_sensitivity;
+     crot->y = mouse_pos.x * mouse_sensitivity;
+     crot->x = mouse_pos.y * mouse_sensitivity;
 }
 
 
-static void keyInputGLFW(GLFWwindow *window, int key, int scancode, int action, int mods)
+static void keyInputGLFW(GLFWwindow *window, int key,
+                         int scancode, int action, int mods)
 {
      if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
           glfwSetWindowShouldClose(window, GL_TRUE);
@@ -390,13 +406,17 @@ static void keyInputGLFW(GLFWwindow *window, int key, int scancode, int action, 
 void keyboardInput(GLFWwindow *window, char *direction)
 {
      char x = 0, z = 0;
-     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS || glfwGetKey(window, 'W') == GLFW_PRESS)
+     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS
+         || glfwGetKey(window, 'W') == GLFW_PRESS)
           z++;
-     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS || glfwGetKey(window, 'S') == GLFW_PRESS)
+     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS
+         || glfwGetKey(window, 'S') == GLFW_PRESS)
           z--;
-     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS || glfwGetKey(window, 'D') == GLFW_PRESS)
+     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS
+         || glfwGetKey(window, 'D') == GLFW_PRESS)
           x++;
-     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS || glfwGetKey(window, 'A') == GLFW_PRESS)
+     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS
+         || glfwGetKey(window, 'A') == GLFW_PRESS)
           x--;
      if (x == 0 && z == 0)
           *direction = INPUT_NONE;
@@ -418,17 +438,18 @@ void keyboardInput(GLFWwindow *window, char *direction)
           *direction = INPUT_DOWN_LEFT;
      if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
           *direction += INPUT_LEFT_SHIFT;
-     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS || glfwGetKey(window, ' ') == GLFW_PRESS)
+     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS
+         || glfwGetKey(window, ' ') == GLFW_PRESS)
           *direction += INPUT_SPACE;
 }
 
 
-void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float speed, int tsize)
+void movement(struct v3f *cpos, struct v3f crot, char direction, float speed, int tsize)
 {
      struct v3f normal, pos;
      float ground, temp, dir = 0.0f, moar;
      char a = 0;
-     pos = *camerapos;
+     pos = *cpos;
      if ((direction | INPUT_LEFT_SHIFT) == direction)
           speed *= 2.3f;
      switch (direction & ~(INPUT_LEFT_SHIFT | INPUT_SPACE)) {
@@ -466,20 +487,20 @@ void movement(struct v3f *camerapos, struct v3f camerarot, char direction, float
           break;
      default: break;
      }
-     degreestovector3d(&pos, camerarot, mv3f(0.0f, dir, 0.0f), a * speed);
+     degreestovector3d(&pos, crot, mv3f(0.0f, dir, 0.0f), a * speed);
      temp   = readTerrainHeightPlane(pos.x, pos.z, &normal, tsize);
-     ground = readTerrainHeightPlane(camerapos->x, camerapos->z, &normal, tsize);
+     ground = readTerrainHeightPlane(cpos->x, cpos->z, &normal, tsize);
      if (temp > ground + 1.3f)
           speed = 0.041f;
      else if (temp > ground)
           speed *= 1 - ((temp - ground) / 1.3f);
-     moar = camerapos->y;
-     degreestovector3d(camerapos, camerarot, mv3f(0.0f, dir, 0.0f), a * speed);
-     ground = readTerrainHeightPlane(camerapos->x, camerapos->z, &normal, tsize);
+     moar = cpos->y;
+     degreestovector3d(cpos, crot, mv3f(0.0f, dir, 0.0f), a * speed);
+     ground = readTerrainHeightPlane(cpos->x, cpos->z, &normal, tsize);
      ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
      ground += 1.8f;
-     camerapos->y = (moar + temp + 1.8f) / 2.0f;
-     camerapos->y = camerapos->y < ground ? ground : camerapos->y;
+     cpos->y = (moar + temp + 1.8f) / 2.0f;
+     cpos->y = cpos->y < ground ? ground : cpos->y;
 }
 
 
@@ -487,7 +508,8 @@ void flyMovement(struct airunit *unit, char input, int tsize)
 {
      struct v3f pos = mv3f(0.0f, 0.0f, 0.0f);
      float ground, max_thrust, max_vtol_thrust, thrust_step,
-          thrust_ceiling, tlapse, aero, drag, lift, glide, pressure, temp;
+          thrust_ceiling, tlapse, aero, drag, lift,
+          glide, pressure, temp;
      switch (unit->type) {
      case UNIT_AIR_FIGHTER_1:
           max_thrust = WORLD_GRAVITY + 0.6f;
@@ -531,24 +553,32 @@ void flyMovement(struct airunit *unit, char input, int tsize)
      default: break;
      }
      ground = readTerrainHeightPlane(unit->pos.x, unit->pos.z, &pos, tsize);
-     ground = ground < TERRAIN_WATER_LEVEL + 7 ? TERRAIN_WATER_LEVEL + 7 : ground;
+     ground = ground < TERRAIN_WATER_LEVEL + 7 ?
+          TERRAIN_WATER_LEVEL + 7 : ground;
      /* Airspeed.  The speed of sound is 340.29 metres per second. */
      unit->speed = distance3d(mv3f(0.0f, 0.0f, 0.0f), unit->vec);
-     pressure = unit->pos.y < 30000.0f ? (30000.0f - unit->pos.y) / 30000.0f : 0.0f;
+     pressure = unit->pos.y < 30000.0f ?
+          (30000.0f - unit->pos.y) / 30000.0f : 0.0f;
      /* Thrust lapse, atmospheric density.  See https://en.wikipedia.org/wiki/Jet_engine_performance */
-     tlapse = unit->pos.y < thrust_ceiling ? (thrust_ceiling - unit->pos.y) / (thrust_ceiling * 0.7f) : 0.0f;
+     tlapse = unit->pos.y < thrust_ceiling ?
+          (thrust_ceiling - unit->pos.y) / (thrust_ceiling * 0.7f) : 0.0f;
      tlapse = tlapse > 1.0f ? 1.0f : tlapse;
      pos = mv3f(0.0f, 0.0f, 0.0f);
      /* VTOL thrust. */
      if ((input | INPUT_SPACE) == input) {
           unit->vtol_thrust = unit->vtol_thrust + 0.05f > max_vtol_thrust ? max_vtol_thrust : unit->vtol_thrust + 0.05f;
-          degreestovector3d(&pos, unit->rot, mv3f(90.0f, 180.0f, 0.0f), unit->vtol_thrust * tlapse);
+          degreestovector3d(&pos, unit->rot, mv3f(90.0f, 180.0f, 0.0f),
+                            unit->vtol_thrust * tlapse);
      }
      else
-          unit->vtol_thrust = unit->vtol_thrust - 0.025f > 0.0f ? unit->vtol_thrust - 0.025f : 0.0f;
+          unit->vtol_thrust = unit->vtol_thrust - 0.025f >
+               0.0f ? unit->vtol_thrust - 0.025f : 0.0f;
      /* Normal thrust. */
-     unit->thrust = unit->thrust > max_thrust ? max_thrust : unit->thrust < 0.0f ? 0.0f : unit->thrust;
-     degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), unit->thrust * tlapse + unit->speed * aero * pressure);
+     unit->thrust = unit->thrust > max_thrust ?
+          max_thrust : unit->thrust < 0.0f ? 0.0f : unit->thrust;
+     degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f),
+                       unit->thrust * tlapse +
+                       unit->speed * aero * pressure);
      /* Update position and vector. */
      unit->vec.x += pos.x;
      unit->vec.y += pos.y - WORLD_GRAVITY;
@@ -570,24 +600,32 @@ void flyMovement(struct airunit *unit, char input, int tsize)
      unit->vec.z -= unit->vec.z * drag;
      /* Lift and glide. */
      pos = mv3f(0.0f, 0.0f, 0.0f);
-     lift *= fabs(unit->rot.x) < 50.0f ? (50.0f - fabs(unit->rot.x)) / 50.0f : 0.0f;
-     degreestovector3d(&pos, unit->rot, mv3f(90.0f, 180.0f, 0.0f), sqrt(unit->speed) * temp * pressure * lift);
+     lift *= fabs(unit->rot.x) < 50.0f ?
+          (50.0f - fabs(unit->rot.x)) / 50.0f : 0.0f;
+     degreestovector3d(&pos, unit->rot, mv3f(90.0f, 180.0f, 0.0f),
+                       sqrt(unit->speed) * temp * pressure * lift);
      temp = unit->vec.y + WORLD_GRAVITY;
      if (temp < 0.0f && unit->speed < 40)
-          degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), -temp * pressure * glide);
+          degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f),
+                            -temp * pressure * glide);
      unit->vec.x += pos.x;
      unit->vec.y += pos.y;
      unit->vec.z += pos.z;
      /* Aircraft banking. */
      pos = mv3f(0.0f, 0.0f, 0.0f);
-     degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), unit->speed);
-     temp = (vectorstodegree2d(pos, mv3f(0.0f, 0.0f, 0.0f)) - vectorstodegree2d(unit->vec, mv3f(0.0f, 0.0f, 0.0f))) * 0.09f;
-     if (vectorstodegree2d(pos, mv3f(0.0f, 0.0f, 0.0f)) > vectorstodegree2d(unit->vec, mv3f(0.0f, 0.0f, 0.0f)) + 0.8f)
+     degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f),
+                       unit->speed);
+     temp = (vectorstodegree2d(pos, mv3f(0.0f, 0.0f, 0.0f)) -
+             vectorstodegree2d(unit->vec, mv3f(0.0f, 0.0f, 0.0f))) * 0.09f;
+     if (vectorstodegree2d(pos, mv3f(0.0f, 0.0f, 0.0f))
+         > vectorstodegree2d(unit->vec, mv3f(0.0f, 0.0f, 0.0f)) + 0.8f)
           unit->rot.z += temp > 7 ? 0 : temp;
-     else if (vectorstodegree2d(unit->vec, mv3f(0.0f, 0.0f, 0.0f)) > vectorstodegree2d(pos, mv3f(0.0f, 0.0f, 0.0f)) + 0.8f)
+     else if (vectorstodegree2d(unit->vec, mv3f(0.0f, 0.0f, 0.0f))
+              > vectorstodegree2d(pos, mv3f(0.0f, 0.0f, 0.0f)) + 0.8f)
           unit->rot.z += temp < -7 ? 0 : temp;
      unit->rot.z -= unit->rot.z * 0.12f;
-     unit->rot.z = unit->rot.z > 70 ? 70 : unit->rot.z < -70 ? -70 : unit->rot.z;
+     unit->rot.z = unit->rot.z > 70 ? 70 :
+          unit->rot.z < -70 ? -70 : unit->rot.z;
      if (unit->rot.y > 360.0f)
           unit->rot.y -= 360.0f;
      else if (unit->rot.y < 0.0f)
@@ -641,7 +679,8 @@ void airUnitMove(struct airunit *unit, struct v3f pos, int tsize)
           unit->rot.x += (-40.0f - unit->rot.x) * 0.1f;
           unit->rot.y += 2.5f;
      }
-     else if (unit->vec.y < -WORLD_GRAVITY * 2.5f && unit->height < 2500.0f) {
+     else if (unit->vec.y < -WORLD_GRAVITY * 2.5f
+              && unit->height < 2500.0f) {
           flyMovement(unit, INPUT_SPACE + thrust, tsize);
           unit->rot.x += (-25.0f - unit->rot.x) * 0.05f;
      }
@@ -669,9 +708,9 @@ void airUnitMoveVTOL(struct airunit *unit, struct v3f pos, int tsize)
      float dist = distance2d(unit->pos, pos);
      float pitch = unit->speed > 20.0f ? -5.0f : 7.5f;
      int thrust = unit->thrust > 0.0f ? INPUT_DOWN : INPUT_NONE;
-
      if (dist > 200.0f)
-          unit->rot.y += (vectorstodegree2d(unit->pos, pos) - unit->rot.y) * 0.1f;
+          unit->rot.y += (vectorstodegree2d
+                          (unit->pos, pos) - unit->rot.y) * 0.1f;
      else
           unit->rot.y += 2.0f;
      if (unit->height > 150.0f) {
@@ -697,7 +736,6 @@ void updateAirUnits(struct airunit *units, int tsize)
      int i;
      struct v3f pos = units[0].pos;
      /* struct v3f pos = mv3f(110000.0f, 0.0f, 55000.0f); */
-
      for (i = 1; i < 1; i++) {
           if (distance2d(units[i].pos, pos) < 2500.0f)
                airUnitMoveVTOL(&units[i], pos, tsize);
@@ -715,116 +753,117 @@ int main(int argc, char *argv[])
      char direction, state = 0;
      float fps = 0.0f;
      static int st = 0;
-     struct v2f sector    = {0.0f, 0.0f};
-     struct v3f camerarot = {0.0f, 0.0f, 0.0f};
-     struct v3f camerapos = {0.0f, readTerrainHeightPlane2(0.0f, 0.0f, tsize) + 1.8f, 0.0f};
-     const struct aiScene *s_temp;
-     struct aiScene *scene = malloc(sizeof(struct aiScene) * 32);
+     struct v2f sector = {0.0f, 0.0f}; /* Terrain update sector. */
+     struct v3f crot = {0.0f, 0.0f, 0.0f};            /* Camera rotation. */
+     struct v3f cpos = {0.0f, readTerrainHeightPlane2 /* Camera position. */
+                        (0.0f, 0.0f, tsize) + 1.8f, 0.0f};
+     const struct aiScene *stemp;
+     struct aiScene *scene     = malloc(sizeof(struct aiScene) * 32);
      struct aiScene *textquads = malloc(sizeof(struct aiScene) * 36);
-     struct airunit *airunits = malloc(sizeof(struct airunit) * 1);
+     struct airunit *airunits  = malloc(sizeof(struct airunit) * 1);
 
      if ((window = startGraphics(textures, shaders)) != NULL) {
-          if ((s_temp = loadModel("data/models/tree1.obj")) == NULL)
+          if ((stemp = loadModel("data/models/tree1.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               scene[MODEL_TREE_POPLAR] = *s_temp; /* Poplar. */
-          if ((s_temp = loadModel("data/models/tree2.obj")) == NULL)
+               scene[MODEL_TREE_POPLAR] = *stemp; /* Poplar. */
+          if ((stemp = loadModel("data/models/tree2.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               scene[MODEL_TREE_OAK] = *s_temp; /* Oak. */
-          if ((s_temp = loadModel("data/models/tree3.obj")) == NULL)
+               scene[MODEL_TREE_OAK] = *stemp; /* Oak. */
+          if ((stemp = loadModel("data/models/tree3.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               scene[MODEL_TREE_FIR] = *s_temp; /* Fir. */
-          if ((s_temp = loadModel("data/models/tree4.obj")) == NULL)
+               scene[MODEL_TREE_FIR] = *stemp; /* Fir. */
+          if ((stemp = loadModel("data/models/tree4.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               scene[MODEL_TREE_BUSH] = *s_temp; /* Bush. */
-          if ((s_temp = loadModel("data/models/mtree1.obj")) == NULL)
+               scene[MODEL_TREE_BUSH] = *stemp; /* Bush. */
+          if ((stemp = loadModel("data/models/mtree1.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               scene[MODEL_MTREE_SMALL] = *s_temp; /* Small multi-trees. */
-          if ((s_temp = loadModel("data/models/stump1.obj")) == NULL)
+               scene[MODEL_MTREE_SMALL] = *stemp; /* Small multi-trees. */
+          if ((stemp = loadModel("data/models/stump1.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               scene[MODEL_TREE_STUMP] = *s_temp; /* Stump. */
-          if ((s_temp = loadModel("data/models/rock1.obj")) == NULL)
+               scene[MODEL_TREE_STUMP] = *stemp; /* Stump. */
+          if ((stemp = loadModel("data/models/rock1.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               scene[MODEL_ROCK1] = *s_temp; /* Rock. */
+               scene[MODEL_ROCK1] = *stemp; /* Rock. */
           /* These must not be loaded near start of array because of trees appearing above slopes.  See renderGroundScenery(). */
-          if ((s_temp = loadModel("data/models/mtree2.obj")) == NULL)
+          if ((stemp = loadModel("data/models/mtree2.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               scene[MODEL_MTREE_BIG] = *s_temp; /* Sparsely positioned multi-trees. */
-          if ((s_temp = loadModel("data/models/mtree3.obj")) == NULL)
+               scene[MODEL_MTREE_BIG] = *stemp; /* Sparsely positioned multi-trees. */
+          if ((stemp = loadModel("data/models/mtree3.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               scene[MODEL_MTREE_SPARSE] = *s_temp; /* More sparsely positioned multi-trees. */
-          if ((s_temp = loadModel("data/models/mtree4.obj")) == NULL)
+               scene[MODEL_MTREE_SPARSE] = *stemp; /* More sparsely positioned multi-trees. */
+          if ((stemp = loadModel("data/models/mtree4.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               scene[MODEL_MTREE_FIR] = *s_temp; /* Sparsely positioned firs. */
-          if ((s_temp = loadModel("data/models/house1.obj")) == NULL)
+               scene[MODEL_MTREE_FIR] = *stemp; /* Sparsely positioned firs. */
+          if ((stemp = loadModel("data/models/house1.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               scene[MODEL_BUILDING_HOUSE1] = *s_temp;
-          if ((s_temp = loadModel("data/models/house2.obj")) == NULL)
+               scene[MODEL_BUILDING_HOUSE1] = *stemp;
+          if ((stemp = loadModel("data/models/house2.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               scene[MODEL_BUILDING_HOUSE2] = *s_temp;
-          if ((s_temp = loadModel("data/models/fighter1.obj")) == NULL)
+               scene[MODEL_BUILDING_HOUSE2] = *stemp;
+          if ((stemp = loadModel("data/models/fighter1.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               scene[MODEL_AIR_FIGHTER1] = *s_temp;
-          if ((s_temp = loadModel("data/models/fighter2.obj")) == NULL)
+               scene[MODEL_AIR_FIGHTER1] = *stemp;
+          if ((stemp = loadModel("data/models/fighter2.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               scene[MODEL_AIR_FIGHTER2] = *s_temp;
-          if ((s_temp = loadTextQuad("data/models/quads/0.obj")) == NULL)
+               scene[MODEL_AIR_FIGHTER2] = *stemp;
+          if ((stemp = loadTextQuad("data/models/quads/0.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               textquads[0] = *s_temp;
-          if ((s_temp = loadTextQuad("data/models/quads/1.obj")) == NULL)
+               textquads[0] = *stemp;
+          if ((stemp = loadTextQuad("data/models/quads/1.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               textquads[1] = *s_temp;
-          if ((s_temp = loadTextQuad("data/models/quads/2.obj")) == NULL)
+               textquads[1] = *stemp;
+          if ((stemp = loadTextQuad("data/models/quads/2.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               textquads[2] = *s_temp;
-          if ((s_temp = loadTextQuad("data/models/quads/3.obj")) == NULL)
+               textquads[2] = *stemp;
+          if ((stemp = loadTextQuad("data/models/quads/3.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               textquads[3] = *s_temp;
-          if ((s_temp = loadTextQuad("data/models/quads/4.obj")) == NULL)
+               textquads[3] = *stemp;
+          if ((stemp = loadTextQuad("data/models/quads/4.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               textquads[4] = *s_temp;
-          if ((s_temp = loadTextQuad("data/models/quads/5.obj")) == NULL)
+               textquads[4] = *stemp;
+          if ((stemp = loadTextQuad("data/models/quads/5.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               textquads[5] = *s_temp;
-          if ((s_temp = loadTextQuad("data/models/quads/6.obj")) == NULL)
+               textquads[5] = *stemp;
+          if ((stemp = loadTextQuad("data/models/quads/6.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               textquads[6] = *s_temp;
-          if ((s_temp = loadTextQuad("data/models/quads/7.obj")) == NULL)
+               textquads[6] = *stemp;
+          if ((stemp = loadTextQuad("data/models/quads/7.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               textquads[7] = *s_temp;
-          if ((s_temp = loadTextQuad("data/models/quads/8.obj")) == NULL)
+               textquads[7] = *stemp;
+          if ((stemp = loadTextQuad("data/models/quads/8.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               textquads[8] = *s_temp;
-          if ((s_temp = loadTextQuad("data/models/quads/9.obj")) == NULL)
+               textquads[8] = *stemp;
+          if ((stemp = loadTextQuad("data/models/quads/9.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               textquads[9] = *s_temp;
-          if ((s_temp = loadTextQuad("data/models/quads/minus.obj")) == NULL)
+               textquads[9] = *stemp;
+          if ((stemp = loadTextQuad("data/models/quads/minus.obj")) == NULL)
                return EXIT_FAILURE;
           else
-               textquads[10] = *s_temp;
+               textquads[10] = *stemp;
           for (i = 0; i < 1; i++) {
                airunits[i].type = UNIT_AIR_FIGHTER_1;
                airunits[i].pos.x = (i - 5) * 50;
@@ -834,9 +873,9 @@ int main(int argc, char *argv[])
           while (!glfwWindowShouldClose(window)) {
                keyboardInput(window, &direction);
                if (state == 0) {
-                    mouseLook(window, &camerarot);
-                    movement(&camerapos, camerarot, direction, 1.0f, tsize);
-                    if (distance3d(camerapos, airunits[0].pos) < 10.0f && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
+                    mouseLook(window, &crot);
+                    movement(&cpos, crot, direction, 1.0f, tsize);
+                    if (distance3d(cpos, airunits[0].pos) < 10.0f && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
                          state = 1;
                          st = 10;
                     }
@@ -845,7 +884,7 @@ int main(int argc, char *argv[])
                     if (airunits[0].height > 3.0f)
                          mouseLook(window, &airunits[0].rot);
                     flyMovement(&airunits[0], direction, tsize);
-                    cameraTrailMovement(&camerapos, &camerarot, airunits[0], tsize);
+                    cameraTrailMovement(&cpos, &crot, airunits[0], tsize);
                     if (airunits[0].thrust == 0 && airunits[0].height < 3.0f && airunits[0].speed < 2.0f
                         && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS && st < 1) {
                          state = 0;
@@ -854,10 +893,10 @@ int main(int argc, char *argv[])
                }
                st--;
                updateAirUnits(airunits, tsize);
-               updateCamera(camerarot);
-               glTranslatef(-camerapos.x, -camerapos.y, -camerapos.z);
-               render(window, scene, textquads, textures, shaders, camerapos, camerarot,
-                      &sector, &tsize, &fps, airunits);
+               updateCamera(crot);
+               glTranslatef(-cpos.x, -cpos.y, -cpos.z);
+               render(window, scene, textquads, textures, shaders,
+                      cpos, crot, &sector, &tsize, &fps, airunits);
           }
           free(scene);
           free(airunits);

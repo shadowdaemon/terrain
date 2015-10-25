@@ -181,8 +181,8 @@ float readTerrainHeight(float x, float y);
 float readTerrainHeightPlane(float x, float z, struct v3f *normal, int tsize);
 float readTerrainHeightPlane2(float x, float z, int tsize);
 unsigned char readTerrainType(float x, float z);
-void drawTerrain(GLuint *textures, struct v3f camerapos,
-                 struct v3f camerarot, struct v2f *sector,
+void drawTerrain(GLuint *textures, struct v3f cpos,
+                 struct v3f crot, struct v2f *sector,
                  int *tsize, char *swapb);
 const struct aiScene *loadModel(const char *file);
 const struct aiScene *loadTextQuad(const char *file);
@@ -193,5 +193,5 @@ void drawModel2(const struct aiScene *scene, struct v3f pos,
                 GLuint alpha);
 void render(GLFWwindow *window, struct aiScene *scene,
             struct aiScene *textquads, GLuint *textures, GLuint *shaders,
-            struct v3f camerapos, struct v3f camerarot, struct v2f *sector,
+            struct v3f, struct v3f, struct v2f*,
             int *tsize, float *fps, struct airunit *airunits);
