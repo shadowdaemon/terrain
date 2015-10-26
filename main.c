@@ -102,6 +102,17 @@ void createPerlinTexture(int size, int tex)
                /*      b[k].b = r; */
                /*      b[k].a = 255; */
                /*      break; */
+               case TEX_CLOUD:
+                    /* Color neutral with alpha for cloud and water. */
+                    r = 123 + 37 * fabs(perlin(x, y));
+                    s = 23 * fabs(perlin(x + 1, y + 1));
+                    t = 17 * fabs(perlin(x + 1, y - 1));
+                    r = r + s - t;
+                    b[k].r = r;
+                    b[k].g = r;
+                    b[k].b = r;
+                    b[k].a = r;
+                    break;
                default:
                     /* Something went wrong. */
                     b[k].r = 0;
@@ -287,7 +298,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE]);
      loadTexture2D("data/textures/foliage.tga");
      glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
-     loadTexture2D("data/textures/cloud_alpha.tga");
+     createPerlinTexture(PERLIN_SIZE, TEX_CLOUD);
      glBindTexture(GL_TEXTURE_2D, textures[TEX_FONT]);
      loadTexture2D("data/textures/font_alpha.tga");
      glBindTexture(GL_TEXTURE_2D, textures[TEX_BUILDING]);
