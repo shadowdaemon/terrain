@@ -178,14 +178,24 @@ float dotGridGradient(int ix, int iy, float x, float y)
 {
      float dx = x - (double) ix;
      float dy = y - (double) iy;
+     while (ix >= PERLIN_SIZE) ix -= PERLIN_SIZE;
+     while (ix <= -PERLIN_SIZE) ix += PERLIN_SIZE;
+     while (iy >= PERLIN_SIZE) iy -= PERLIN_SIZE;
+     while (iy <= -PERLIN_SIZE) iy += PERLIN_SIZE;
      return dx * pgrad[iy][ix][0] + dy * pgrad[iy][ix][1];
 }
 
 
 /* Thanks Wikipedia.  https://en.wikipedia.org/wiki/Perlin_noise */
 /* And thanks to Ken Perlin. */
-float perlin(float x, float y)
+float perlin(float xi, float yi)
 {
+     float x = xi;
+     while (x >= PERLIN_SIZE) x -= PERLIN_SIZE;
+     while (x <= -PERLIN_SIZE) x += PERLIN_SIZE;
+     float y = yi;
+     while (y >= PERLIN_SIZE) y -= PERLIN_SIZE;
+     while (y <= -PERLIN_SIZE) y += PERLIN_SIZE;
      int x0 = x > 0.0 ? (int) x : (int) x - 1;
      int x1 = x0 + 1;
      int y0 = y > 0.0 ? (int) y : (int) y - 1;

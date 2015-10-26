@@ -455,6 +455,8 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
      int xgrid, zgrid, x1, z1, x2, z2, x3, z3, cull;
      float x, z, xpos = 0.0f, zpos = 0.0f, dist;
      float v1[3], v2[3], v3[3];
+     const float t1 = 0.0007f;// 0.0012f;
+     const float t2 = 0.029f;// 0.047f;
      static unsigned char NEcolorR [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
      static unsigned char NEcolorG [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
      static unsigned char NEcolorB [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
@@ -499,8 +501,10 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
      glEnable(GL_NORMALIZE);
      glActiveTextureARB(GL_TEXTURE1_ARB);
      glEnable(GL_TEXTURE_2D);
+     // glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_2]);
      glBindTexture(GL_TEXTURE_2D, textures[TEX_PERLIN_1]);
      glActiveTextureARB(GL_TEXTURE0_ARB);
+     // glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_1]);
      glBindTexture(GL_TEXTURE_2D, textures[TEX_PERLIN_1]);
      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
      glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
@@ -791,11 +795,11 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                                SWnormy[xgrid][zgrid],
                                SWnormz[xgrid][zgrid]);
                     glMultiTexCoord2f(GL_TEXTURE0_ARB,
-                                      SWx[xgrid][zgrid] * 0.00012f,
-                                      SWz[xgrid][zgrid] * 0.00012f);
+                                      SWx[xgrid][zgrid] * t1,
+                                      SWz[xgrid][zgrid] * t1);
                     glMultiTexCoord2f(GL_TEXTURE1_ARB,
-                                      SWx[xgrid][zgrid] * 0.047f,
-                                      SWz[xgrid][zgrid] * 0.047f);
+                                      SWx[xgrid][zgrid] * t2,
+                                      SWz[xgrid][zgrid] * t2);
                     glVertex3d(SWx[xgrid][zgrid],
                                SWy[xgrid][zgrid],
                                SWz[xgrid][zgrid]);
@@ -810,11 +814,11 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                                SEnormy[xgrid][zgrid],
                                SEnormz[xgrid][zgrid]);
                     glMultiTexCoord2f(GL_TEXTURE0_ARB,
-                                      SEx[xgrid][zgrid] * 0.00012f,
-                                      SEz[xgrid][zgrid] * 0.00012f);
+                                      SEx[xgrid][zgrid] * t1,
+                                      SEz[xgrid][zgrid] * t1);
                     glMultiTexCoord2f(GL_TEXTURE1_ARB,
-                                      SEx[xgrid][zgrid] * 0.047f,
-                                      SEz[xgrid][zgrid] * 0.047f);
+                                      SEx[xgrid][zgrid] * t2,
+                                      SEz[xgrid][zgrid] * t2);
                     glVertex3d(SEx[xgrid][zgrid],
                                SEy[xgrid][zgrid],
                                SEz[xgrid][zgrid]);
@@ -829,11 +833,11 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                                NWnormy[xgrid][zgrid],
                                NWnormz[xgrid][zgrid]);
                     glMultiTexCoord2f(GL_TEXTURE0_ARB,
-                                      NWx[xgrid][zgrid] * 0.00012f,
-                                      NWz[xgrid][zgrid] * 0.00012f);
+                                      NWx[xgrid][zgrid] * t1,
+                                      NWz[xgrid][zgrid] * t1);
                     glMultiTexCoord2f(GL_TEXTURE1_ARB,
-                                      NWx[xgrid][zgrid] * 0.047f,
-                                      NWz[xgrid][zgrid] * 0.047f);
+                                      NWx[xgrid][zgrid] * t2,
+                                      NWz[xgrid][zgrid] * t2);
                     glVertex3d(NWx[xgrid][zgrid],
                                NWy[xgrid][zgrid],
                                NWz[xgrid][zgrid]);
@@ -848,11 +852,11 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                                NEnormy[xgrid][zgrid],
                                NEnormz[xgrid][zgrid]);
                     glMultiTexCoord2f(GL_TEXTURE0_ARB,
-                                      NEx[xgrid][zgrid] * 0.00012f,
-                                      NEz[xgrid][zgrid] * 0.00012f);
+                                      NEx[xgrid][zgrid] * t1,
+                                      NEz[xgrid][zgrid] * t1);
                     glMultiTexCoord2f(GL_TEXTURE1_ARB,
-                                      NEx[xgrid][zgrid] * 0.047f,
-                                      NEz[xgrid][zgrid] * 0.047f);
+                                      NEx[xgrid][zgrid] * t2,
+                                      NEz[xgrid][zgrid] * t2);
                     glVertex3d(NEx[xgrid][zgrid],
                                NEy[xgrid][zgrid],
                                NEz[xgrid][zgrid]);

@@ -92,16 +92,20 @@ void createPerlinTexture(int size)
           GLubyte a;
      } bit;
      int i, k, x, y;
-     float r;
+     float r, s, t;
      bit *b = (bit *) malloc(sizeof(bit) * size * size);
-     GLubyte *bits = malloc(sizeof(GLubyte) * 4 * size * size);
+     GLubyte *bits = (GLubyte *) malloc(sizeof(GLubyte) * 4 * size * size);
      createGradient();
      for(x = 0; x < size; x++)
      {
           for(y = 0; y < size; y++)
           {
                k = x * size + y;
-               r = 126 + 126 * fabs(perlin(x, y));
+               /* Creates color neutral texture with depth. */
+               r = 123 + 37 * fabs(perlin(x, y));
+               s = 23 * fabs(perlin(x + 1, y + 1));
+               t = 17 * fabs(perlin(x + 1, y - 1));
+               r = r + s - t;
                b[k].r = r;
                b[k].g = r;
                b[k].b = r;
@@ -111,6 +115,7 @@ void createPerlinTexture(int size)
      FIBITMAP *img = FreeImage_ConvertFromRawBits
           ((BYTE*) b, size, size, size, 32, FI_RGBA_RED_MASK,
            FI_RGBA_GREEN_MASK, FI_RGBA_BLUE_MASK, FALSE);
+     /* Mipmaps. */
      for (i = 0; i < 10; i++){
           bits = (GLubyte *) FreeImage_GetBits
                (FreeImage_Rescale(img, size, size, FILTER_BICUBIC));
@@ -122,7 +127,8 @@ void createPerlinTexture(int size)
      }
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i);
      FreeImage_Unload(img);
-     //free(b);
+     free(b);
+     /* free(bits); */
 }
 
 
@@ -291,7 +297,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      glBindTexture(GL_TEXTURE_2D, textures[TEX_AIR_FIGHTER_1]);
      loadTexture2D("data/textures/fighter.png");
      glBindTexture(GL_TEXTURE_2D, textures[TEX_PERLIN_1]);
-     createPerlinTexture(64);
+     createPerlinTexture(PERLIN_SIZE);
      /* Six texture functions may be specified:
         GL_ADD, GL_MODULATE, GL_DECAL, GL_BLEND,
         GL_REPLACE, or GL_COMBINE. */

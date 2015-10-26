@@ -2,7 +2,7 @@
 #include "common.h"
 
 
-#define PERLIN_SIZE 64
+#define PERLIN_SIZE 128
 
 float pos(float);
 float neg(float);
