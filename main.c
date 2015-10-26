@@ -58,22 +58,24 @@ void createPerlinTexture(int size, int tex)
           GLubyte b;
           GLubyte a;
      } bit;
-     int i, k, x, y;
+     int i, k, x, y, x1, y1;
      float r, s, t;
      bit *b = (bit *) malloc(sizeof(bit) * size * size);
      GLubyte *bits = (GLubyte *) malloc(sizeof(GLubyte) * 4 * size * size);
-     createGradient();
      for(x = 0; x < size; x++)
      {
           for(y = 0; y < size; y++)
           {
                k = x * size + y;
+               /* Need to provide non-integer values. */
+               x1 = x * 0.97f + 1.12f;
+               y1 = y * 0.98f + 0.95f;
                switch (tex) {
                case TEX_TERRAIN_1:
                     /* Large scale terrain texture. */
-                    r = 121 + 31 * fabs(perlin(x, y));
-                    s = 17 * fabs(perlin(x + 1, y + 1));
-                    t = 27 * fabs(perlin(x + 1, y - 1));
+                    r = 121 + 41 * fabs(perlin(x1, y1, 0.3f));
+                    s = 25 * fabs(perlin(x1 + 1, y1 + 1, 0.3f));
+                    t = 36 * fabs(perlin(x1 + 1, y1 - 1, 0.3f));
                     r = r + s - t;
                     b[k].r = r + 3 * s;
                     b[k].g = r + t;
@@ -83,30 +85,20 @@ void createPerlinTexture(int size, int tex)
                case TEX_TERRAIN_2:
                     /* Creates color neutral texture with depth. */
                     /* This is used for terrain detail. */
-                    r = 123 + 37 * fabs(perlin(x, y));
-                    s = 23 * fabs(perlin(x + 1, y + 1));
-                    t = 17 * fabs(perlin(x + 1, y - 1));
+                    r = 123 + 37 * fabs(perlin(x1, y1, 0.3f));
+                    s = 31 * fabs(perlin(x1 + 1, y1 + 1, 0.3f));
+                    t = 23 * fabs(perlin(x1 + 1, y1 - 1, 0.3f));
                     r = r + s - t;
                     b[k].r = r;
                     b[k].g = r;
                     b[k].b = r;
                     b[k].a = 255;
                     break;
-               /* case TEX_TERRAIN_3: */
-               /*      r = 121 + 31 * fabs(perlin(x, y)); */
-               /*      s = 17 * fabs(perlin(x + 1, y + 1)); */
-               /*      t = 27 * fabs(perlin(x + 1, y - 1)); */
-               /*      r = r + s - t; */
-               /*      b[k].r = r + 3 * s; */
-               /*      b[k].g = r - t; */
-               /*      b[k].b = r; */
-               /*      b[k].a = 255; */
-               /*      break; */
                case TEX_CLOUD:
                     /* Color neutral with alpha for cloud and water. */
-                    r = 123 + 37 * fabs(perlin(x, y));
-                    s = 23 * fabs(perlin(x + 1, y + 1));
-                    t = 17 * fabs(perlin(x + 1, y - 1));
+                    r = 123 + 37 * fabs(perlin(x1, y1, 0.3f));
+                    s = 23 * fabs(perlin(x1, y1, 0.3f));
+                    t = 17 * fabs(perlin(x1, y1, 0.3f));
                     r = r + s - t;
                     b[k].r = r;
                     b[k].g = r;
@@ -868,6 +860,7 @@ int main(int argc, char *argv[])
      struct aiScene *textquads = malloc(sizeof(struct aiScene) * 36);
      struct airunit *airunits  = malloc(sizeof(struct airunit) * 1);
 
+     createGradient();
      if ((window = startGraphics(textures, shaders)) != NULL) {
           /* Load model data. */
           if ((stemp = loadModel("data/models/tree1.obj")) == NULL)
@@ -976,8 +969,8 @@ int main(int argc, char *argv[])
           /* Position some air units around. */
           for (i = 0; i < 1; i++) {
                airunits[i].type = UNIT_AIR_FIGHTER_1;
-               airunits[i].pos.x = (i - 5) * 50;
-               airunits[i].pos.z = (i - 7) * 23 + 50;
+               airunits[i].pos.x = (i - 1) * 50;
+               airunits[i].pos.z = (i - 1) * 23 + 50;
                airunits[i].pos.y = readTerrainHeightPlane2
                     (airunits[i].pos.x, airunits[i].pos.z, tsize);
           }

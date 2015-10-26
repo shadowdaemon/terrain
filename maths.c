@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "maths.h"
 
 
@@ -153,8 +154,9 @@ float planeHeight(float ip[2], float iv1[3], float iv2[3],
 
 
 /* Interpolate between two floats. */
-float lerp(float a0, float a1, float w)
+float lerp(float a0, float a1, float w, float m)
 {
+     w += (0.5f - w) * m;
      return (1.0 - w) * a0 + w * a1;
 }
 
@@ -182,33 +184,63 @@ float dotGridGradient(int ix, int iy, float x, float y)
      while (ix <= -PERLIN_SIZE) ix += PERLIN_SIZE;
      while (iy >= PERLIN_SIZE) iy -= PERLIN_SIZE;
      while (iy <= -PERLIN_SIZE) iy += PERLIN_SIZE;
-     return dx * pgrad[iy][ix][0] + dy * pgrad[iy][ix][1];
+     float out = dx * pgrad[iy][ix][0] + dy * pgrad[iy][ix][1];
+     /* int t = fpclassify(out); */
+     /* switch (t) { */
+     /* case FP_NAN: */
+     /*      printf("dotGridGradient: FP_NAN\n"); */
+     /*      out = 0.0f; */
+     /*      break; */
+     /* case FP_INFINITE: */
+     /*      printf("dotGridGradient: FP_INFINITE\n"); */
+     /*      out = 0.0f; */
+     /*      break; */
+     /* case FP_SUBNORMAL: */
+     /*      printf("dotGridGradient: FP_SUBNORMAL\n"); */
+     /*      out = 0.0f; */
+     /*      break; */
+     /* default: */
+     /*      break; */
+     /* } */
+     return out;
 }
 
 
 /* Thanks Wikipedia.  https://en.wikipedia.org/wiki/Perlin_noise */
 /* And thanks to Ken Perlin. */
-float perlin(float xi, float yi)
+float perlin(float x, float y, float m)
 {
-     float x = xi;
-     while (x >= PERLIN_SIZE) x -= PERLIN_SIZE;
-     while (x <= -PERLIN_SIZE) x += PERLIN_SIZE;
-     float y = yi;
-     while (y >= PERLIN_SIZE) y -= PERLIN_SIZE;
-     while (y <= -PERLIN_SIZE) y += PERLIN_SIZE;
      int x0 = x > 0.0 ? (int) x : (int) x - 1;
      int x1 = x0 + 1;
      int y0 = y > 0.0 ? (int) y : (int) y - 1;
      int y1 = y0 + 1;
      float sx = x - (double) x0;
      float sy = y - (double) y0;
-     float n0, n1, ix0, ix1, value;
-     n0 = dotGridGradient(x0, y0, x, y);
-     n1 = dotGridGradient(x1, y0, x, y);
-     ix0 = lerp(n0, n1, 0.5);
-     n0 = dotGridGradient(x0, y1, x, y);
-     n1 = dotGridGradient(x1, y1, x, y);
-     ix1 = lerp(n0, n1, sx);
-     value = lerp(ix0, ix1, sy);
-     return value;
+     float n0, n1, ix0, ix1, out;
+     n0  = dotGridGradient(x0, y0, x, y);
+     n1  = dotGridGradient(x1, y0, x, y);
+     ix0 = lerp(n0, n1, sx, m);
+     n0  = dotGridGradient(x0, y1, x, y);
+     n1  = dotGridGradient(x1, y1, x, y);
+     ix1 = lerp(n0, n1, sx, m);
+     out = lerp(ix0, ix1, sy, m);
+     /* int t = 0; */
+     /* t = fpclassify(out); */
+     /* switch (t) { */
+     /* case FP_NAN: */
+     /*      printf("perlin: FP_NAN\n"); */
+     /*      out = 0.0f; */
+     /*      break; */
+     /* case FP_INFINITE: */
+     /*      printf("perlin: FP_INFINITE\n"); */
+     /*      out = 0.0f; */
+     /*      break; */
+     /* case FP_SUBNORMAL: */
+     /*      printf("perlin: FP_SUBNORMAL\n"); */
+     /*      out = 0.0f; */
+     /*      break; */
+     /* default: */
+     /*      break; */
+     /* } */
+     return out;
 }

@@ -235,7 +235,16 @@ float algorithmicTerrainHeight8b(float x, float z, float o)
 float algorithmicTerrainHeight8(float x, float z)
 {
      float o = (sinf(x * 0.00021f) + sinf(z * 0.00022f)) * 857;
-     return (algorithmicTerrainHeight8b(x, z, 2312 + o) + algorithmicTerrainHeight8b(x, z, 1721 + o)) * 0.5f;
+     return (algorithmicTerrainHeight8b(x, z, 2312 + o)
+             + algorithmicTerrainHeight8b(x, z, 1721 + o)) * 0.5f;
+}
+
+
+float algorithmicTerrainHeight9(float x, float z)
+{
+     x = fabs(x) * 0.00022f;
+     z = fabs(z) * 0.00022f;
+     return (0.21f + perlin(x, z, 0.17f)) * 1400.0f;
 }
 
 
@@ -260,16 +269,16 @@ char calculateTerrainType(float height)
 }
 
 
-struct terrain algorithmicTerrain2(float x, float z)
+struct terrain algorithmicTerrain(float x, float z)
 {
      struct terrain temp;
-     temp.height = algorithmicTerrainHeight7(x, z);
+     temp.height = algorithmicTerrainHeight9(x, z);
      temp.type   = calculateTerrainType(temp.height);
      return temp;
 }
 
 
-struct terrain algorithmicTerrain(float xi, float zi)
+struct terrain algorithmicTerrain2(float xi, float zi)
 {
      struct terrain temp;
      float a, b, c, x1, z1;
@@ -455,8 +464,8 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
      int xgrid, zgrid, x1, z1, x2, z2, x3, z3, cull;
      float x, z, xpos = 0.0f, zpos = 0.0f, dist;
      float v1[3], v2[3], v3[3];
-     const float t1 = 0.0007f;// 0.0012f;
-     const float t2 = 0.029f;// 0.047f;
+     const float t1 = 0.0007f;
+     const float t2 = 0.029f;
      static unsigned char NEcolorR [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
      static unsigned char NEcolorG [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
      static unsigned char NEcolorB [TERRAIN_GRID_SIZE][TERRAIN_GRID_SIZE];
