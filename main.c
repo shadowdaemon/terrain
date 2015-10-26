@@ -50,40 +50,7 @@ void loadTexture2D(const char *file)
 }
 
 
-/* Texture for terrain with mipmapping hack. */
-void loadTexTerrain(const char *file)
-{
-     FIBITMAP *img = FreeImage_Load(FreeImage_GetFileType(file, 0), file, 0);
-     FIBITMAP *foo = FreeImage_Load(FreeImage_GetFileType(file, 0), file, 0);
-     img = FreeImage_ConvertTo32Bits(img);
-     foo = FreeImage_ConvertTo32Bits(foo);
-     GLsizei width = FreeImage_GetWidth(foo);
-     GLsizei height = FreeImage_GetHeight(foo);
-     FreeImage_AdjustContrast(img, -30);
-     FreeImage_AdjustContrast(foo, -50);
-     GLubyte *bits = (GLubyte*) FreeImage_GetBits(foo);
-     int i;
-     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-                  GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
-     for (i = 1; i < 10; i++){
-          width /= 2;
-          height /= 2;
-          FreeImage_AdjustContrast(img, 13 * i);
-          FreeImage_AdjustBrightness(img, -2 * i);
-          bits = (GLubyte*) FreeImage_GetBits
-               (FreeImage_Rescale(img, width, height, FILTER_BICUBIC));
-          glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, width, height,
-                       0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
-          if (width == 1 || height == 1)
-               break;
-     }
-     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i);
-     FreeImage_Unload(img);
-     FreeImage_Unload(foo);
-}
-
-
-void createPerlinTexture(int size)
+void createPerlinTexture(int size, int tex)
 {
      typedef struct {
           GLubyte r;
@@ -101,15 +68,48 @@ void createPerlinTexture(int size)
           for(y = 0; y < size; y++)
           {
                k = x * size + y;
-               /* Creates color neutral texture with depth. */
-               r = 123 + 37 * fabs(perlin(x, y));
-               s = 23 * fabs(perlin(x + 1, y + 1));
-               t = 17 * fabs(perlin(x + 1, y - 1));
-               r = r + s - t;
-               b[k].r = r;
-               b[k].g = r;
-               b[k].b = r;
-               b[k].a = 255;
+               switch (tex) {
+               case TEX_TERRAIN_1:
+                    /* Large scale terrain texture. */
+                    r = 121 + 31 * fabs(perlin(x, y));
+                    s = 17 * fabs(perlin(x + 1, y + 1));
+                    t = 27 * fabs(perlin(x + 1, y - 1));
+                    r = r + s - t;
+                    b[k].r = r + 3 * s;
+                    b[k].g = r + t;
+                    b[k].b = r;
+                    b[k].a = 255;
+                    break;
+               case TEX_TERRAIN_2:
+                    /* Creates color neutral texture with depth. */
+                    /* This is used for terrain detail. */
+                    r = 123 + 37 * fabs(perlin(x, y));
+                    s = 23 * fabs(perlin(x + 1, y + 1));
+                    t = 17 * fabs(perlin(x + 1, y - 1));
+                    r = r + s - t;
+                    b[k].r = r;
+                    b[k].g = r;
+                    b[k].b = r;
+                    b[k].a = 255;
+                    break;
+               /* case TEX_TERRAIN_3: */
+               /*      r = 121 + 31 * fabs(perlin(x, y)); */
+               /*      s = 17 * fabs(perlin(x + 1, y + 1)); */
+               /*      t = 27 * fabs(perlin(x + 1, y - 1)); */
+               /*      r = r + s - t; */
+               /*      b[k].r = r + 3 * s; */
+               /*      b[k].g = r - t; */
+               /*      b[k].b = r; */
+               /*      b[k].a = 255; */
+               /*      break; */
+               default:
+                    /* Something went wrong. */
+                    b[k].r = 0;
+                    b[k].g = 0;
+                    b[k].b = 0;
+                    b[k].a = 255;
+                    break;
+               }
           }
      }
      FIBITMAP *img = FreeImage_ConvertFromRawBits
@@ -271,7 +271,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      glActiveTextureARB(GL_TEXTURE1_ARB);
      /* Terrain textures. */
      glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_1]);
-     loadTexTerrain("data/textures/terrain2.png");
+     createPerlinTexture(PERLIN_SIZE, TEX_TERRAIN_1);
      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
      glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
      glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
@@ -282,7 +282,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
      glActiveTextureARB(GL_TEXTURE0_ARB);
      glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_2]);
-     loadTexture2D("data/textures/terrain2.png");
+     createPerlinTexture(PERLIN_SIZE, TEX_TERRAIN_2);
      /* Other textures. */
      glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE]);
      loadTexture2D("data/textures/foliage.tga");
@@ -296,8 +296,6 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      loadTexture2D("data/textures/foliage_grass.png");
      glBindTexture(GL_TEXTURE_2D, textures[TEX_AIR_FIGHTER_1]);
      loadTexture2D("data/textures/fighter.png");
-     glBindTexture(GL_TEXTURE_2D, textures[TEX_PERLIN_1]);
-     createPerlinTexture(PERLIN_SIZE);
      /* Six texture functions may be specified:
         GL_ADD, GL_MODULATE, GL_DECAL, GL_BLEND,
         GL_REPLACE, or GL_COMBINE. */
