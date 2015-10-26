@@ -2,26 +2,28 @@
 
 #define RESX                                1366
 #define RESY                                768
-#define USE_SHADERS                         1
+#define USE_SHADERS                         0
 #define PI                                  3.14159265358979323846f
 #define PIx180                              180.0f*PI
 #define WORLD_GRAVITY                       0.4f
-#define TERRAIN_GRID_SIZE                   60
-#define TERRAIN_GRID_SIZE_HALF              30
-#define TERRAIN_GRID_SIZE_QUARTER           15
+#define TERRAIN_GRID_SIZE                   100
+#define TERRAIN_GRID_SIZE_HALF              50
+#define TERRAIN_GRID_SIZE_QUARTER           25
 #define TERRAIN_SQUARE_SIZE                 500
 #define TERRAIN_STEP_SIZE                   10
 #define TERRAIN_WATER_LEVEL                 0
-#define TERRAIN_SCALE_HEIGHT                9500 /* Also upper cloud height. */
+/* Also upper cloud height. */
+#define TERRAIN_SCALE_HEIGHT                9500
 #define LOWER_CLOUD_HEIGHT                  4500
 #define CLOUD_DENSITY                       1.0
 #define VIEW_DISTANCE                       5000
 #define VIEW_DISTANCE_HALF                  2500
 #define VIEW_DISTANCE_QUARTER               1250
-#define SCENERY_DENSITY                     1200 /* Lower number is more dense, don't go below 1000. */
-#define SCENERY_SIZE                        3600 /* TERRAIN_GRID_SIZE^2. */
+/* Lower number is more dense, don't go below 1000. */
+#define SCENERY_DENSITY                     1200
+#define SCENERY_SIZE TERRAIN_GRID_SIZE * TERRAIN_GRID_SIZE
 #define SCENERY_DENSITY_GRASS               1000
-#define SCENERY_SIZE_GRASS                  900 /* TERRAIN_GRID_SIZE_HALF^2. */
+#define SCENERY_SIZE_GRASS TERRAIN_GRID_SIZE_HALF * TERRAIN_GRID_SIZE_HALF
 #define T_TYPE_NULL                         0
 #define T_TYPE_CRATER                       1
 #define T_TYPE_VILLAGE                      2
@@ -47,7 +49,6 @@
 #define INPUT_VERT_DOWN                     10
 #define INPUT_SPACE                         16
 #define INPUT_LEFT_SHIFT                    32
-
 #define UNIT_AIR_FIGHTER_1                  0
 #define TEX_TERRAIN_1                       0
 #define TEX_TERRAIN_2                       1
@@ -79,7 +80,6 @@
 #define GRASS_BAMBOO                        4
 #define GRASS_DEAD                          5
 #define GRASS_FLOWERS                       6
-
 /* #define glActiveTextureARB _ActiveTextureARB */
 #define glCreateProgramARB _CreateProgramARB
 #define glCreateShaderARB _CreateShaderARB
@@ -176,22 +176,18 @@ struct airunit {
      float height;
 };
 
-struct terrain algorithmicTerrain(float x, float z);
-float readTerrainHeight(float x, float y);
-float readTerrainHeightPlane(float x, float z, struct v3f *normal, int tsize);
-float readTerrainHeightPlane2(float x, float z, int tsize);
-unsigned char readTerrainType(float x, float z);
-void drawTerrain(GLuint *textures, struct v3f cpos,
-                 struct v3f crot, struct v2f *sector,
-                 int *tsize, char *swapb);
-const struct aiScene *loadModel(const char *file);
-const struct aiScene *loadTextQuad(const char *file);
-void drawModel(const struct aiScene *scene, struct v3f pos,
-               struct v3f rot, GLfloat size, GLuint alpha);
-void drawModel2(const struct aiScene *scene, struct v3f pos,
-                struct v3f rot, GLfloat size, const GLuint *color,
-                GLuint alpha);
-void render(GLFWwindow *window, struct aiScene *scene,
-            struct aiScene *textquads, GLuint *textures, GLuint *shaders,
-            struct v3f, struct v3f, struct v2f*,
-            int *tsize, float *fps, struct airunit *airunits);
+struct terrain algorithmicTerrain(float, float);
+float readTerrainHeight(float, float);
+float readTerrainHeightPlane(float, float, struct v3f*, int);
+float readTerrainHeightPlane2(float, float, int);
+unsigned char readTerrainType(float, float);
+void drawTerrain(GLuint*, struct v3f, struct v3f, struct v2f*, int*, char*);
+const struct aiScene *loadModel(const char*);
+const struct aiScene *loadTextQuad(const char*);
+void drawModel(const struct aiScene*, struct v3f, struct v3f,
+               GLfloat, GLuint);
+void drawModel2(const struct aiScene*, struct v3f, struct v3f, GLfloat,
+                const GLuint*, GLuint);
+void render(GLFWwindow*, struct aiScene*, struct aiScene*, GLuint*, GLuint*,
+            struct v3f, struct v3f, struct v2f*, int*, float*,
+            struct airunit*);

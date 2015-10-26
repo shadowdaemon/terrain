@@ -242,9 +242,14 @@ float algorithmicTerrainHeight8(float x, float z)
 
 float algorithmicTerrainHeight9(float x, float z)
 {
-     x = fabs(x) * 0.00022f;
-     z = fabs(z) * 0.00022f;
-     return (0.21f + perlin(x, z, 0.17f)) * 1400.0f;
+     float h1, h2;
+     /* Perlin doesn't like negative numbers here? */
+     x = fabs(x) * 0.00023f;
+     z = fabs(z) * 0.00021f;
+     h1 = (0.21f + perlin(x, z, 0.0f)) * 1400.0f;
+     h2 = (perlin(x * 0.31f + 23.1f, z * 0.37f
+                  + 117.1f, 0.0f) + 0.07f) * 1900.0f;
+     return lerp(h1, h2, 0.63f, 0.0f) * 1.7f;
 }
 
 
