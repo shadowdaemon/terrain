@@ -29,10 +29,10 @@ void main()
   l2 = texture2D(scene, coords + vec2(-mod3.x * 2.0, 0.0));
   r1 = texture2D(scene, coords + vec2(mod3.x, 0.0));
   r2 = texture2D(scene, coords + vec2(mod3.x * 2.0, 0.0));
-  v1 = mix(l1, l2, 0.2);
-  v2 = mix(r1, r2, 0.2);
-  v3 = mix(u1, u2, 0.2);
-  v4 = mix(d1, d2, 0.2);
+  v1 = mix(l1, l2, 0.7);
+  v2 = mix(r1, r2, 0.7);
+  v3 = mix(u1, u2, 0.7);
+  v4 = mix(d1, d2, 0.7);
   o1 = max(l2, r2);
   o2 = max(d2, u2);
   v5 = mix(v1, v2, 0.5);

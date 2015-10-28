@@ -368,12 +368,13 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
           glfwGetProcAddress("glVertexAttrib3fvARB");
      glMultiTexCoordPointerEXT = (PFNGLMULTITEXCOORDPOINTEREXTPROC)
           glfwGetProcAddress("glMultiTexCoordPointerEXT");
-     /* Compiler shaders. */
-     linkShader(&shaders[0], "data/shaders/1.vsh", "data/shaders/1.fsh");
-     linkShader(&shaders[1], "data/shaders/2.vsh", "data/shaders/2.fsh");
-     linkShader(&shaders[2], "data/shaders/3.vsh", "data/shaders/3.fsh");
-     linkShader(&shaders[3], "data/shaders/5.vsh", "data/shaders/5.fsh");
-     linkShader(&shaders[4], "data/shaders/sun.vsh", "data/shaders/sun.fsh");
+     /* Compile shaders. */
+     linkShader(&shaders[0], "data/shaders/main.vsh",
+                "data/shaders/main.fsh");
+     linkShader(&shaders[2], "data/shaders/sprite.vsh",
+                "data/shaders/sprite.fsh");
+     linkShader(&shaders[4], "data/shaders/sun.vsh",
+                "data/shaders/sun.fsh");
      return window;
 }
 
