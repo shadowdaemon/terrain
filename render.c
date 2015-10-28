@@ -159,8 +159,8 @@ void renderGrass(GLuint *textures, struct v3f cpos, struct v3f crot,
      }
      x = (int) (sector.x / size);
      z = (int) (sector.z / size);
-     if (fps < 21.0f && vdist > 150.0f) {
-          if (fps < 17.0f)
+     if (fps < 19.0f && vdist > 150.0f) {
+          if (fps < 14.0f)
                vdist -= 25.0f;
           else
                vdist -= 2.5f;
@@ -196,13 +196,13 @@ void renderGrass(GLuint *textures, struct v3f cpos, struct v3f crot,
                x1 = x1 * x1 + z1 * z1;
                x1 = x1 % SCENERY_DENSITY_GRASS;
                switch (type[i]) {
-               case T_TYPE_GRASS1:
+               case T_TYPE_GRASS_1:
                     density = 710;
                     break;
-               case T_TYPE_GRASS2:
+               case T_TYPE_GRASS_2:
                     density = 747;
                     break;
-               case T_TYPE_GRASS3:
+               case T_TYPE_GRASS_3:
                     density = 701;
                     break;
                case T_TYPE_VILLAGE:
@@ -245,7 +245,7 @@ void renderGrass(GLuint *textures, struct v3f cpos, struct v3f crot,
                               if (type[i] == T_TYPE_DIRT ||
                                   type[i] == T_TYPE_DESERT)
                                    grass[j].t = GRASS_DEAD;
-                              else if (type[i] == T_TYPE_GRASS1) {
+                              else if (type[i] == T_TYPE_GRASS_1) {
                                    a = x1 % 6;
                                    if (a < 2)
                                         grass[j].t = GRASS_GRASS1;
@@ -300,8 +300,8 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures,
      }
      x = (int) (sector.x / size);
      z = (int) (sector.z / size);
-     if (fps < 18.0f && vdist > 300.0f) {
-          if (fps < 15.0f)
+     if (fps < 16.0f && vdist > 300.0f) {
+          if (fps < 12.0f)
                vdist -= 25.0f;
           else
                vdist -= 2.5f;
@@ -333,13 +333,13 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures,
                x1 = x1 * x1 + z1 * z1;
                x1 = x1 % SCENERY_DENSITY;
                switch (type[i]) {
-               case T_TYPE_GRASS1:
+               case T_TYPE_GRASS_1:
                     density = 210;
                     break;
-               case T_TYPE_GRASS2:
+               case T_TYPE_GRASS_2:
                     density = 327;
                     break;
-               case T_TYPE_GRASS3:
+               case T_TYPE_GRASS_3:
                     density = 201;
                     break;
                case T_TYPE_VILLAGE:
@@ -374,7 +374,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures,
                               alpha = 0;
                          if (x1 < density) {
                               glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE]);
-                              if (type[i] == T_TYPE_GRASS1 || type[i] == T_TYPE_GRASS2) {
+                              if (type[i] == T_TYPE_GRASS_1 || type[i] == T_TYPE_GRASS_2) {
                                    a = x1 % 15;
                                    if (distance3d(mv3f(0, 1, 0), normalize3d(normal[i])) < 0.1f && height[i] > 250)
                                         drawModel((const struct aiScene *) &scene[MODEL_MTREE_SPARSE], mv3f(xpos, height[i] - 1.5f, zpos), mv3f(0, x1, 0), msize, alpha);

@@ -261,11 +261,11 @@ char calculateTerrainType(float height)
      else if (height < TERRAIN_WATER_LEVEL + 100)
           type = T_TYPE_DIRT;
      else if (height < 1000)
-          type = T_TYPE_GRASS1;
+          type = T_TYPE_GRASS_1;
      else if (height < 2000)
-          type = T_TYPE_GRASS2;
+          type = T_TYPE_GRASS_2;
      else if (height < 3500)
-          type = T_TYPE_GRASS3;
+          type = T_TYPE_GRASS_3;
      else if (height < 4200)
           type = T_TYPE_DIRT;
      else
@@ -582,21 +582,21 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                     SWz[xgrid][zgrid] = z1;
                     SWy[xgrid][zgrid] = (int) readTerrainHeight (SWx[xgrid][zgrid], SWz[xgrid][zgrid]);
                     switch (temp2.type) {
-                    case T_TYPE_GRASS1:
+                    case T_TYPE_GRASS_1:
                          x1 = temp2.mod > 0.15f ? temp2.height < 300.0f ? 11 : -29 : 0;
                          x2 = ((1000 - SEy[xgrid][zgrid]) / 900.0f) * 70.0f;
                          SEcolorR[xgrid][zgrid] = 40 + x1 + x2;
                          SEcolorG[xgrid][zgrid] = 108;
                          SEcolorB[xgrid][zgrid] = 15;
                          break;
-                    case T_TYPE_GRASS2:
+                    case T_TYPE_GRASS_2:
                          z1 = temp2.mod > 0.11f ? 5 : 0;
                          z2 = ((2000 - SEy[xgrid][zgrid]) / 1000.0f) * 25.0f;
                          SEcolorR[xgrid][zgrid] = 65 - z1 - z2;
                          SEcolorG[xgrid][zgrid] = 100 - z1;
                          SEcolorB[xgrid][zgrid] = 15 + z1;
                          break;
-                    case T_TYPE_GRASS3:
+                    case T_TYPE_GRASS_3:
                          x1 = ((5000 - SEy[xgrid][zgrid]) / 3000.0f) * 45.0f;
                          SEcolorR[xgrid][zgrid] = 103 - x1;
                          SEcolorG[xgrid][zgrid] = 100;
@@ -656,21 +656,21 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                          break;
                     }
                     switch (temp1.type) {
-                    case T_TYPE_GRASS1:
+                    case T_TYPE_GRASS_1:
                          x1 = temp1.mod > 0.15f ? temp1.height < 300.0f ? 11 : -29 : 0;
                          x2 = ((1000 - NEy[xgrid][zgrid]) / 900.0f) * 70.0f;
                          NEcolorR[xgrid][zgrid] = 40 + x1 + x2;
                          NEcolorG[xgrid][zgrid] = 108;
                          NEcolorB[xgrid][zgrid] = 15;
                          break;
-                    case T_TYPE_GRASS2:
+                    case T_TYPE_GRASS_2:
                          z1 = temp1.mod > 0.11f ? 5 : 0;
                          z2 = ((2000 - NEy[xgrid][zgrid]) / 1000.0f) * 25.0f;
                          NEcolorR[xgrid][zgrid] = 65 - z1 - z2;
                          NEcolorG[xgrid][zgrid] = 100 - z1;
                          NEcolorB[xgrid][zgrid] = 15 + z1;
                          break;
-                    case T_TYPE_GRASS3:
+                    case T_TYPE_GRASS_3:
                          x1 = ((5000 - NEy[xgrid][zgrid]) / 3000.0f) * 45.0f;
                          NEcolorR[xgrid][zgrid] = 103 - x1;
                          NEcolorG[xgrid][zgrid] = 100;
@@ -802,7 +802,6 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                          glColor3ub(SEcolorR[xgrid-1][zgrid],
                                     SEcolorG[xgrid-1][zgrid],
                                     SEcolorB[xgrid-1][zgrid]);
-                    //glVertexAttrib3fARB(7, SWnormx[xgrid][zgrid], SWnormy[xgrid][zgrid], SWnormz[xgrid][zgrid]);
                     glNormal3f(SWnormx[xgrid][zgrid],
                                SWnormy[xgrid][zgrid],
                                SWnormz[xgrid][zgrid]);
@@ -812,6 +811,9 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                     glMultiTexCoord2f(GL_TEXTURE1_ARB,
                                       SWx[xgrid][zgrid] * t2,
                                       SWz[xgrid][zgrid] * t2);
+                    /* glVertexAttrib3fARB(7, SWx[xgrid][zgrid], */
+                    /*                     SWy[xgrid][zgrid], */
+                    /*                     SWz[xgrid][zgrid]); */
                     glVertex3d(SWx[xgrid][zgrid],
                                SWy[xgrid][zgrid],
                                SWz[xgrid][zgrid]);
@@ -821,7 +823,6 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                          glColor3ub(SEcolorR[xgrid][zgrid],
                                     SEcolorG[xgrid][zgrid],
                                     SEcolorB[xgrid][zgrid]);
-                    //glVertexAttrib3fARB(7, SEx[xgrid][zgrid], SEy[xgrid][zgrid], SEz[xgrid][zgrid]);
                     glNormal3f(SEnormx[xgrid][zgrid],
                                SEnormy[xgrid][zgrid],
                                SEnormz[xgrid][zgrid]);
@@ -831,6 +832,9 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                     glMultiTexCoord2f(GL_TEXTURE1_ARB,
                                       SEx[xgrid][zgrid] * t2,
                                       SEz[xgrid][zgrid] * t2);
+                    /* glVertexAttrib3fARB(7, SEx[xgrid][zgrid], */
+                    /*                     SEy[xgrid][zgrid], */
+                    /*                     SEz[xgrid][zgrid]); */
                     glVertex3d(SEx[xgrid][zgrid],
                                SEy[xgrid][zgrid],
                                SEz[xgrid][zgrid]);
@@ -840,7 +844,6 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                          glColor3ub(NEcolorR[xgrid-1][zgrid],
                                     NEcolorG[xgrid-1][zgrid],
                                     NEcolorB[xgrid-1][zgrid]);
-                    //glVertexAttrib3fARB(7, NWx[xgrid][zgrid], NWy[xgrid][zgrid], NWz[xgrid][zgrid]);
                     glNormal3f(NWnormx[xgrid][zgrid],
                                NWnormy[xgrid][zgrid],
                                NWnormz[xgrid][zgrid]);
@@ -850,6 +853,9 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                     glMultiTexCoord2f(GL_TEXTURE1_ARB,
                                       NWx[xgrid][zgrid] * t2,
                                       NWz[xgrid][zgrid] * t2);
+                    /* glVertexAttrib3fARB(7, NWx[xgrid][zgrid], */
+                    /*                     NWy[xgrid][zgrid], */
+                    /*                     NWz[xgrid][zgrid]); */
                     glVertex3d(NWx[xgrid][zgrid],
                                NWy[xgrid][zgrid],
                                NWz[xgrid][zgrid]);
@@ -859,7 +865,6 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                          glColor3ub(NEcolorR[xgrid][zgrid],
                                     NEcolorG[xgrid][zgrid],
                                     NEcolorB[xgrid][zgrid]);
-                    //glVertexAttrib3fARB(7, NEx[xgrid][zgrid], NEy[xgrid][zgrid], NEz[xgrid][zgrid]);
                     glNormal3f(NEnormx[xgrid][zgrid],
                                NEnormy[xgrid][zgrid],
                                NEnormz[xgrid][zgrid]);
@@ -869,6 +874,9 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                     glMultiTexCoord2f(GL_TEXTURE1_ARB,
                                       NEx[xgrid][zgrid] * t2,
                                       NEz[xgrid][zgrid] * t2);
+                    /* glVertexAttrib3fARB(7, NEx[xgrid][zgrid], */
+                    /*                     NEy[xgrid][zgrid], */
+                    /*                     NEz[xgrid][zgrid]); */
                     glVertex3d(NEx[xgrid][zgrid],
                                NEy[xgrid][zgrid],
                                NEz[xgrid][zgrid]);

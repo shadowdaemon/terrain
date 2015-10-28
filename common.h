@@ -2,7 +2,7 @@
 
 #define RESX                                1366
 #define RESY                                768
-#define USE_SHADERS                         0
+#define USE_SHADERS                         1
 #define PI                                  3.14159265358979323846f
 #define PIx180                              180.0f*PI
 #define WORLD_GRAVITY                       0.4f
@@ -27,9 +27,9 @@
 #define T_TYPE_NULL                         0
 #define T_TYPE_CRATER                       1
 #define T_TYPE_VILLAGE                      2
-#define T_TYPE_GRASS1                       3
-#define T_TYPE_GRASS2                       4
-#define T_TYPE_GRASS3                       5
+#define T_TYPE_GRASS_1                      3
+#define T_TYPE_GRASS_2                      4
+#define T_TYPE_GRASS_3                      5
 #define T_TYPE_DIRT                         6
 #define T_TYPE_ROCK                         7
 #define T_TYPE_FOREST1                      8

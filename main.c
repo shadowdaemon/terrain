@@ -50,18 +50,17 @@ void loadTexture2D(const char *file)
 }
 
 
-void createPerlinTexture(int size, int tex)
+void createPerlinTexture(int size, int tex, GLubyte *bits)
 {
      typedef struct {
           GLubyte r;
           GLubyte g;
           GLubyte b;
           GLubyte a;
-     } bit;
+     } col;
      int i, k, x, y, x1, y1;
      float r, s, t;
-     bit *b = (bit *) malloc(sizeof(bit) * size * size);
-     GLubyte *bits = (GLubyte *) malloc(sizeof(GLubyte) * 4 * size * size);
+     col *b = (col *) malloc(sizeof(col) * size * size);
      for(x = 0; x < size; x++)
      {
           for(y = 0; y < size; y++)
@@ -121,7 +120,7 @@ void createPerlinTexture(int size, int tex)
      /* Mipmaps. */
      for (i = 0; i < 10; i++){
           bits = (GLubyte *) FreeImage_GetBits
-               (FreeImage_Rescale(img, size, size, FILTER_BICUBIC));
+            (FreeImage_Rescale(img, size, size, FILTER_BICUBIC));
           glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, size, size,
                        0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
           size /= 2;
@@ -131,7 +130,6 @@ void createPerlinTexture(int size, int tex)
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i);
      FreeImage_Unload(img);
      free(b);
-     /* free(bits); */
 }
 
 
@@ -205,6 +203,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
 {
      GLFWwindow *window = NULL;
      int width, height;
+     GLubyte *bits = NULL;
      /* Set up GLFW. */
      glfwSetErrorCallback(errorGLFW);
      if (glfwInit() == GL_FALSE)
@@ -266,31 +265,33 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      /* Set up FreeImage and textures. */
      FreeImage_Initialise(GL_FALSE);
      FreeImage_SetOutputMessage(errorFreeImage);
+     bits = (GLubyte *) malloc(sizeof(GLubyte) * 4 * 4096);
      glEnable(GL_TEXTURE_2D);
      glGenTextures(10, textures);
-     glActiveTextureARB(GL_TEXTURE4_ARB);
      /* Render to texture. */
+     glActiveTextureARB(GL_TEXTURE4_ARB);
      glBindTexture(GL_TEXTURE_2D, textures[TEX_RENDER]);
-     glActiveTextureARB(GL_TEXTURE1_ARB);
      /* Terrain textures. */
+     glActiveTextureARB(GL_TEXTURE1_ARB);
      glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_1]);
-     createPerlinTexture(PERLIN_SIZE, TEX_TERRAIN_1);
+     createPerlinTexture(PERLIN_SIZE, TEX_TERRAIN_1, bits);
      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
      glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
      glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                     GL_LINEAR_MIPMAP_LINEAR);
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
      glActiveTextureARB(GL_TEXTURE0_ARB);
      glBindTexture(GL_TEXTURE_2D, textures[TEX_TERRAIN_2]);
-     createPerlinTexture(PERLIN_SIZE, TEX_TERRAIN_2);
+     createPerlinTexture(PERLIN_SIZE, TEX_TERRAIN_2, bits);
      /* Other textures. */
      glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE]);
      loadTexture2D("data/textures/foliage.tga");
      glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
-     createPerlinTexture(PERLIN_SIZE, TEX_CLOUD);
+     createPerlinTexture(PERLIN_SIZE, TEX_CLOUD, bits);
      glBindTexture(GL_TEXTURE_2D, textures[TEX_FONT]);
      loadTexture2D("data/textures/font_alpha.tga");
      glBindTexture(GL_TEXTURE_2D, textures[TEX_BUILDING]);
@@ -310,6 +311,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+     free(bits);
      /* Some debug info. */
      printf("GL_VERSION: %s\n", glGetString(GL_VERSION));
      printf("GL_SHADING_LANGUAGE_VERSION: %s\n",
