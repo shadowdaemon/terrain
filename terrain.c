@@ -274,7 +274,7 @@ char calculateTerrainType(float height)
 }
 
 
-struct terrain algorithmicTerrain(float x, float z)
+struct terrain algorithmicTerrain2(float x, float z)
 {
      struct terrain temp;
      temp.height = algorithmicTerrainHeight9(x, z);
@@ -283,11 +283,10 @@ struct terrain algorithmicTerrain(float x, float z)
 }
 
 
-struct terrain algorithmicTerrain2(float xi, float zi)
+struct terrain algorithmicTerrain(float x, float z)
 {
      struct terrain temp;
      float a, b, c, x1, z1;
-     float x = xi * 1.3f, z = zi * 1.3f;
      temp.height = 0.0f;
      temp.mod    = 0.0f;
      temp.type   = T_TYPE_NULL;
@@ -297,27 +296,31 @@ struct terrain algorithmicTerrain2(float xi, float zi)
      b = 0.7f - x1 * (z1 + 0.71f);
      if (a > 1) {
           a = 1;
-          temp.height += algorithmicTerrainHeight1(z * 0.53f, x * 0.59f);
+          temp.height += algorithmicTerrainHeight9(z, x);
      }
      else if (a < 0)
           a = 0;
      else
-          temp.height += algorithmicTerrainHeight1(z * 0.53f, x * 0.59f) * a;
+          temp.height += algorithmicTerrainHeight9(z, x) * a;
      if (b > 1) {
           b = 1;
-          temp.height += algorithmicTerrainHeight6(z * 0.2f, x * 0.2f) * 1.5f;
+          temp.height += algorithmicTerrainHeight6
+               (z * 0.27f, x * 0.27f) * 1.5f;
      }
      else if (b < 0)
           b = 0;
      else
-          temp.height += algorithmicTerrainHeight6(z * 0.2f, x * 0.2f) * 1.5f * b;
+          temp.height += algorithmicTerrainHeight6
+               (z * 0.27f, x * 0.27f) * 1.5f * b;
      if (a + b < 0.4f)
-          temp.height += algorithmicTerrainHeight8(x, z) * (0.4f - a - b) * 1.37f;
+          temp.height += algorithmicTerrainHeight8
+               (x, z) * (0.4f - a - b) * 1.37f;
      if (temp.height > 2500) {
           c = (temp.height - 2500) * 0.0005f;
           if (c > 0.2f)
                c = 0.2f;
-          temp.height += c * fabs(algorithmicTerrainHeight2(z * 0.3f, x * 0.3f));
+          temp.height += c * fabs(algorithmicTerrainHeight2
+                                  (z * 0.43f, x * 0.43f));
      }
      if (temp.height > TERRAIN_WATER_LEVEL)
           temp.height += 35.0f;
@@ -332,7 +335,8 @@ struct terrain algorithmicTerrain2(float xi, float zi)
                z1 = 0;
           else if (z1 > 1)
                z1 = 1;
-          temp.height += algorithmicTerrainHeight7(z * 0.4f, x * 0.4f) * x1 * z1;
+          temp.height += algorithmicTerrainHeight7
+               (z * 0.4f, x * 0.4f) * x1 * z1;
           temp.mod = x1 * z1;
           if (temp.mod > 0.21f)
                temp.type = T_TYPE_DESERT;
@@ -427,7 +431,8 @@ float readTerrainHeightPlane(float x, float z, struct v3f *normal, int tsize)
      x2 = x3 - tsize / 2;
      z1 = z3 - tsize / 2;
      z2 = z3 + tsize / 2;
-     if (distance2d(mv3f(x, 0, z), mv3f(x1, 0, z1)) < distance2d(mv3f(x, 0, z), mv3f(x2, 0, z2))) {
+     if (distance2d(mv3f(x, 0, z), mv3f(x1, 0, z1)) <
+         distance2d(mv3f(x, 0, z), mv3f(x2, 0, z2))) {
           v1[0] = x2; v1[1] = readTerrainHeight(x2, z1); v1[2] = z1;
           v2[0] = x1; v2[1] = readTerrainHeight(x1, z1); v2[2] = z1;
           v3[0] = x1; v3[1] = readTerrainHeight(x1, z2); v3[2] = z2;
@@ -450,9 +455,11 @@ float readTerrainHeightPlane2(float x, float z, int tsize)
 }
 
 
-void moveTerrain(struct v3f cpos, struct v3f crot, struct v2f *sector, int tsize, char *swapb)
+void moveTerrain(struct v3f cpos, struct v3f crot,
+                 struct v2f *sector, int tsize, char *swapb)
 {
-     if (distance2d(cpos, mv3f(sector->x, 0.0f, sector->y)) > TERRAIN_STEP_SIZE * tsize) {
+     if (distance2d(cpos, mv3f(sector->x, 0.0f, sector->y)) >
+         TERRAIN_STEP_SIZE * tsize) {
           sector->x = cpos.x;
           sector->y = cpos.z;
           *swapb = 0;
@@ -460,8 +467,8 @@ void moveTerrain(struct v3f cpos, struct v3f crot, struct v2f *sector, int tsize
 }
 
 
-void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f *sector,
-                 int *tsize, char *swapb)
+void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot,
+                 struct v2f *sector, int *tsize, char *swapb)
 {
      struct terrain temp1, temp2;
      struct v3f temp3f;
@@ -532,11 +539,16 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
      moveTerrain(cpos, crot, sector, *tsize, swapb);
      x = (int) (sector->x / *tsize);
      z = (int) (sector->y / *tsize);
-     for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
-          x3 = fabs(TERRAIN_GRID_SIZE_HALF - xgrid) - 20; x3 = x3 < 0 ? 0 : (x3 + 20) * 8;
-          z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) - 20; z3 = z3 < 0 ? 0 : (z3 + 20) * 8;
-          xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) * (x3 + *tsize) + x * *tsize;
-          zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) * (z3 + *tsize) + z * *tsize;
+     for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE &&
+                                zgrid < TERRAIN_GRID_SIZE; xgrid++) {
+          x3 = fabs(TERRAIN_GRID_SIZE_HALF - xgrid) - 20;
+          x3 = x3 < 0 ? 0 : (x3 + 20) * 8;
+          z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) - 20;
+          z3 = z3 < 0 ? 0 : (z3 + 20) * 8;
+          xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) *
+               (x3 + *tsize) + x * *tsize;
+          zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) *
+               (z3 + *tsize) + z * *tsize;
           dist = distance2d(cpos, mv3f(xpos, 0.0f, zpos));
           if (xgrid > TERRAIN_GRID_SIZE_HALF + 19) {
                x1 = xpos + x3 - 3040.0f + *tsize / 2;
@@ -562,28 +574,35 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                z1 = zpos + z3 + *tsize / 2;
                z2 = zpos - z3 - *tsize / 2;
           }
-          cull = fabs((int) (crot.y - 180 - vectorstodegree2d(cpos, mv3f(xpos, 0, zpos))));
+          cull = fabs((int) (crot.y - 180 - vectorstodegree2d
+                             (cpos, mv3f(xpos, 0, zpos))));
           while (cull >= 360)
                cull -= 360;
-          if (crot.x > 47.0f || cull <= 75 || cull >= 285 || dist < *tsize * 3.5f || *swapb == 0) {
+          if (crot.x > 47.0f || cull <= 75 || cull >= 285
+              || dist < *tsize * 3.5f || *swapb == 0) {
                if (*swapb == 0) {
                     NEx[xgrid][zgrid] = x1;
                     NEz[xgrid][zgrid] = z2;
-                    temp1 = algorithmicTerrain (NEx[xgrid][zgrid], NEz[xgrid][zgrid]);
+                    temp1 = algorithmicTerrain(NEx[xgrid][zgrid],
+                                               NEz[xgrid][zgrid]);
                     NEy[xgrid][zgrid] = (int) temp1.height;
                     NWx[xgrid][zgrid] = x2;
                     NWz[xgrid][zgrid] = z2;
-                    NWy[xgrid][zgrid] = (int) readTerrainHeight (NWx[xgrid][zgrid], NWz[xgrid][zgrid]);
+                    NWy[xgrid][zgrid] = (int) readTerrainHeight
+                         (NWx[xgrid][zgrid], NWz[xgrid][zgrid]);
                     SEx[xgrid][zgrid] = x1;
                     SEz[xgrid][zgrid] = z1;
-                    temp2 = algorithmicTerrain (SEx[xgrid][zgrid], SEz[xgrid][zgrid]);
+                    temp2 = algorithmicTerrain(SEx[xgrid][zgrid],
+                                               SEz[xgrid][zgrid]);
                     SEy[xgrid][zgrid] = (int) temp2.height;
                     SWx[xgrid][zgrid] = x2;
                     SWz[xgrid][zgrid] = z1;
-                    SWy[xgrid][zgrid] = (int) readTerrainHeight (SWx[xgrid][zgrid], SWz[xgrid][zgrid]);
+                    SWy[xgrid][zgrid] = (int) readTerrainHeight
+                         (SWx[xgrid][zgrid], SWz[xgrid][zgrid]);
                     switch (temp2.type) {
                     case T_TYPE_GRASS_1:
-                         x1 = temp2.mod > 0.15f ? temp2.height < 300.0f ? 11 : -29 : 0;
+                         x1 = temp2.mod > 0.15f ? temp2.height < 300.0f
+                              ? 11 : -29 : 0;
                          x2 = ((1000 - SEy[xgrid][zgrid]) / 900.0f) * 70.0f;
                          SEcolorR[xgrid][zgrid] = 40 + x1 + x2;
                          SEcolorG[xgrid][zgrid] = 108;
@@ -604,7 +623,8 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                          SEcolorB[xgrid][zgrid] = 52 - z1;
                          break;
                     case T_TYPE_ROCK:
-                         x1 = SEy[xgrid][zgrid] < TERRAIN_WATER_LEVEL ? SEy[xgrid][zgrid] * 0.041f : 0;
+                         x1 = SEy[xgrid][zgrid] < TERRAIN_WATER_LEVEL
+                              ? SEy[xgrid][zgrid] * 0.041f : 0;
                          if (x1 < -77)
                               x1 = -77;
                          else if (x1 > 0)
@@ -657,7 +677,8 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                     }
                     switch (temp1.type) {
                     case T_TYPE_GRASS_1:
-                         x1 = temp1.mod > 0.15f ? temp1.height < 300.0f ? 11 : -29 : 0;
+                         x1 = temp1.mod > 0.15f ? temp1.height < 300.0f
+                              ? 11 : -29 : 0;
                          x2 = ((1000 - NEy[xgrid][zgrid]) / 900.0f) * 70.0f;
                          NEcolorR[xgrid][zgrid] = 40 + x1 + x2;
                          NEcolorG[xgrid][zgrid] = 108;
@@ -678,7 +699,8 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                          NEcolorB[xgrid][zgrid] = 52 - z1;
                          break;
                     case T_TYPE_ROCK:
-                         x1 = NEy[xgrid][zgrid] < TERRAIN_WATER_LEVEL ? NEy[xgrid][zgrid] * 0.041f : 0;
+                         x1 = NEy[xgrid][zgrid] < TERRAIN_WATER_LEVEL
+                              ? NEy[xgrid][zgrid] * 0.041f : 0;
                          if (x1 < -77)
                               x1 = -77;
                          else if (x1 > 0)
@@ -752,48 +774,60 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot, struct v2f 
                Snormz[xgrid][zgrid] = temp3f.z;
                x2 = xgrid - 1;
                z2 = zgrid - 1;
-               NWnormx[xgrid][zgrid] = (Nnormx[xgrid][zgrid] + Snormx[xgrid][z2]
-                                        + Nnormx[x2][z2] + Snormx[x2][z2]
-                                        + Nnormx[x2][zgrid] + Snormx[xgrid][zgrid]) / 6;
-               NWnormy[xgrid][zgrid] = (Nnormy[xgrid][zgrid] + Snormy[xgrid][z2]
-                                        + Nnormy[x2][z2] + Snormy[x2][z2]
-                                        + Nnormy[x2][zgrid] + Snormy[xgrid][zgrid]) / 6;
-               NWnormz[xgrid][zgrid] = (Nnormz[xgrid][zgrid] + Snormz[xgrid][z2]
-                                        + Nnormz[x2][z2] + Snormz[x2][z2]
-                                        + Nnormz[x2][zgrid] + Snormz[xgrid][zgrid]) / 6;
+               NWnormx[xgrid][zgrid] =
+                    (Nnormx[xgrid][zgrid] + Snormx[xgrid][z2]
+                     + Nnormx[x2][z2] + Snormx[x2][z2]
+                     + Nnormx[x2][zgrid] + Snormx[xgrid][zgrid]) / 6.0f;
+               NWnormy[xgrid][zgrid] =
+                    (Nnormy[xgrid][zgrid] + Snormy[xgrid][z2]
+                     + Nnormy[x2][z2] + Snormy[x2][z2]
+                     + Nnormy[x2][zgrid] + Snormy[xgrid][zgrid]) / 6.0f;
+               NWnormz[xgrid][zgrid] =
+                    (Nnormz[xgrid][zgrid] + Snormz[xgrid][z2]
+                     + Nnormz[x2][z2] + Snormz[x2][z2]
+                     + Nnormz[x2][zgrid] + Snormz[xgrid][zgrid]) / 6.0f;
                x2 = xgrid + 1;
                z2 = zgrid + 1;
-               SEnormx[xgrid][zgrid] = (Nnormx[xgrid][zgrid] + Snormx[xgrid][zgrid]
-                                        + Nnormx[xgrid][z2] + Snormx[x2][z2]
-                                        + Nnormx[x2][z2] + Snormx[x2][zgrid]) / 6;
-               SEnormy[xgrid][zgrid] = (Nnormy[xgrid][zgrid] + Snormy[xgrid][zgrid]
-                                        + Nnormy[xgrid][z2] + Snormy[x2][z2]
-                                        + Nnormy[x2][z2] + Snormy[x2][zgrid]) / 6;
-               SEnormz[xgrid][zgrid] = (Nnormz[xgrid][zgrid] + Snormz[xgrid][zgrid]
-                                        + Nnormz[xgrid][z2] + Snormz[x2][z2]
-                                        + Nnormz[x2][z2] + Snormz[x2][zgrid]) / 6;
+               SEnormx[xgrid][zgrid] =
+                    (Nnormx[xgrid][zgrid] + Snormx[xgrid][zgrid]
+                     + Nnormx[xgrid][z2] + Snormx[x2][z2]
+                     + Nnormx[x2][z2] + Snormx[x2][zgrid]) / 6.0f;
+               SEnormy[xgrid][zgrid] =
+                    (Nnormy[xgrid][zgrid] + Snormy[xgrid][zgrid]
+                     + Nnormy[xgrid][z2] + Snormy[x2][z2]
+                     + Nnormy[x2][z2] + Snormy[x2][zgrid]) / 6.0f;
+               SEnormz[xgrid][zgrid] =
+                    (Nnormz[xgrid][zgrid] + Snormz[xgrid][zgrid]
+                     + Nnormz[xgrid][z2] + Snormz[x2][z2]
+                     + Nnormz[x2][z2] + Snormz[x2][zgrid]) / 6.0f;
                x2 = xgrid - 1;
                z2 = zgrid + 1;
-               SWnormx[xgrid][zgrid] = (Snormx[xgrid][zgrid] + Nnormx[x2][zgrid]
-                                        + Snormx[x2][zgrid] + Nnormx[x2][z2]
-                                        + Snormx[xgrid][z2] + Nnormx[xgrid][z2]) / 6;
-               SWnormy[xgrid][zgrid] = (Snormy[xgrid][zgrid] + Nnormy[x2][zgrid]
-                                        + Snormy[x2][zgrid] + Nnormy[x2][z2]
-                                        + Snormy[xgrid][z2] + Nnormy[xgrid][z2]) / 6;
-               SWnormz[xgrid][zgrid] = (Snormz[xgrid][zgrid] + Nnormz[x2][zgrid]
-                                        + Snormz[x2][zgrid] + Nnormz[x2][z2]
-                                        + Snormz[xgrid][z2] + Nnormz[xgrid][z2]) / 6;
+               SWnormx[xgrid][zgrid] =
+                    (Snormx[xgrid][zgrid] + Nnormx[x2][zgrid]
+                     + Snormx[x2][zgrid] + Nnormx[x2][z2]
+                     + Snormx[xgrid][z2] + Nnormx[xgrid][z2]) / 6.0f;
+               SWnormy[xgrid][zgrid] =
+                    (Snormy[xgrid][zgrid] + Nnormy[x2][zgrid]
+                     + Snormy[x2][zgrid] + Nnormy[x2][z2]
+                     + Snormy[xgrid][z2] + Nnormy[xgrid][z2]) / 6.0f;
+               SWnormz[xgrid][zgrid] =
+                    (Snormz[xgrid][zgrid] + Nnormz[x2][zgrid]
+                     + Snormz[x2][zgrid] + Nnormz[x2][z2]
+                     + Snormz[xgrid][z2] + Nnormz[xgrid][z2]) / 6.0f;
                x2 = xgrid + 1;
                z2 = zgrid - 1;
-               NEnormx[xgrid][zgrid] = (Nnormx[xgrid][zgrid] + Snormx[x2][zgrid]
-                                        + Nnormx[x2][zgrid] + Snormx[x2][z2]
-                                        + Nnormx[xgrid][z2] + Snormx[xgrid][z2]) / 6;
-               NEnormy[xgrid][zgrid] = (Nnormy[xgrid][zgrid] + Snormy[x2][zgrid]
-                                        + Nnormy[x2][zgrid] + Snormy[x2][z2]
-                                        + Nnormy[xgrid][z2] + Snormy[xgrid][z2]) / 6;
-               NEnormz[xgrid][zgrid] = (Nnormz[xgrid][zgrid] + Snormz[x2][zgrid]
-                                        + Nnormz[x2][zgrid] + Snormz[x2][z2]
-                                        + Nnormz[xgrid][z2] + Snormz[xgrid][z2]) / 6;
+               NEnormx[xgrid][zgrid] =
+                    (Nnormx[xgrid][zgrid] + Snormx[x2][zgrid]
+                     + Nnormx[x2][zgrid] + Snormx[x2][z2]
+                     + Nnormx[xgrid][z2] + Snormx[xgrid][z2]) / 6.0f;
+               NEnormy[xgrid][zgrid] =
+                    (Nnormy[xgrid][zgrid] + Snormy[x2][zgrid]
+                     + Nnormy[x2][zgrid] + Snormy[x2][z2]
+                     + Nnormy[xgrid][z2] + Snormy[xgrid][z2]) / 6.0f;
+               NEnormz[xgrid][zgrid] =
+                    (Nnormz[xgrid][zgrid] + Snormz[x2][zgrid]
+                     + Nnormz[x2][zgrid] + Snormz[x2][z2]
+                     + Nnormz[xgrid][z2] + Snormz[xgrid][z2]) / 6.0f;
                if (*swapb) {
                     glBegin(GL_TRIANGLE_STRIP);
                     if (xgrid <= 0)
