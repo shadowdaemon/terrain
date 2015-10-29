@@ -6,7 +6,7 @@
 void renderClear(GLfloat *color, struct v3f cpos, int tsize)
 {
      struct v3f pos;
-     float fog_end = tsize * TERRAIN_GRID_SIZE * 0.65f;
+     float fog_end = tsize * TERRAIN_GRID_SIZE * 0.95f;
      static float fog_start = 0.0f;
      float ground = readTerrainHeightPlane
           (cpos.x, cpos.z, &pos, tsize);

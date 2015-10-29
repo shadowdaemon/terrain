@@ -611,8 +611,8 @@ void flyMovement(struct airunit *unit, char input, int tsize)
           glide, pressure, temp;
      switch (unit->type) {
      case UNIT_AIR_FIGHTER_1:
-          max_thrust = WORLD_GRAVITY + 0.6f;
-          max_vtol_thrust = WORLD_GRAVITY + 0.12f;
+          max_thrust = WORLD_GRAVITY + 0.1f;
+          max_vtol_thrust = WORLD_GRAVITY + 0.03f;
           thrust_step = 0.01f;
           thrust_ceiling = 21000.0f;
           aero = 0.04f; /* This needs to be less than drag. */

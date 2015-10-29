@@ -313,7 +313,7 @@ struct terrain algorithmicTerrain(float x, float z)
           temp.height += algorithmicTerrainHeight6
                (z * 0.27f, x * 0.27f) * 1.5f * b;
      if (a + b < 0.4f)
-          temp.height += algorithmicTerrainHeight8
+          temp.height += algorithmicTerrainHeight1
                (x, z) * (0.4f - a - b) * 1.37f;
      if (temp.height > 2500) {
           c = (temp.height - 2500) * 0.0005f;
@@ -539,22 +539,23 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot,
      moveTerrain(cpos, crot, sector, *tsize, swapb);
      x = (int) (sector->x / *tsize);
      z = (int) (sector->y / *tsize);
+     const char ext = 0;
      for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE &&
                                 zgrid < TERRAIN_GRID_SIZE; xgrid++) {
           x3 = fabs(TERRAIN_GRID_SIZE_HALF - xgrid) - 20;
-          x3 = x3 < 0 ? 0 : (x3 + 20) * 8;
+          x3 = x3 < 0 || ext == 0 ? 0 : (x3 + 20) * 8;
           z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) - 20;
-          z3 = z3 < 0 ? 0 : (z3 + 20) * 8;
+          z3 = z3 < 0 || ext == 0 ? 0 : (z3 + 20) * 8;
           xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) *
                (x3 + *tsize) + x * *tsize;
           zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) *
                (z3 + *tsize) + z * *tsize;
           dist = distance2d(cpos, mv3f(xpos, 0.0f, zpos));
-          if (xgrid > TERRAIN_GRID_SIZE_HALF + 19) {
+          if (xgrid > TERRAIN_GRID_SIZE_HALF + 19 && ext) {
                x1 = xpos + x3 - 3040.0f + *tsize / 2;
                x2 = xpos - x3 - 3040.0f - *tsize / 2;
           }
-          else if (xgrid < TERRAIN_GRID_SIZE_HALF - 19) {
+          else if (xgrid < TERRAIN_GRID_SIZE_HALF - 19 && ext) {
                x1 = xpos + x3 + 3040.0f + *tsize / 2;
                x2 = xpos - x3 + 3040.0f - *tsize / 2;
           }
@@ -562,11 +563,11 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot,
                x1 = xpos + x3 + *tsize / 2;
                x2 = xpos - x3 - *tsize / 2;
           }
-          if (zgrid > TERRAIN_GRID_SIZE_HALF + 19) {
+          if (zgrid > TERRAIN_GRID_SIZE_HALF + 19 && ext) {
                z1 = zpos + z3 - 3040.0f + *tsize / 2;
                z2 = zpos - z3 - 3040.0f - *tsize / 2;
           }
-          else if (zgrid < TERRAIN_GRID_SIZE_HALF - 19) {
+          else if (zgrid < TERRAIN_GRID_SIZE_HALF - 19 && ext) {
                z1 = zpos + z3 + 3040.0f + *tsize / 2;
                z2 = zpos - z3 + 3040.0f - *tsize / 2;
           }
