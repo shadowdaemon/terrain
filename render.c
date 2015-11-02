@@ -1,6 +1,6 @@
 #include <assimp/scene.h>
+#include <stdlib.h>
 #include "maths.h"
-#include "stdlib.h"
 
 
 void renderClear(GLfloat *color, struct v3f cpos, int tsize)
