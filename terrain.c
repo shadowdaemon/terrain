@@ -442,7 +442,7 @@ float readTerrainHeightPlane(float x, float z, struct v3f *normal, int tsize)
           v1[0] = x2; v1[1] = readTerrainHeight(x2, z2); v1[2] = z2;
           v2[0] = x1; v2[1] = readTerrainHeight(x1, z2); v2[2] = z2;
           v3[0] = x2; v3[1] = readTerrainHeight(x2, z1); v3[2] = z1;
-          height = planeHeight(p, v1, v2, v3, normal);
+          height = planeHeight(p, v1, v3, v2, normal);
      }
      return height;
 }
