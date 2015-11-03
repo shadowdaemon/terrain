@@ -448,12 +448,12 @@ void updateCamera(struct v3f crot)
 
 
 void cameraTrailMovement(struct v3f *cpos, struct v3f *crot,
-                         struct airunit unit, int tsize)
+                         struct unit unit, int tsize)
 {
      struct v3f temppos = unit.pos;
      float temp = 0.0f;
-     if (unit.speed > 80.0f) {
-          temp = 0.37f + (unit.speed - 80.0f) * 0.01f;
+     if (unit.p.airp.speed > 80.0f) {
+          temp = 0.37f + (unit.p.airp.speed - 80.0f) * 0.01f;
           temp = temp > 1.0f ? 1.0f : temp;
      }
      else
@@ -603,7 +603,7 @@ void movement(struct v3f *cpos, struct v3f crot, char direction,
 }
 
 
-void flyMovement(struct airunit *unit, char input, int tsize)
+void flyMovement(struct unit *unit, char input, int tsize)
 {
      struct v3f pos = mv3f(0.0f, 0.0f, 0.0f);
      float ground, max_thrust, max_vtol_thrust, thrust_step,
@@ -622,10 +622,10 @@ void flyMovement(struct airunit *unit, char input, int tsize)
      }
      switch (input & ~INPUT_SPACE) {
      case INPUT_UP:
-          unit->thrust = unit->thrust + thrust_step;
+          unit->p.airp.thrust = unit->p.airp.thrust + thrust_step;
           break;
      case INPUT_DOWN:
-          unit->thrust = unit->thrust - thrust_step;
+          unit->p.airp.thrust = unit->p.airp.thrust - thrust_step;
           break;
      case INPUT_LEFT:
           unit->rot.z -= 5.0f;
@@ -634,19 +634,19 @@ void flyMovement(struct airunit *unit, char input, int tsize)
           unit->rot.z += 5.0f;
           break;
      case INPUT_UP_RIGHT:
-          unit->thrust = unit->thrust + thrust_step;
+          unit->p.airp.thrust = unit->p.airp.thrust + thrust_step;
           unit->rot.z += 5.0f;
           break;
      case INPUT_UP_LEFT:
-          unit->thrust = unit->thrust + thrust_step;
+          unit->p.airp.thrust = unit->p.airp.thrust + thrust_step;
           unit->rot.z -= 5.0f;
           break;
      case INPUT_DOWN_RIGHT:
-          unit->thrust = unit->thrust - thrust_step;
+          unit->p.airp.thrust = unit->p.airp.thrust - thrust_step;
           unit->rot.z += 5.0f;
           break;
      case INPUT_DOWN_LEFT:
-          unit->thrust = unit->thrust - thrust_step;
+          unit->p.airp.thrust = unit->p.airp.thrust - thrust_step;
           unit->rot.z -= 5.0f;
           break;
      default: break;
@@ -655,7 +655,7 @@ void flyMovement(struct airunit *unit, char input, int tsize)
      ground = ground < TERRAIN_WATER_LEVEL + 7 ?
           TERRAIN_WATER_LEVEL + 7 : ground;
      /* Airspeed.  The speed of sound is 340.29 metres per second. */
-     unit->speed = distance3d(mv3f(0.0f, 0.0f, 0.0f), unit->vec);
+     unit->p.airp.speed = distance3d(mv3f(0.0f, 0.0f, 0.0f), unit->vec);
      pressure = unit->pos.y < 30000.0f ?
           (30000.0f - unit->pos.y) / 30000.0f : 0.0f;
      /* Thrust lapse, atmospheric density.  See
@@ -666,21 +666,21 @@ void flyMovement(struct airunit *unit, char input, int tsize)
      pos = mv3f(0.0f, 0.0f, 0.0f);
      /* VTOL thrust. */
      if ((input | INPUT_SPACE) == input) {
-          unit->vtol_thrust = unit->vtol_thrust + 0.05f >
+          unit->p.airp.vtolThrust = unit->p.airp.vtolThrust + 0.05f >
                max_vtol_thrust ? max_vtol_thrust :
-               unit->vtol_thrust + 0.05f;
+               unit->p.airp.vtolThrust + 0.05f;
           degreestovector3d(&pos, unit->rot, mv3f(90.0f, 180.0f, 0.0f),
-                            unit->vtol_thrust * tlapse);
+                            unit->p.airp.vtolThrust * tlapse);
      }
      else
-          unit->vtol_thrust = unit->vtol_thrust - 0.025f >
-               0.0f ? unit->vtol_thrust - 0.025f : 0.0f;
+          unit->p.airp.vtolThrust = unit->p.airp.vtolThrust - 0.025f >
+               0.0f ? unit->p.airp.vtolThrust - 0.025f : 0.0f;
      /* Normal thrust. */
-     unit->thrust = unit->thrust > max_thrust ?
-          max_thrust : unit->thrust < 0.0f ? 0.0f : unit->thrust;
+     unit->p.airp.thrust = unit->p.airp.thrust > max_thrust ?
+          max_thrust : unit->p.airp.thrust < 0.0f ? 0.0f : unit->p.airp.thrust;
      degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f),
-                       unit->thrust * tlapse +
-                       unit->speed * aero * pressure);
+                       unit->p.airp.thrust * tlapse +
+                       unit->p.airp.speed * aero * pressure);
      /* Update position and vector. */
      unit->vec.x += pos.x;
      unit->vec.y += pos.y - WORLD_GRAVITY;
@@ -705,9 +705,9 @@ void flyMovement(struct airunit *unit, char input, int tsize)
      lift *= fabs(unit->rot.x) < 50.0f ?
           (50.0f - fabs(unit->rot.x)) / 50.0f : 0.0f;
      degreestovector3d(&pos, unit->rot, mv3f(90.0f, 180.0f, 0.0f),
-                       sqrt(unit->speed) * temp * pressure * lift);
+                       sqrt(unit->p.airp.speed) * temp * pressure * lift);
      temp = unit->vec.y + WORLD_GRAVITY;
-     if (temp < 0.0f && unit->speed < 40)
+     if (temp < 0.0f && unit->p.airp.speed < 40)
           degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f),
                             -temp * pressure * glide);
      unit->vec.x += pos.x;
@@ -716,7 +716,7 @@ void flyMovement(struct airunit *unit, char input, int tsize)
      /* Aircraft banking. */
      pos = mv3f(0.0f, 0.0f, 0.0f);
      degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f),
-                       unit->speed);
+                       unit->p.airp.speed);
      temp = (vectorstodegree2d(pos, mv3f(0.0f, 0.0f, 0.0f)) -
              vectorstodegree2d(unit->vec, mv3f(0.0f, 0.0f, 0.0f))) * 0.09f;
      if (vectorstodegree2d(pos, mv3f(0.0f, 0.0f, 0.0f))
@@ -733,24 +733,24 @@ void flyMovement(struct airunit *unit, char input, int tsize)
      else if (unit->rot.y < 0.0f)
           unit->rot.y += 360.0f;
      /* Ground detection and collision handling. */
-     unit->height = fabs(unit->pos.y - ground);
+     unit->p.airp.height = fabs(unit->pos.y - ground);
      if (unit->pos.y < ground) {
           unit->pos.y = ground;
           unit->rot.z = 0.0f;
           unit->vec.y *= 0.2f;
           unit->vec.x -= unit->vec.x * 0.2f;
           unit->vec.z -= unit->vec.z * 0.2f;
-          if (unit->vec.y < -WORLD_GRAVITY * 0.7f || unit->speed > 11) {
+          if (unit->vec.y < -WORLD_GRAVITY * 0.7f || unit->p.airp.speed > 11) {
                unit->vec.x -= unit->vec.x * 0.5f;
                unit->vec.y = 0.0f;
                unit->vec.z -= unit->vec.z * 0.5f;
-               unit->thrust = 0.0f;
+               unit->p.airp.thrust = 0.0f;
           }
      }
 }
 
 
-void airUnitMove(struct airunit *unit, struct v3f pos, int tsize)
+void airUnitMove(struct unit *unit, struct v3f pos, int tsize)
 {
      struct v3f temp1 = unit->pos;
      struct v3f temp2 = unit->pos;
@@ -766,9 +766,9 @@ void airUnitMove(struct airunit *unit, struct v3f pos, int tsize)
      degreestovector3d(&temp3, unit->rot, mv3f(0.0f, 0.0f, 0.0f), 4500.0f);
      degreestovector3d(&temp4, unit->rot, mv3f(0.0f, 0.0f, 0.0f), 3000.0f);
      degreestovector3d(&temp5, unit->rot, mv3f(0.0f, 0.0f, 0.0f), 1500.0f);
-     if (unit->speed > speed + 20.0f)
+     if (unit->p.airp.speed > speed + 20.0f)
           thrust = INPUT_DOWN;
-     else if (unit->speed > speed)
+     else if (unit->p.airp.speed > speed)
           thrust = INPUT_NONE;
      else
           thrust = INPUT_UP;
@@ -782,7 +782,7 @@ void airUnitMove(struct airunit *unit, struct v3f pos, int tsize)
           unit->rot.y += 2.5f;
      }
      else if (unit->vec.y < -WORLD_GRAVITY * 2.5f
-              && unit->height < 2500.0f) {
+              && unit->p.airp.height < 2500.0f) {
           flyMovement(unit, INPUT_SPACE + thrust, tsize);
           unit->rot.x += (-25.0f - unit->rot.x) * 0.05f;
      }
@@ -790,11 +790,11 @@ void airUnitMove(struct airunit *unit, struct v3f pos, int tsize)
           flyMovement(unit, INPUT_NONE, tsize);
           unit->rot.x += (-15.0f - unit->rot.x) * 0.1f;
      }
-     else if (unit->height < 1200.0f) {
+     else if (unit->p.airp.height < 1200.0f) {
           flyMovement(unit, thrust, tsize);
           unit->rot.x += (-10.0f - unit->rot.x) * 0.1f;
      }
-     else if (unit->height > 10000.0f) {
+     else if (unit->p.airp.height > 10000.0f) {
           flyMovement(unit, thrust, tsize);
           unit->rot.x += (3.5f - unit->rot.x) * 0.02f;
      }
@@ -805,24 +805,24 @@ void airUnitMove(struct airunit *unit, struct v3f pos, int tsize)
 }
 
 
-void airUnitMoveVTOL(struct airunit *unit, struct v3f pos, int tsize)
+void airUnitMoveVTOL(struct unit *unit, struct v3f pos, int tsize)
 {
      float dist = distance2d(unit->pos, pos);
-     float pitch = unit->speed > 20.0f ? -5.0f : 7.5f;
-     int thrust = unit->thrust > 0.0f ? INPUT_DOWN : INPUT_NONE;
+     float pitch = unit->p.airp.speed > 20.0f ? -5.0f : 7.5f;
+     int thrust = unit->p.airp.thrust > 0.0f ? INPUT_DOWN : INPUT_NONE;
      if (dist > 200.0f)
           unit->rot.y += (vectorstodegree2d
                           (unit->pos, pos) - unit->rot.y) * 0.1f;
      else
           unit->rot.y += 2.0f;
-     if (unit->height > 150.0f) {
+     if (unit->p.airp.height > 150.0f) {
           if (unit->vec.y < -WORLD_GRAVITY - 7.0f)
                flyMovement(unit, INPUT_SPACE + thrust, tsize);
           else
                flyMovement(unit, INPUT_NONE + thrust, tsize);
           unit->rot.x += (pitch - unit->rot.x) * 0.1f;
      }
-     else if (unit->vec.y < -WORLD_GRAVITY || unit->height < 70.0f) {
+     else if (unit->vec.y < -WORLD_GRAVITY || unit->p.airp.height < 70.0f) {
           flyMovement(unit, INPUT_SPACE + thrust, tsize);
           unit->rot.x += (pitch - unit->rot.x) * 0.1f;
      }
@@ -833,7 +833,7 @@ void airUnitMoveVTOL(struct airunit *unit, struct v3f pos, int tsize)
 }
 
 
-void updateAirUnits(struct airunit *units, int tsize)
+void updateAirUnits(struct unit *units, int tsize)
 {
      int i;
      struct v3f pos = units[0].pos;
@@ -976,7 +976,7 @@ int main(int argc, char *argv[])
                         (0.0f, 0.0f, tsize) + 1.8f, 0.0f};
      struct aiScene *scene     = malloc(sizeof(struct aiScene) * 32);
      struct aiScene *textquads = malloc(sizeof(struct aiScene) * 36);
-     struct airunit *airunits  = malloc(sizeof(struct airunit) * 1);
+     struct unit *airunits  = malloc(sizeof(struct unit) * 1);
 
      createGradient();
      if ((window = startGraphics(textures, shaders)) != NULL &&
@@ -1002,16 +1002,16 @@ int main(int argc, char *argv[])
                     }
                }
                else {
-                    if (airunits[0].height > 3.0f)
+                    if (airunits[0].p.airp.height > 3.0f)
                          mouseLook(window, &airunits[0].rot);
                     flyMovement(&airunits[0], direction, tsize);
                     cameraTrailMovement(&cpos, &crot, airunits[0], tsize);
-                    if (airunits[0].thrust == 0 && airunits[0].height
-                        < 3.0f && airunits[0].speed < 2.0f
+                    if (airunits[0].p.airp.thrust == 0 && airunits[0].p.airp.height
+                        < 3.0f && airunits[0].p.airp.speed < 2.0f
                         && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS
                         && st < 1) {
                          state = 0;
-                         airunits[0].vtol_thrust = 0;
+                         airunits[0].p.airp.vtolThrust = 0;
                     }
                }
                st--;

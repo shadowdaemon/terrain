@@ -789,7 +789,7 @@ void renderFX(void)
 
 
 void renderAircraft(struct aiScene *scene, GLuint *textures,
-                    struct v3f cpos, struct airunit *units)
+                    struct v3f cpos, struct unit *units)
 {
      int i, texture, model;
      for (i = 0; i < 1; i++) {
@@ -810,7 +810,7 @@ void renderAircraft(struct aiScene *scene, GLuint *textures,
           glDisable(GL_TEXTURE_2D);
           glDisable(GL_LIGHTING);
           renderExhaust(units[i].pos, units[i].rot, 0.7f,
-                        units[i].thrust * 1.5f);
+                        units[i].p.airp.thrust * 1.5f);
      }
 }
 
@@ -821,7 +821,7 @@ void render(GLFWwindow *window, struct aiScene *scene,
             struct v3f cpos, /* Camera position. */
             struct v3f crot, /* Camera rotation. */
             struct v2f *sector, int *tsize, float *fps,
-            struct airunit *airunits) {
+            struct unit *airunits) {
      GLfloat color[4], temp;
      GLint lpos[4], mpos[4];
      struct v3f n;
@@ -974,10 +974,11 @@ void render(GLFWwindow *window, struct aiScene *scene,
           renderNumber(cpos.x, textquads, mv2f(250, 120));
           renderNumber(cpos.z, textquads, mv2f(250, 70));
           renderNumber(fps2, textquads, mv2f(250, 20));
-          renderNumber(airunits[0].height, textquads, mv2f(RESX - 100, 120));
-          renderNumber(airunits[0].speed * 10.0f, textquads,
+          renderNumber(airunits[0].p.airp.height, textquads,
+                       mv2f(RESX - 100, 120));
+          renderNumber(airunits[0].p.airp.speed * 10.0f, textquads,
                        mv2f(RESX - 100, 70));
-          renderNumber(airunits[0].thrust * 100, textquads,
+          renderNumber(airunits[0].p.airp.thrust * 100, textquads,
                        mv2f(RESX - 100, 20));
      }
      glMatrixMode(GL_PROJECTION);

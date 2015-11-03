@@ -165,15 +165,26 @@ struct fx {
      unsigned char life;
 };
 
-struct airunit {
+struct airparams {
+     float thrust;
+     float vtolThrust;
+     float speed;
+     float height;
+};
+
+struct groundparams {
+     float turret;
+};
+
+struct unit {
      int type;
      struct v3f pos;
      struct v3f rot;
      struct v3f vec;
-     float thrust;
-     float vtol_thrust;
-     float speed;
-     float height;
+     union {
+          struct airparams airp;
+          struct groundparams groundp;
+     } p;
 };
 
 struct terrain algorithmicTerrain(float, float);
@@ -190,4 +201,4 @@ void drawModel2(const struct aiScene*, struct v3f, struct v3f, GLfloat,
                 const GLuint*, GLuint);
 void render(GLFWwindow*, struct aiScene*, struct aiScene*, GLuint*, GLuint*,
             struct v3f, struct v3f, struct v2f*, int*, float*,
-            struct airunit*);
+            struct unit*);
