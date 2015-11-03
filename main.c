@@ -557,72 +557,62 @@ void movement(struct v3f *cpos, struct v3f *crot, char direction,
           speed *= 2.3f;
      switch (direction & ~(INPUT_LEFT_SHIFT | INPUT_SPACE)) {
      case INPUT_UP:
-          dir = 0.0f;
           a = -1;
+          dir = 0.0f;
           break;
      case INPUT_DOWN:
-          dir = 0.0f;
           a = 1;
+          dir = 0.0f;
           break;
      case INPUT_LEFT:
           if (type == INPUT_TYPE_PEDESTRIAN) {
-               dir = 90.0f;
                a = 1;
+               dir = 90.0f;
           }
-          else if (type == INPUT_TYPE_VEHICLE) {
+          else if (type == INPUT_TYPE_VEHICLE)
                crot->y -= moar;
-          }
           break;
      case INPUT_RIGHT:
           if (type == INPUT_TYPE_PEDESTRIAN) {
-               dir = 270.0f;
                a = 1;
+               dir = 270.0f;
           }
-          else if (type == INPUT_TYPE_VEHICLE) {
+          else if (type == INPUT_TYPE_VEHICLE)
                crot->y += moar;
-          }
           break;
      case INPUT_UP_RIGHT:
-          if (type == INPUT_TYPE_PEDESTRIAN) {
+          a = -1;
+          if (type == INPUT_TYPE_PEDESTRIAN)
                dir = 45.0f;
-               a = -1;
-          }
           else if (type == INPUT_TYPE_VEHICLE) {
                dir = 0.0f;
-               a = -1;
                crot->y += moar;
           }
           break;
      case INPUT_UP_LEFT:
-          if (type == INPUT_TYPE_PEDESTRIAN) {
+          a = -1;
+          if (type == INPUT_TYPE_PEDESTRIAN)
                dir = -45.0f;
-               a = -1;
-          }
           else if (type == INPUT_TYPE_VEHICLE) {
                dir = 0.0f;
-               a = -1;
                crot->y -= moar;
           }
           break;
      case INPUT_DOWN_RIGHT:
-          if (type == INPUT_TYPE_PEDESTRIAN) {
+          a = 1;
+          if (type == INPUT_TYPE_PEDESTRIAN)
                dir = -45.0f;
-               a = 1;
-          }
           else if (type == INPUT_TYPE_VEHICLE) {
                dir = 0.0f;
-               a = 1;
                crot->y += moar;
           }
           break;
      case INPUT_DOWN_LEFT:
-          if (type == INPUT_TYPE_PEDESTRIAN) {
+          a = 1;
+          if (type == INPUT_TYPE_PEDESTRIAN)
                dir = 45.0f;
-               a = 1;
-          }
           else if (type == INPUT_TYPE_VEHICLE) {
                dir = 0.0f;
-               a = 1;
                crot->y -= moar;
           }
           break;
