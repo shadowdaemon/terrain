@@ -23,7 +23,7 @@ const struct aiScene *loadModel(const char *file)
 const struct aiScene *loadTextQuad(const char *file)
 {
      const struct aiScene *scene = aiImportFile
-          (file,  aiProcess_RemoveComponent | aiProcess_GenNormals);
+          (file, aiProcess_RemoveComponent | aiProcess_GenNormals);
      const char *err = aiGetErrorString();
      if (*err)
           printf("Assimp error: %s\n", err);

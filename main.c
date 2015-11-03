@@ -267,7 +267,7 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      FreeImage_SetOutputMessage(errorFreeImage);
      bits = (GLubyte *) malloc(sizeof(GLubyte) * 4 * 4096);
      glEnable(GL_TEXTURE_2D);
-     glGenTextures(10, textures);
+     glGenTextures(MAX_TEXTURES, textures);
      /* Render to texture. */
      glActiveTextureARB(GL_TEXTURE4_ARB);
      glBindTexture(GL_TEXTURE_2D, textures[TEX_RENDER]);
@@ -298,8 +298,10 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      loadTexture2D("data/textures/building1.png");
      glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE_GRASS]);
      loadTexture2D("data/textures/foliage_grass.png");
-     glBindTexture(GL_TEXTURE_2D, textures[TEX_AIR_FIGHTER_1]);
-     loadTexture2D("data/textures/fighter.png");
+     glBindTexture(GL_TEXTURE_2D, textures[TEX_BODY_1]);
+     loadTexture2D("data/textures/warzone/page-14-droid-hubs.png");
+     glBindTexture(GL_TEXTURE_2D, textures[TEX_PROP_1]);
+     loadTexture2D("data/textures/warzone/page-16-droid-drives.png");
      /* Six texture functions may be specified:
         GL_ADD, GL_MODULATE, GL_DECAL, GL_BLEND,
         GL_REPLACE, or GL_COMBINE. */
@@ -900,14 +902,18 @@ char loadModels(struct aiScene *scene)
           return GL_FALSE;
      else
           scene[MODEL_BUILDING_HOUSE2] = *stemp;
-     if ((stemp = loadModel("data/models/fighter1.obj")) == NULL)
+     if ((stemp = loadModel("data/models/warzone/body1a.obj")) == NULL)
           return GL_FALSE;
      else
-          scene[MODEL_AIR_FIGHTER1] = *stemp; /* More models, etc. */
-     if ((stemp = loadModel("data/models/fighter2.obj")) == NULL)
+          scene[MODEL_BODY_1] = *stemp;
+     if ((stemp = loadModel("data/models/warzone/prop1a.obj")) == NULL)
           return GL_FALSE;
      else
-          scene[MODEL_AIR_FIGHTER2] = *stemp;
+          scene[MODEL_PROP_1] = *stemp;
+     if ((stemp = loadModel("data/models/warzone/exjeep.obj")) == NULL)
+          return GL_FALSE;
+     else
+          scene[MODEL_JEEP_1] = *stemp;
      return GL_TRUE;
 }
 
@@ -965,18 +971,18 @@ char loadTextQuads(struct aiScene *quads)
 
 int main(int argc, char *argv[])
 {
-     GLuint textures[10], shaders[5];
+     GLuint textures[MAX_TEXTURES], shaders[5];
      GLFWwindow *window = NULL;
      int i, tsize = TERRAIN_SQUARE_SIZE, st = 0;
      char direction, state = 0;
      float fps = 0.0f;
-     struct v2f sector = {0.0f, 0.0f}; /* Terrain update sector. */
+     struct v2f sector = {0.0f, 0.0f};          /* Terrain update sector. */
      struct v3f crot = {0.0f, 0.0f, 0.0f};            /* Camera rotation. */
      struct v3f cpos = {0.0f, readTerrainHeightPlane2 /* Camera position. */
                         (0.0f, 0.0f, tsize) + 1.8f, 0.0f};
      struct aiScene *scene     = malloc(sizeof(struct aiScene) * 32);
      struct aiScene *textquads = malloc(sizeof(struct aiScene) * 36);
-     struct unit *airunits  = malloc(sizeof(struct unit) * 1);
+     struct unit *airunits     = malloc(sizeof(struct unit) * 1);
 
      createGradient();
      if ((window = startGraphics(textures, shaders)) != NULL &&
@@ -1006,7 +1012,8 @@ int main(int argc, char *argv[])
                          mouseLook(window, &airunits[0].rot);
                     flyMovement(&airunits[0], direction, tsize);
                     cameraTrailMovement(&cpos, &crot, airunits[0], tsize);
-                    if (airunits[0].p.airp.thrust == 0 && airunits[0].p.airp.height
+                    if (airunits[0].p.airp.thrust == 0 &&
+                        airunits[0].p.airp.height
                         < 3.0f && airunits[0].p.airp.speed < 2.0f
                         && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS
                         && st < 1) {

@@ -788,29 +788,43 @@ void renderFX(void)
 }
 
 
-void renderAircraft(struct aiScene *scene, GLuint *textures,
-                    struct v3f cpos, struct unit *units)
+void renderUnits(struct aiScene *scene, GLuint *textures,
+                 struct unit *units)
 {
-     int i, texture, model;
+     int i, tB, tP, tW, mB, mP, mW;
      for (i = 0; i < 1; i++) {
           switch (units[i].type) {
           case UNIT_AIR_FIGHTER_1:
-               texture = TEX_AIR_FIGHTER_1;
-               model = MODEL_AIR_FIGHTER1;
+               tB  = TEX_BODY_1;
+               mB  = MODEL_BODY_1;
+               tP  = TEX_PROP_1;
+               mP  = MODEL_PROP_1;
+               tW  = TEX_WEAPON_1;
+               mW  = 0;//MODEL_WEAPON_1;
                break;
           default:
-               texture = TEX_AIR_FIGHTER_1;
-               model = MODEL_AIR_FIGHTER1;
+               tB  = TEX_BODY_1;
+               mB  = MODEL_BODY_1;
+               tP  = TEX_PROP_1;
+               mP  = MODEL_PROP_1;
+               tW  = TEX_WEAPON_1;
+               mW  = MODEL_WEAPON_1;
           }
-          glEnable(GL_TEXTURE_2D);
-          glEnable(GL_LIGHTING);
-          glBindTexture(GL_TEXTURE_2D, textures[texture]);
-          drawModel((const struct aiScene *) &scene[model], units[i].pos,
-                    units[i].rot, 0.7f, 255);
-          glDisable(GL_TEXTURE_2D);
-          glDisable(GL_LIGHTING);
-          renderExhaust(units[i].pos, units[i].rot, 0.7f,
-                        units[i].p.airp.thrust * 1.5f);
+          if (mB) {
+          glBindTexture(GL_TEXTURE_2D, textures[tB]);
+          drawModel((const struct aiScene *) &scene[mB], units[i].pos,
+                    units[i].rot, 0.25f, 255);
+          }
+          if (mP) {
+          glBindTexture(GL_TEXTURE_2D, textures[tP]);
+          drawModel((const struct aiScene *) &scene[mP], units[i].pos,
+                    units[i].rot, 0.25f, 255);
+          }
+          if (mW) {
+          glBindTexture(GL_TEXTURE_2D, textures[tW]);
+          drawModel((const struct aiScene *) &scene[mW], units[i].pos,
+                    units[i].rot, 0.25f, 255);
+          }
      }
 }
 
@@ -907,7 +921,7 @@ void render(GLFWwindow *window, struct aiScene *scene,
      if (swapb) {
           glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
           renderWater(cpos, crot, color, *tsize);
-          renderAircraft(scene, textures, cpos, airunits);
+          renderUnits(scene, textures, airunits);
           if (0) { /* Just disable for now. */
                glEnable(GL_POINT_SPRITE);
                glEnable(GL_PROGRAM_POINT_SIZE);

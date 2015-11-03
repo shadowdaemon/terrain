@@ -6,6 +6,8 @@
 #define PI                                  3.14159265358979323846f
 #define PIx180                              180.0f*PI
 #define WORLD_GRAVITY                       0.4f
+
+/* Terrain defines. */
 #define TERRAIN_GRID_SIZE                   100
 #define TERRAIN_GRID_SIZE_HALF              50
 #define TERRAIN_GRID_SIZE_QUARTER           25
@@ -36,6 +38,8 @@
 #define T_TYPE_FOREST2                      9
 #define T_TYPE_SNOW                         10
 #define T_TYPE_DESERT                       11
+
+/* Input. */
 #define INPUT_NONE                          0
 #define INPUT_UP                            1
 #define INPUT_DOWN                          2
@@ -49,7 +53,11 @@
 #define INPUT_VERT_DOWN                     10
 #define INPUT_SPACE                         16
 #define INPUT_LEFT_SHIFT                    32
+
+/* Textures, models, etc. */
+#define MAX_TEXTURES                        16
 #define UNIT_AIR_FIGHTER_1                  0
+#define UNIT_GROUND_JEEP_1                  1
 #define TEX_TERRAIN_1                       0
 #define TEX_TERRAIN_2                       1
 #define TEX_FOLIAGE                         2
@@ -58,7 +66,9 @@
 #define TEX_RENDER                          5
 #define TEX_BUILDING                        6
 #define TEX_FOLIAGE_GRASS                   7
-#define TEX_AIR_FIGHTER_1                   8
+#define TEX_BODY_1                          8
+#define TEX_PROP_1                          9
+#define TEX_WEAPON_1                        10
 #define MODEL_TREE_POPLAR                   0
 #define MODEL_TREE_OAK                      1
 #define MODEL_TREE_FIR                      2
@@ -71,8 +81,10 @@
 #define MODEL_MTREE_FIR                     10
 #define MODEL_BUILDING_HOUSE1               12
 #define MODEL_BUILDING_HOUSE2               13
-#define MODEL_AIR_FIGHTER1                  14
-#define MODEL_AIR_FIGHTER2                  15
+#define MODEL_BODY_1                        14
+#define MODEL_PROP_1                        15
+#define MODEL_WEAPON_1                      16
+#define MODEL_JEEP_1                        17
 #define GRASS_GRASS1                        0
 #define GRASS_GRASS2                        1
 #define GRASS_BUSH1                         2
@@ -80,6 +92,7 @@
 #define GRASS_BAMBOO                        4
 #define GRASS_DEAD                          5
 #define GRASS_FLOWERS                       6
+
 /* #define glActiveTextureARB _ActiveTextureARB */
 #define glCreateProgramARB _CreateProgramARB
 #define glCreateShaderARB _CreateShaderARB
