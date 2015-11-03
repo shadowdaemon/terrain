@@ -35,7 +35,7 @@ void loadTexture2D(const char *file)
      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
                   GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
      /* Set up mipmapping. */
-     for (i = 1; i < 10; i++) {
+     for (i = 1; i < 40; i++) {
           width /= 2;
           height /= 2;
           bits = (GLubyte*) FreeImage_GetBits
@@ -120,7 +120,7 @@ void createPerlinTexture(int size, int tex, GLubyte *bits)
      /* Mipmaps. */
      for (i = 0; i < 10; i++){
           bits = (GLubyte *) FreeImage_GetBits
-            (FreeImage_Rescale(img, size, size, FILTER_BICUBIC));
+               (FreeImage_Rescale(img, size, size, FILTER_BICUBIC));
           glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, size, size,
                        0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
           size /= 2;
@@ -302,6 +302,8 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      loadTexture2D("data/textures/warzone/page-14-droid-hubs.png");
      glBindTexture(GL_TEXTURE_2D, textures[TEX_PROP_1]);
      loadTexture2D("data/textures/warzone/page-16-droid-drives.png");
+     glBindTexture(GL_TEXTURE_2D, textures[TEX_BARB_1]);
+     loadTexture2D("data/textures/warzone/page-7-barbarians-arizona.png");
      /* Six texture functions may be specified:
         GL_ADD, GL_MODULATE, GL_DECAL, GL_BLEND,
         GL_REPLACE, or GL_COMBINE. */
@@ -544,11 +546,11 @@ void keyboardInput(GLFWwindow *window, char *direction)
 }
 
 
-void movement(struct v3f *cpos, struct v3f crot, char direction,
-              float speed, int tsize)
+void movement(struct v3f *cpos, struct v3f *crot, char direction,
+              float speed, int tsize, int type)
 {
      struct v3f normal, pos;
-     float ground, temp, dir = 0.0f, moar;
+     float ground, temp, dir = 0.0f, moar = 2.3f;
      char a = 0;
      pos = *cpos;
      if ((direction | INPUT_LEFT_SHIFT) == direction)
@@ -563,32 +565,72 @@ void movement(struct v3f *cpos, struct v3f crot, char direction,
           a = 1;
           break;
      case INPUT_LEFT:
-          dir = 90.0f;
-          a = 1;
+          if (type == INPUT_TYPE_PEDESTRIAN) {
+               dir = 90.0f;
+               a = 1;
+          }
+          else if (type == INPUT_TYPE_VEHICLE) {
+               crot->y -= moar;
+          }
           break;
      case INPUT_RIGHT:
-          dir = 270.0f;
-          a = 1;
+          if (type == INPUT_TYPE_PEDESTRIAN) {
+               dir = 270.0f;
+               a = 1;
+          }
+          else if (type == INPUT_TYPE_VEHICLE) {
+               crot->y += moar;
+          }
           break;
      case INPUT_UP_RIGHT:
-          dir = 45.0f;
-          a = -1;
+          if (type == INPUT_TYPE_PEDESTRIAN) {
+               dir = 45.0f;
+               a = -1;
+          }
+          else if (type == INPUT_TYPE_VEHICLE) {
+               dir = 0.0f;
+               a = -1;
+               crot->y += moar;
+          }
           break;
      case INPUT_UP_LEFT:
-          dir = -45.0f;
-          a = -1;
+          if (type == INPUT_TYPE_PEDESTRIAN) {
+               dir = -45.0f;
+               a = -1;
+          }
+          else if (type == INPUT_TYPE_VEHICLE) {
+               dir = 0.0f;
+               a = -1;
+               crot->y -= moar;
+          }
           break;
      case INPUT_DOWN_RIGHT:
-          dir = -45.0f;
-          a = 1;
+          if (type == INPUT_TYPE_PEDESTRIAN) {
+               dir = -45.0f;
+               a = 1;
+          }
+          else if (type == INPUT_TYPE_VEHICLE) {
+               dir = 0.0f;
+               a = 1;
+               crot->y += moar;
+          }
           break;
      case INPUT_DOWN_LEFT:
-          dir = 45.0f;
-          a = 1;
+          if (type == INPUT_TYPE_PEDESTRIAN) {
+               dir = 45.0f;
+               a = 1;
+          }
+          else if (type == INPUT_TYPE_VEHICLE) {
+               dir = 0.0f;
+               a = 1;
+               crot->y -= moar;
+          }
           break;
      default: break;
      }
-     degreestovector3d(&pos, crot, mv3f(0.0f, dir, 0.0f), a * speed);
+     if (type == INPUT_TYPE_VEHICLE)
+          a *= -1;
+     degreestovector3d(&pos, *crot, mv3f(0.0f, dir, 0.0f), a * speed);
      temp   = readTerrainHeightPlane(pos.x, pos.z, &normal, tsize);
      ground = readTerrainHeightPlane(cpos->x, cpos->z, &normal, tsize);
      if (temp > ground + 1.3f)
@@ -596,7 +638,7 @@ void movement(struct v3f *cpos, struct v3f crot, char direction,
      else if (temp > ground)
           speed *= 1 - ((temp - ground) / 1.3f);
      moar = cpos->y;
-     degreestovector3d(cpos, crot, mv3f(0.0f, dir, 0.0f), a * speed);
+     degreestovector3d(cpos, *crot, mv3f(0.0f, dir, 0.0f), a * speed);
      ground = readTerrainHeightPlane(cpos->x, cpos->z, &normal, tsize);
      ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
      ground += 1.8f;
@@ -902,11 +944,11 @@ char loadModels(struct aiScene *scene)
           return GL_FALSE;
      else
           scene[MODEL_BUILDING_HOUSE2] = *stemp;
-     if ((stemp = loadModel("data/models/warzone/body1a.obj")) == NULL)
+     if ((stemp = loadModel("data/models/warzone/body1.obj")) == NULL)
           return GL_FALSE;
      else
           scene[MODEL_BODY_1] = *stemp;
-     if ((stemp = loadModel("data/models/warzone/prop1a.obj")) == NULL)
+     if ((stemp = loadModel("data/models/warzone/prop1.obj")) == NULL)
           return GL_FALSE;
      else
           scene[MODEL_PROP_1] = *stemp;
@@ -982,32 +1024,45 @@ int main(int argc, char *argv[])
                         (0.0f, 0.0f, tsize) + 1.8f, 0.0f};
      struct aiScene *scene     = malloc(sizeof(struct aiScene) * 32);
      struct aiScene *textquads = malloc(sizeof(struct aiScene) * 36);
-     struct unit *airunits     = malloc(sizeof(struct unit) * 1);
+     struct unit    *airunits  = malloc(sizeof(struct unit) * 1);
+     struct unit *groundunits  = malloc(sizeof(struct unit) * 1);
 
      createGradient();
      if ((window = startGraphics(textures, shaders)) != NULL &&
          loadModels(scene) && loadTextQuads(textquads)) {
-          /* Position some air units around. */
+          /* Position some units around for testing. */
           for (i = 0; i < 1; i++) {
                airunits[i].type = UNIT_AIR_FIGHTER_1;
                airunits[i].pos.x = (i - 1) * 50;
                airunits[i].pos.z = (i - 1) * 23 + 50;
                airunits[i].pos.y = readTerrainHeightPlane2
                     (airunits[i].pos.x, airunits[i].pos.z, tsize);
+               groundunits[i].type = UNIT_GROUND_JEEP_1;
+               groundunits[i].pos.x = 0.0f;
+               groundunits[i].pos.z = 0.0f;
+               groundunits[i].pos.y = readTerrainHeightPlane2
+                    (groundunits[i].pos.x, groundunits[i].pos.z, tsize);
           }
           /* Main loop. */
           while (!glfwWindowShouldClose(window)) {
                keyboardInput(window, &direction);
+               /* This mess is just for testing. */
                if (state == 0) {
                     mouseLook(window, &crot);
-                    movement(&cpos, crot, direction, 1.0f, tsize);
+                    movement(&cpos, &crot, direction, 1.0f, tsize,
+                             INPUT_TYPE_PEDESTRIAN);
                     if (distance3d(cpos, airunits[0].pos) < 10.0f
                         && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
                          state = 1;
                          st = 10;
                     }
+                    else if (distance3d(cpos, groundunits[0].pos) < 10.0f
+                        && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
+                         state = 2;
+                         st = 10;
+                    }
                }
-               else {
+               else if (state == 1) {
                     if (airunits[0].p.airp.height > 3.0f)
                          mouseLook(window, &airunits[0].rot);
                     flyMovement(&airunits[0], direction, tsize);
@@ -1021,12 +1076,22 @@ int main(int argc, char *argv[])
                          airunits[0].p.airp.vtolThrust = 0;
                     }
                }
+               else if (state == 2) {
+                    mouseLook(window, &crot);
+                    movement(&groundunits[0].pos, &groundunits[0].rot,
+                             direction, 3.0f, tsize, INPUT_TYPE_VEHICLE);
+                    cameraTrailMovement(&cpos, &crot, groundunits[0], tsize);
+                    if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS
+                        && st < 1)
+                         state = 0;
+               }
                st--;
                updateAirUnits(airunits, tsize);
+               // updateGroundUnits(groundunits, tsize);
                updateCamera(crot);
                glTranslatef(-cpos.x, -cpos.y, -cpos.z);
                render(window, scene, textquads, textures, shaders,
-                      cpos, crot, &sector, &tsize, &fps, airunits);
+                      cpos, crot, &sector, &tsize, &fps, airunits, groundunits);
           }
           free(scene);
           free(airunits);

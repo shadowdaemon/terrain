@@ -792,7 +792,7 @@ void renderUnits(struct aiScene *scene, GLuint *textures,
                  struct unit *units)
 {
      int i, tB, tP, tW, mB, mP, mW;
-     for (i = 0; i < 1; i++) {
+     for (i = 0; i < 5; i++) {
           switch (units[i].type) {
           case UNIT_AIR_FIGHTER_1:
                tB  = TEX_BODY_1;
@@ -802,13 +802,21 @@ void renderUnits(struct aiScene *scene, GLuint *textures,
                tW  = TEX_WEAPON_1;
                mW  = 0;//MODEL_WEAPON_1;
                break;
+          case UNIT_GROUND_JEEP_1:
+               tB  = TEX_BARB_1;
+               mB  = MODEL_JEEP_1;
+               tP  = 0;
+               mP  = 0;
+               tW  = 0;
+               mW  = 0;
+               break;
           default:
-               tB  = TEX_BODY_1;
-               mB  = MODEL_BODY_1;
-               tP  = TEX_PROP_1;
-               mP  = MODEL_PROP_1;
-               tW  = TEX_WEAPON_1;
-               mW  = MODEL_WEAPON_1;
+               tB  = 0;
+               mB  = 0;
+               tP  = 0;
+               mP  = 0;
+               tW  = 0;
+               mW  = 0;
           }
           if (mB) {
           glBindTexture(GL_TEXTURE_2D, textures[tB]);
@@ -835,7 +843,7 @@ void render(GLFWwindow *window, struct aiScene *scene,
             struct v3f cpos, /* Camera position. */
             struct v3f crot, /* Camera rotation. */
             struct v2f *sector, int *tsize, float *fps,
-            struct unit *airunits) {
+            struct unit *airunits, struct unit *groundunits) {
      GLfloat color[4], temp;
      GLint lpos[4], mpos[4];
      struct v3f n;
@@ -922,6 +930,7 @@ void render(GLFWwindow *window, struct aiScene *scene,
           glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
           renderWater(cpos, crot, color, *tsize);
           renderUnits(scene, textures, airunits);
+          renderUnits(scene, textures, groundunits);
           if (0) { /* Just disable for now. */
                glEnable(GL_POINT_SPRITE);
                glEnable(GL_PROGRAM_POINT_SIZE);

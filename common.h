@@ -40,6 +40,8 @@
 #define T_TYPE_DESERT                       11
 
 /* Input. */
+#define INPUT_TYPE_PEDESTRIAN               0
+#define INPUT_TYPE_VEHICLE                  1
 #define INPUT_NONE                          0
 #define INPUT_UP                            1
 #define INPUT_DOWN                          2
@@ -69,6 +71,7 @@
 #define TEX_BODY_1                          8
 #define TEX_PROP_1                          9
 #define TEX_WEAPON_1                        10
+#define TEX_BARB_1                          11
 #define MODEL_TREE_POPLAR                   0
 #define MODEL_TREE_OAK                      1
 #define MODEL_TREE_FIR                      2
@@ -214,4 +217,4 @@ void drawModel2(const struct aiScene*, struct v3f, struct v3f, GLfloat,
                 const GLuint*, GLuint);
 void render(GLFWwindow*, struct aiScene*, struct aiScene*, GLuint*, GLuint*,
             struct v3f, struct v3f, struct v2f*, int*, float*,
-            struct unit*);
+            struct unit*, struct unit*);
