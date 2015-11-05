@@ -218,3 +218,8 @@ void drawModel2(const struct aiScene*, struct v3f, struct v3f, GLfloat,
 void render(GLFWwindow*, struct aiScene*, struct aiScene*, GLuint*, GLuint*,
             struct v3f, struct v3f, struct v2f*, int*, float*,
             struct unit*, struct unit*);
+void movePitch(struct v3f *, struct v3f);
+void movement(struct v3f *, struct v3f *, char, float, int, int);
+void flyMovement(struct unit *, char, int);
+void airUnitMove(struct unit *, struct v3f, int);
+void airUnitMoveVTOL(struct unit *, struct v3f, int);
