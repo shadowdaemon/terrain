@@ -1,5 +1,8 @@
 #include "maths.h"
 
+
+extern struct v3f nullv3f;
+
 void movePitch(struct v3f *rot, struct v3f norm)
 {
      rot->x = (asinf(-norm.z) * 180 / PI) * cosf(rot->y / 180.0f * PI);
@@ -90,22 +93,34 @@ void movement(struct v3f *cpos, struct v3f *crot, char direction,
      degreestovector3d(cpos, *crot, mv3f(0.0f, dir, 0.0f), a * speed);
      cpos->y = readTerrainHeightPlane(cpos->x, cpos->z, &norm, tsize);
      cpos->y = cpos->y < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : cpos->y;
-     cpos->y += 1.8f;
+     if (type == INPUT_TYPE_VEHICLE)
+          cpos->y += 0.6f;
+     else
+          cpos->y += 1.8f;
 }
 
 
 void flyMovement(struct unit *unit, char input, int tsize)
 {
-     struct v3f pos = mv3f(0.0f, 0.0f, 0.0f);
-     float ground, max_thrust, max_vtol_thrust, thrust_step,
-          thrust_ceiling, tlapse, aero, drag, lift,
-          glide, pressure, temp;
+     struct v3f pos = nullv3f;
+     float ground,
+           maxThrust,
+           maxThrustV, /* VTOL thrust. */
+           thrustStep, /* Thrust changes by this amount. */
+           thrustC,    /* Thrust ceiling. */
+           tLapse,     /* Thrust lapse. */
+           aero,       /* Aerodynamics. */
+           drag,
+           lift,
+           glide,
+           pressure,   /* Atmospheric pressure. */
+           temp;
      switch (unit->type) {
      case UNIT_AIR_FIGHTER_1:
-          max_thrust = WORLD_GRAVITY + 0.1f;
-          max_vtol_thrust = WORLD_GRAVITY + 0.03f;
-          thrust_step = 0.01f;
-          thrust_ceiling = 21000.0f;
+          maxThrust = WORLD_GRAVITY + 0.1f;
+          maxThrustV = WORLD_GRAVITY + 0.03f;
+          thrustStep = 0.01f;
+          thrustC = 21000.0f;
           aero = 0.04f; /* This needs to be less than drag. */
           drag = 0.053f;
           lift = 0.095f;
@@ -113,10 +128,10 @@ void flyMovement(struct unit *unit, char input, int tsize)
      }
      switch (input & ~INPUT_SPACE) {
      case INPUT_UP:
-          unit->p.airp.thrust = unit->p.airp.thrust + thrust_step;
+          unit->p.airp.thrust = unit->p.airp.thrust + thrustStep;
           break;
      case INPUT_DOWN:
-          unit->p.airp.thrust = unit->p.airp.thrust - thrust_step;
+          unit->p.airp.thrust = unit->p.airp.thrust - thrustStep;
           break;
      case INPUT_LEFT:
           unit->rot.z -= 5.0f;
@@ -125,19 +140,19 @@ void flyMovement(struct unit *unit, char input, int tsize)
           unit->rot.z += 5.0f;
           break;
      case INPUT_UP_RIGHT:
-          unit->p.airp.thrust = unit->p.airp.thrust + thrust_step;
+          unit->p.airp.thrust = unit->p.airp.thrust + thrustStep;
           unit->rot.z += 5.0f;
           break;
      case INPUT_UP_LEFT:
-          unit->p.airp.thrust = unit->p.airp.thrust + thrust_step;
+          unit->p.airp.thrust = unit->p.airp.thrust + thrustStep;
           unit->rot.z -= 5.0f;
           break;
      case INPUT_DOWN_RIGHT:
-          unit->p.airp.thrust = unit->p.airp.thrust - thrust_step;
+          unit->p.airp.thrust = unit->p.airp.thrust - thrustStep;
           unit->rot.z += 5.0f;
           break;
      case INPUT_DOWN_LEFT:
-          unit->p.airp.thrust = unit->p.airp.thrust - thrust_step;
+          unit->p.airp.thrust = unit->p.airp.thrust - thrustStep;
           unit->rot.z -= 5.0f;
           break;
      default: break;
@@ -146,31 +161,29 @@ void flyMovement(struct unit *unit, char input, int tsize)
      ground = ground < TERRAIN_WATER_LEVEL + 7 ?
           TERRAIN_WATER_LEVEL + 7 : ground;
      /* Airspeed.  The speed of sound is 340.29 metres per second. */
-     unit->p.airp.speed = distance3d(mv3f(0.0f, 0.0f, 0.0f), unit->vec);
+     unit->p.airp.speed = distance3d(nullv3f, unit->vec);
      pressure = unit->pos.y < 30000.0f ?
           (30000.0f - unit->pos.y) / 30000.0f : 0.0f;
      /* Thrust lapse, atmospheric density.  See
         https://en.wikipedia.org/wiki/Jet_engine_performance */
-     tlapse = unit->pos.y < thrust_ceiling ?
-          (thrust_ceiling - unit->pos.y) / (thrust_ceiling * 0.7f) : 0.0f;
-     tlapse = tlapse > 1.0f ? 1.0f : tlapse;
-     pos = mv3f(0.0f, 0.0f, 0.0f);
+     tLapse = unit->pos.y < thrustC ?
+          (thrustC - unit->pos.y) / (thrustC * 0.7f) : 0.0f;
+     tLapse = tLapse > 1.0f ? 1.0f : tLapse;
+     pos = nullv3f;
      /* VTOL thrust. */
      if ((input | INPUT_SPACE) == input) {
           unit->p.airp.vtolThrust = unit->p.airp.vtolThrust + 0.05f >
-               max_vtol_thrust ? max_vtol_thrust :
-               unit->p.airp.vtolThrust + 0.05f;
+               maxThrustV ? maxThrustV : unit->p.airp.vtolThrust + 0.05f;
           degreestovector3d(&pos, unit->rot, mv3f(90.0f, 180.0f, 0.0f),
-                            unit->p.airp.vtolThrust * tlapse);
+                            unit->p.airp.vtolThrust * tLapse);
      }
      else
           unit->p.airp.vtolThrust = unit->p.airp.vtolThrust - 0.025f >
                0.0f ? unit->p.airp.vtolThrust - 0.025f : 0.0f;
      /* Normal thrust. */
-     unit->p.airp.thrust = unit->p.airp.thrust > max_thrust ?
-          max_thrust : unit->p.airp.thrust < 0.0f ? 0.0f : unit->p.airp.thrust;
+     clamp(&unit->p.airp.thrust, 0.0f, maxThrust);
      degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f),
-                       unit->p.airp.thrust * tlapse +
+                       unit->p.airp.thrust * tLapse +
                        unit->p.airp.speed * aero * pressure);
      /* Update position and vector. */
      unit->vec.x += pos.x;
@@ -180,7 +193,7 @@ void flyMovement(struct unit *unit, char input, int tsize)
      unit->pos.y += unit->vec.y;
      unit->pos.z += unit->vec.z;
      /* Drag. */
-     pos = mv3f(0.0f, 0.0f, 0.0f);
+     pos = nullv3f;
      degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f), 1.0f);
      temp = 1 - distance3d(pos, normalize3d(unit->vec)) / 2.0f;
      drag = drag * (pressure + 0.01f) * temp;
@@ -192,7 +205,7 @@ void flyMovement(struct unit *unit, char input, int tsize)
      unit->vec.y -= unit->vec.y * drag;
      unit->vec.z -= unit->vec.z * drag;
      /* Lift and glide. */
-     pos = mv3f(0.0f, 0.0f, 0.0f);
+     pos = nullv3f;
      lift *= fabs(unit->rot.x) < 50.0f ?
           (50.0f - fabs(unit->rot.x)) / 50.0f : 0.0f;
      degreestovector3d(&pos, unit->rot, mv3f(90.0f, 180.0f, 0.0f),
@@ -205,16 +218,16 @@ void flyMovement(struct unit *unit, char input, int tsize)
      unit->vec.y += pos.y;
      unit->vec.z += pos.z;
      /* Aircraft banking. */
-     pos = mv3f(0.0f, 0.0f, 0.0f);
+     pos = nullv3f;
      degreestovector3d(&pos, unit->rot, mv3f(180.0f, 180.0f, 0.0f),
                        unit->p.airp.speed);
-     temp = (vectorstodegree2d(pos, mv3f(0.0f, 0.0f, 0.0f)) -
-             vectorstodegree2d(unit->vec, mv3f(0.0f, 0.0f, 0.0f))) * 0.09f;
-     if (vectorstodegree2d(pos, mv3f(0.0f, 0.0f, 0.0f))
-         > vectorstodegree2d(unit->vec, mv3f(0.0f, 0.0f, 0.0f)) + 0.8f)
+     temp = (vectorstodegree2d(pos, nullv3f) - vectorstodegree2d
+             (unit->vec, nullv3f)) * 0.09f;
+     if (vectorstodegree2d(pos, nullv3f) > vectorstodegree2d
+         (unit->vec, nullv3f) + 0.8f)
           unit->rot.z += temp > 7 ? 0 : temp;
-     else if (vectorstodegree2d(unit->vec, mv3f(0.0f, 0.0f, 0.0f))
-              > vectorstodegree2d(pos, mv3f(0.0f, 0.0f, 0.0f)) + 0.8f)
+     else if (vectorstodegree2d(unit->vec, nullv3f) > vectorstodegree2d
+              (pos, nullv3f) + 0.8f)
           unit->rot.z += temp < -7 ? 0 : temp;
      unit->rot.z -= unit->rot.z * 0.12f;
      unit->rot.z = unit->rot.z > 70 ? 70 :
@@ -231,7 +244,8 @@ void flyMovement(struct unit *unit, char input, int tsize)
           unit->vec.y *= 0.2f;
           unit->vec.x -= unit->vec.x * 0.2f;
           unit->vec.z -= unit->vec.z * 0.2f;
-          if (unit->vec.y < -WORLD_GRAVITY * 0.7f || unit->p.airp.speed > 11) {
+          if (unit->vec.y < -WORLD_GRAVITY * 0.7f ||
+              unit->p.airp.speed > 11) {
                unit->vec.x -= unit->vec.x * 0.5f;
                unit->vec.y = 0.0f;
                unit->vec.z -= unit->vec.z * 0.5f;
@@ -252,11 +266,11 @@ void airUnitMove(struct unit *unit, struct v3f pos, int tsize)
      float speed = dist < 7000.0f ? 35.0f : 55.0f;
      int thrust;
      unit->rot.y += (vectorstodegree2d(unit->pos, pos) - unit->rot.y) * 0.1f;
-     degreestovector3d(&temp1, unit->rot, mv3f(0.0f, 0.0f, 0.0f), 7500.0f);
-     degreestovector3d(&temp2, unit->rot, mv3f(0.0f, 0.0f, 0.0f), 6000.0f);
-     degreestovector3d(&temp3, unit->rot, mv3f(0.0f, 0.0f, 0.0f), 4500.0f);
-     degreestovector3d(&temp4, unit->rot, mv3f(0.0f, 0.0f, 0.0f), 3000.0f);
-     degreestovector3d(&temp5, unit->rot, mv3f(0.0f, 0.0f, 0.0f), 1500.0f);
+     degreestovector3d(&temp1, unit->rot, nullv3f, 7500.0f);
+     degreestovector3d(&temp2, unit->rot, nullv3f, 6000.0f);
+     degreestovector3d(&temp3, unit->rot, nullv3f, 4500.0f);
+     degreestovector3d(&temp4, unit->rot, nullv3f, 3000.0f);
+     degreestovector3d(&temp5, unit->rot, nullv3f, 1500.0f);
      if (unit->p.airp.speed > speed + 20.0f)
           thrust = INPUT_DOWN;
      else if (unit->p.airp.speed > speed)

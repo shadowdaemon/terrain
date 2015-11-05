@@ -7,6 +7,7 @@
 
 
 float pgrad[PERLIN_SIZE][PERLIN_SIZE][2];
+struct v3f nullv3f;
 
 static void keyInputGLFW(GLFWwindow* window, int key,
                          int scancode, int action, int mods);
@@ -675,7 +676,7 @@ int main(int argc, char *argv[])
      struct aiScene *textquads = malloc(sizeof(struct aiScene) * 36);
      struct unit    *airunits  = malloc(sizeof(struct unit) * 1);
      struct unit *groundunits  = malloc(sizeof(struct unit) * 1);
-
+     nullv3f = (const struct v3f) mv3f(0.0f, 0.0f, 0.0f);
      createGradient();
      if ((window = startGraphics(textures, shaders)) != NULL &&
          loadModels(scene) && loadTextQuads(textquads)) {
@@ -727,7 +728,7 @@ int main(int argc, char *argv[])
                }
                else if (state == 2) {
                     movement(&groundunits[0].pos, &groundunits[0].rot,
-                             direction, 11.0f, tsize, INPUT_TYPE_VEHICLE);
+                             direction, 17.0f, tsize, INPUT_TYPE_VEHICLE);
                     cameraTrailMovement(&cpos, &crot, groundunits[0], tsize);
                     if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS
                         && st < 1)

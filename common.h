@@ -11,7 +11,7 @@
 #define TERRAIN_GRID_SIZE                   100
 #define TERRAIN_GRID_SIZE_HALF              50
 #define TERRAIN_GRID_SIZE_QUARTER           25
-#define TERRAIN_SQUARE_SIZE                 200
+#define TERRAIN_SQUARE_SIZE                 500
 #define TERRAIN_STEP_SIZE                   10
 #define TERRAIN_WATER_LEVEL                 0
 /* Also upper cloud height. */

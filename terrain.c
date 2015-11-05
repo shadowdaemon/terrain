@@ -539,7 +539,7 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot,
      moveTerrain(cpos, crot, sector, *tsize, swapb);
      x = (int) (sector->x / *tsize);
      z = (int) (sector->y / *tsize);
-     const char ext = 0;
+     const char ext = 1;
      for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE &&
                                 zgrid < TERRAIN_GRID_SIZE; xgrid++) {
           x3 = fabs(TERRAIN_GRID_SIZE_HALF - xgrid) - 20;

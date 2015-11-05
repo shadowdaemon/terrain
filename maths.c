@@ -3,6 +3,8 @@
 #include "maths.h"
 
 
+extern struct v3f nullv3f;
+
 float pos(float num)
 {
      return num > 0.0f ? num : 0.0f;
@@ -55,16 +57,19 @@ struct v3f mv3f(float x, float y, float z)
 }
 
 
-float distance2d(struct v3f pos_a, struct v3f pos_b)
+float distance2d(struct v3f a, struct v3f b)
 {
-     float dist = ((pos_a.x - pos_b.x) * (pos_a.x - pos_b.x)) + ((pos_a.z - pos_b.z) * (pos_a.z - pos_b.z));
+     float dist = ((a.x - b.x) * (a.x - b.x)) +
+          ((a.z - b.z) * (a.z - b.z));
      return sqrt(dist);
 }
 
 
-float distance3d(struct v3f pos_a, struct v3f pos_b)
+float distance3d(struct v3f a, struct v3f b)
 {
-     float dist = ((pos_a.x - pos_b.x) * (pos_a.x - pos_b.x)) + ((pos_a.z - pos_b.z) * (pos_a.z - pos_b.z)) + ((pos_a.y - pos_b.y) * (pos_a.y - pos_b.y));
+     float dist = ((a.x - b.x) * (a.x - b.x)) +
+          ((a.z - b.z) * (a.z - b.z)) +
+          ((a.y - b.y) * (a.y - b.y));
      return sqrt(dist);
 }
 
@@ -85,7 +90,8 @@ struct v3f degreestovector2d(struct v3f pos_self, float rot_self, float rot, flo
 }
 
 
-void degreestovector3d(struct v3f *pos_self, struct v3f rot_self, struct v3f rot, float dist)
+void degreestovector3d(struct v3f *pos_self, struct v3f rot_self,
+                       struct v3f rot, float dist)
 {
      rot.y = (rot_self.y + rot.y) / PIx180;
      rot.x = (rot_self.x + rot.x) / PIx180;
@@ -95,13 +101,12 @@ void degreestovector3d(struct v3f *pos_self, struct v3f rot_self, struct v3f rot
 }
 
 
-float vectorstodegree2d(struct v3f pos_self, struct v3f pos_b)
+float vectorstodegree2d(struct v3f a, struct v3f b)
 {
      float temp;
-
-     pos_b.x = pos_b.x - pos_self.x;
-     pos_b.y = pos_b.z - pos_self.z;
-     temp = atan2(pos_b.y, pos_b.x);
+     b.x = b.x - a.x;
+     b.y = b.z - a.z;
+     temp = atan2(b.y, b.x);
      temp = temp * 180 / PI;
      temp -= 90.0f;
      while (temp >= 360.0f)
@@ -115,9 +120,8 @@ float vectorstodegree2d(struct v3f pos_self, struct v3f pos_b)
 
 struct v3f normalize3d(struct v3f pos)
 {
-     struct v3f temp = mv3f(0.0f, 0.0f, 0.0f);
+     struct v3f temp = nullv3f;
      float d = distance3d(temp, pos);
-
      return mv3f(pos.x / d, pos.y / d, pos.z / d);
 }
 
