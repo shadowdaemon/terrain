@@ -137,6 +137,27 @@ struct v3f calcNormal(float iv1[3], float iv2[3], float iv3[3])
 }
 
 
+void createMatrix(float *quat, float *vmat)
+{
+     vmat[0] = 1.0f - 2.0f * (quat[2] * quat[2] + quat[3] * quat[3]);
+     vmat[1] = 2.0f * (quat[1] * quat[2] + quat[3] * quat[0]);
+     vmat[2] = 2.0f * (quat[1] * quat[3] - quat[2] * quat[0]);
+     vmat[3] = 0.0f;
+     vmat[4] = 2.0f * (quat[1]* quat[2] - quat[3] * quat[0]);
+     vmat[5] = 1.0f - 2.0f * (quat[1] * quat[1] + quat[3] * quat[3]);
+     vmat[6] = 2.0f * (quat[3] * quat[2] + quat[1] * quat[0]);
+     vmat[7] = 0.0f;
+     vmat[8] = 2.0f * (quat[1] * quat[3] + quat[2] * quat[0]);
+     vmat[9] = 2.0f * (quat[2]* quat[3] - quat[1] * quat[0]);
+     vmat[10] = 1.0f - 2.0f * (quat[1] * quat[1] + quat[2] * quat[2]);
+     vmat[11] = 0.0f;
+     vmat[12] = 0;
+     vmat[13] = 0;
+     vmat[14] = 0;
+     vmat[15] = 1.0f;
+}
+
+
 /* Find point on a plane. */
 float planeHeight(float ip[2], float iv1[3], float iv2[3],
                   float iv3[3], struct v3f *norm)

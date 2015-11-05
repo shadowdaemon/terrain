@@ -414,27 +414,6 @@ void createQuats(float *quat, char axis, float degrees)
 }
 
 
-void createMatrix(float *quat, float *vmat)
-{
-     vmat[0] = 1.0f - 2.0f * (quat[2] * quat[2] + quat[3] * quat[3]);
-     vmat[1] = 2.0f * (quat[1] * quat[2] + quat[3] * quat[0]);
-     vmat[2] = 2.0f * (quat[1] * quat[3] - quat[2] * quat[0]);
-     vmat[3] = 0.0f;
-     vmat[4] = 2.0f * (quat[1]* quat[2] - quat[3] * quat[0]);
-     vmat[5] = 1.0f - 2.0f * (quat[1] * quat[1] + quat[3] * quat[3]);
-     vmat[6] = 2.0f * (quat[3] * quat[2] + quat[1] * quat[0]);
-     vmat[7] = 0.0f;
-     vmat[8] = 2.0f * (quat[1] * quat[3] + quat[2] * quat[0]);
-     vmat[9] = 2.0f * (quat[2]* quat[3] - quat[1] * quat[0]);
-     vmat[10] = 1.0f - 2.0f * (quat[1] * quat[1] + quat[2] * quat[2]);
-     vmat[11] = 0.0f;
-     vmat[12] = 0;
-     vmat[13] = 0;
-     vmat[14] = 0;
-     vmat[15] = 1.0f;
-}
-
-
 void updateCamera(struct v3f crot)
 {
      static float q1[4], q2[4], q3[4];
@@ -454,6 +433,7 @@ void updateCamera(struct v3f crot)
 void cameraTrailMovement(struct v3f *cpos, struct v3f *crot,
                          struct unit unit, int tsize)
 {
+     const float dist = 40.0f;
      struct v3f temppos = unit.pos;
      float temp = 0.0f;
      if (unit.p.airp.speed > 80.0f) {
@@ -462,7 +442,7 @@ void cameraTrailMovement(struct v3f *cpos, struct v3f *crot,
      }
      else
           temp = 0.37f;
-     degreestovector3d(&temppos, unit.rot, mv3f(0, 180, 0), 25.0f);
+     degreestovector3d(&temppos, unit.rot, mv3f(0, 180, 0), dist);
      cpos->x -= (cpos->x - temppos.x) * temp;
      cpos->y -= (cpos->y - temppos.y) * temp;
      cpos->z -= (cpos->z - temppos.z) * temp;
@@ -546,10 +526,19 @@ void keyboardInput(GLFWwindow *window, char *direction)
 }
 
 
+void movePitch(struct v3f *rot, struct v3f norm)
+{
+     rot->x = (asinf(-norm.z) * 180 / PI) * cosf(rot->y / 180.0f * PI);
+     rot->x += (asinf(norm.x) * 180 / PI) * sinf(rot->y / 180.0f * PI);
+     rot->z = (asinf(norm.x) * 180 / PI) * cosf(rot->y / 180.0f * PI);
+     rot->z += (asinf(norm.z) * 180 / PI) * sinf(rot->y / 180.0f * PI);
+}
+
+
 void movement(struct v3f *cpos, struct v3f *crot, char direction,
               float speed, int tsize, int type)
 {
-     struct v3f normal, pos;
+     struct v3f pos, norm;
      float ground, temp, dir = 0.0f, moar = 2.3f;
      char a = 0;
      pos = *cpos;
@@ -621,17 +610,19 @@ void movement(struct v3f *cpos, struct v3f *crot, char direction,
      if (type == INPUT_TYPE_VEHICLE)
           a *= -1;
      degreestovector3d(&pos, *crot, mv3f(0.0f, dir, 0.0f), a * speed);
-     temp   = readTerrainHeightPlane(pos.x, pos.z, &normal, tsize);
-     ground = readTerrainHeightPlane(cpos->x, cpos->z, &normal, tsize);
-     if (temp > ground + 1.3f)
-          speed = 0.041f;
+     temp   = readTerrainHeightPlane(pos.x, pos.z, &norm, tsize);
+     ground = readTerrainHeightPlane(cpos->x, cpos->z, &norm, tsize);
+     if (temp > ground + 1.7f)
+          speed = 0.1f;
      else if (temp > ground)
-          speed *= 1 - ((temp - ground) / 1.3f);
+          speed *= 1 - ((temp - ground) / 1.7f);
      moar = cpos->y;
      degreestovector3d(cpos, *crot, mv3f(0.0f, dir, 0.0f), a * speed);
-     ground = readTerrainHeightPlane(cpos->x, cpos->z, &normal, tsize);
+     ground = readTerrainHeightPlane(cpos->x, cpos->z, &norm, tsize);
      ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
      ground += 1.8f;
+     if (type == INPUT_TYPE_VEHICLE)
+          movePitch(crot, norm);
      cpos->y = (moar + temp + 1.8f) / 2.0f;
      cpos->y = cpos->y < ground ? ground : cpos->y;
 }
@@ -1067,7 +1058,7 @@ int main(int argc, char *argv[])
                     }
                }
                else if (state == 2) {
-                    mouseLook(window, &crot);
+                    //mouseLook(window, &crot);
                     movement(&groundunits[0].pos, &groundunits[0].rot,
                              direction, 3.0f, tsize, INPUT_TYPE_VEHICLE);
                     cameraTrailMovement(&cpos, &crot, groundunits[0], tsize);
@@ -1081,7 +1072,8 @@ int main(int argc, char *argv[])
                updateCamera(crot);
                glTranslatef(-cpos.x, -cpos.y, -cpos.z);
                render(window, scene, textquads, textures, shaders,
-                      cpos, crot, &sector, &tsize, &fps, airunits, groundunits);
+                      cpos, crot, &sector, &tsize, &fps, airunits,
+                      groundunits);
           }
           free(scene);
           free(airunits);

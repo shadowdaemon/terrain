@@ -69,6 +69,6 @@ void drawModel2(const struct aiScene *scene, struct v3f pos,
 void drawModel(const struct aiScene *scene, struct v3f pos,
                struct v3f rot, GLfloat size, GLuint alpha)
 {
-     GLuint color[3] = {255, 255, 255};
+     const GLuint color[3] = {255, 255, 255};
      drawModel2(scene, pos, rot, size, color, alpha);
 }

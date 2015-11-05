@@ -16,6 +16,7 @@ void degreestovector3d(struct v3f*, struct v3f, struct v3f, float);
 float vectorstodegree2d(struct v3f, struct v3f);
 struct v3f normalize3d(struct v3f);
 struct v3f calcNormal(float [3], float [3], float [3]);
+void createMatrix(float *, float *);
 float planeHeight(float [2], float [3], float [3], float [3], struct v3f*);
 float lerp(float, float, float, float);
 void createGradient(void);
