@@ -539,7 +539,8 @@ void movement(struct v3f *cpos, struct v3f *crot, char direction,
               float speed, int tsize, int type)
 {
      struct v3f pos, norm;
-     float ground, temp, dir = 0.0f, moar = 2.3f;
+     const float rotSpeed = 2.3f;
+     float dir = 0.0f;
      char a = 0;
      pos = *cpos;
      if ((direction | INPUT_LEFT_SHIFT) == direction)
@@ -559,7 +560,7 @@ void movement(struct v3f *cpos, struct v3f *crot, char direction,
                dir = 90.0f;
           }
           else if (type == INPUT_TYPE_VEHICLE)
-               crot->y -= moar;
+               crot->y -= rotSpeed;
           break;
      case INPUT_RIGHT:
           if (type == INPUT_TYPE_PEDESTRIAN) {
@@ -567,7 +568,7 @@ void movement(struct v3f *cpos, struct v3f *crot, char direction,
                dir = 270.0f;
           }
           else if (type == INPUT_TYPE_VEHICLE)
-               crot->y += moar;
+               crot->y += rotSpeed;
           break;
      case INPUT_UP_RIGHT:
           a = -1;
@@ -575,7 +576,7 @@ void movement(struct v3f *cpos, struct v3f *crot, char direction,
                dir = 45.0f;
           else if (type == INPUT_TYPE_VEHICLE) {
                dir = 0.0f;
-               crot->y += moar;
+               crot->y += rotSpeed;
           }
           break;
      case INPUT_UP_LEFT:
@@ -584,7 +585,7 @@ void movement(struct v3f *cpos, struct v3f *crot, char direction,
                dir = -45.0f;
           else if (type == INPUT_TYPE_VEHICLE) {
                dir = 0.0f;
-               crot->y -= moar;
+               crot->y -= rotSpeed;
           }
           break;
      case INPUT_DOWN_RIGHT:
@@ -593,7 +594,7 @@ void movement(struct v3f *cpos, struct v3f *crot, char direction,
                dir = -45.0f;
           else if (type == INPUT_TYPE_VEHICLE) {
                dir = 0.0f;
-               crot->y += moar;
+               crot->y += rotSpeed;
           }
           break;
      case INPUT_DOWN_LEFT:
@@ -602,7 +603,7 @@ void movement(struct v3f *cpos, struct v3f *crot, char direction,
                dir = 45.0f;
           else if (type == INPUT_TYPE_VEHICLE) {
                dir = 0.0f;
-               crot->y -= moar;
+               crot->y -= rotSpeed;
           }
           break;
      default: break;
@@ -610,21 +611,13 @@ void movement(struct v3f *cpos, struct v3f *crot, char direction,
      if (type == INPUT_TYPE_VEHICLE)
           a *= -1;
      degreestovector3d(&pos, *crot, mv3f(0.0f, dir, 0.0f), a * speed);
-     temp   = readTerrainHeightPlane(pos.x, pos.z, &norm, tsize);
-     ground = readTerrainHeightPlane(cpos->x, cpos->z, &norm, tsize);
-     if (temp > ground + 1.7f)
-          speed = 0.1f;
-     else if (temp > ground)
-          speed *= 1 - ((temp - ground) / 1.7f);
-     moar = cpos->y;
-     degreestovector3d(cpos, *crot, mv3f(0.0f, dir, 0.0f), a * speed);
-     ground = readTerrainHeightPlane(cpos->x, cpos->z, &norm, tsize);
-     ground = ground < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : ground;
-     ground += 1.8f;
+     readTerrainHeightPlane(pos.x, pos.z, &norm, tsize);
      if (type == INPUT_TYPE_VEHICLE)
           movePitch(crot, norm);
-     cpos->y = (moar + temp + 1.8f) / 2.0f;
-     cpos->y = cpos->y < ground ? ground : cpos->y;
+     degreestovector3d(cpos, *crot, mv3f(0.0f, dir, 0.0f), a * speed);
+     cpos->y = readTerrainHeightPlane(cpos->x, cpos->z, &norm, tsize);
+     cpos->y = cpos->y < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : cpos->y;
+     cpos->y += 1.8f;
 }
 
 
@@ -1060,7 +1053,7 @@ int main(int argc, char *argv[])
                else if (state == 2) {
                     //mouseLook(window, &crot);
                     movement(&groundunits[0].pos, &groundunits[0].rot,
-                             direction, 3.0f, tsize, INPUT_TYPE_VEHICLE);
+                             direction, 11.0f, tsize, INPUT_TYPE_VEHICLE);
                     cameraTrailMovement(&cpos, &crot, groundunits[0], tsize);
                     if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS
                         && st < 1)
