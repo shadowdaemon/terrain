@@ -7,6 +7,7 @@
 float pos(float);
 float neg(float);
 int snap(float, int);
+float clamp(float *, float, float);
 struct v2f mv2f(float, float);
 struct v3f mv3f(float, float, float);
 float distance2d(struct v3f, struct v3f);

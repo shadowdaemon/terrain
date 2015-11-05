@@ -26,6 +26,16 @@ int snap(float num, int snap)
 }
 
 
+float clamp(float *in, float min, float max)
+{
+     if (*in > max)
+          *in = max;
+     else if (*in < min)
+          *in = min;
+     return *in;
+}
+
+
 struct v2f mv2f(float x, float y)
 {
      struct v2f temp;
