@@ -203,6 +203,16 @@ struct unit {
      } p;
 };
 
+/* Only used for rendering. */
+struct grass {
+     struct v3f p; /* Position. */
+     float r;      /* Rotation. */
+     float s;      /* Size. */
+     float d;      /* Distance from observer. */
+     int t;        /* Type. */
+     GLubyte a;    /* Alpha. */
+};
+
 struct terrain algorithmicTerrain(float, float);
 float readTerrainHeight(float, float);
 float readTerrainHeightPlane(float, float, struct v3f*, int);
@@ -217,6 +227,7 @@ void drawModel2(const struct aiScene*, struct v3f, struct v3f, GLfloat,
                 const GLuint*, GLuint);
 void renderGroundScenery(struct aiScene *, GLuint *, struct v3f, struct v3f,
                          int, float);
+void renderGrass(GLuint *, struct v3f, struct v3f, int, float);
 void render(GLFWwindow*, struct aiScene*, struct aiScene*, GLuint*, GLuint*,
             struct v3f, struct v3f, struct v2f*, int*, float*,
             struct unit*, struct unit*);

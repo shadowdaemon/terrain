@@ -1,4 +1,5 @@
 #include <assimp/scene.h>
+#include <stdlib.h>
 #include "maths.h"
 
 
@@ -272,4 +273,224 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures,
           }
      }
      update = 0;
+}
+
+
+void grassQuad(struct v3f pos, float rot, float size, char type, GLuint alpha)
+{
+     int h;
+     float u, v, vv;
+     switch (type) {
+     case GRASS_GRASS1:
+          h = 1;
+          u = 0.0f;
+          v = 0.0f;
+          break;
+     case GRASS_GRASS2:
+          h = 1;
+          u = 0.0f;
+          v = 0.25f;
+          break;
+     case GRASS_BUSH1:
+          h = 1;
+          u = 0.505f;
+          v = 0.0f;
+          break;
+     case GRASS_BUSH2:
+          h = 1;
+          u = 0.505f;
+          v = 0.25f;
+          break;
+     case GRASS_BAMBOO:
+          h = 2;
+          u = 0.0f;
+          v = 0.5f;
+          break;
+     case GRASS_DEAD:
+          h = 1;
+          u = 0.505f;
+          v = 0.5f;
+          break;
+     case GRASS_FLOWERS:
+          h = 1;
+          u = 0.505f;
+          v = 0.75f;
+          break;
+     default:
+          h = 1;
+          u = 0.0f;
+          v = 0.0f;
+     }
+     if (h == 1)
+          vv = 0.24f;
+     else
+          vv = 0.495f;
+     glMateriali(GL_FRONT, GL_SHININESS, 170);
+     glPushMatrix();
+     glTranslatef(pos.x, pos.y, pos.z);
+     glRotatef(rot, 0.0f, 1.0f, 0.0f);
+     glScalef(size, size, size);
+     glBegin(GL_QUADS);
+     glColor4ub(255, 255, 255, alpha);
+     glNormal3i(0, 0, 1);
+     glTexCoord2f(u, v);
+     glVertex3i(0, 0, 0);
+     glTexCoord2f(u + 0.495f, v);
+     glVertex3i(1, 0, 0);
+     glTexCoord2f(u + 0.495f, v + vv);
+     glVertex3i(1, h, 0);
+     glTexCoord2f(u, v + vv);
+     glVertex3i(0, h, 0);
+     glEnd();
+     glPopMatrix();
+}
+
+
+int compGrass(const void *b, const void *a)
+{
+     const struct grass *ga = (const struct grass *) a;
+     const struct grass *gb = (const struct grass *) b;
+     return (ga->d > gb->d) - (ga->d < gb->d);
+}
+
+
+void renderGrass(GLuint *textures, struct v3f cpos, struct v3f crot,
+                 int tsize, float fps)
+{
+     int xgrid, zgrid, x, z, x1, z1, cull, density, i = 0, j = 0, a;
+     static char update = 1;
+     static float vdist = VIEW_DISTANCE_HALF * 0.3f;
+     const int size = 30;
+     float xpos, zpos, dist, rot, rot2, vdisthalf, h2;
+     static struct v3f sector;
+     static struct v3f normal[SCENERY_SIZE_GRASS];
+     static float height[SCENERY_SIZE_GRASS];
+     static unsigned char type[SCENERY_SIZE_GRASS];
+     GLubyte alpha;
+     static struct grass grass[SCENERY_SIZE_GRASS];
+     glMateriali(GL_FRONT, GL_SHININESS, 92);
+     glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE_GRASS]);
+     glDisable(GL_CULL_FACE);
+     glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 0.0f);
+     if (distance2d(cpos, sector) > 0.5f * tsize) {
+          sector = cpos;
+          update = 1;
+     }
+     x = (int) (sector.x / size);
+     z = (int) (sector.z / size);
+     if (fps < 19.0f && vdist > 150.0f) {
+          if (fps < 14.0f)
+               vdist -= 25.0f;
+          else
+               vdist -= 2.5f;
+     }
+     else if (vdist < VIEW_DISTANCE_HALF)
+          vdist++;
+     vdisthalf = vdist / 2.0f;
+     for (xgrid = 0, zgrid = 0;
+          i < SCENERY_SIZE_GRASS && xgrid < TERRAIN_GRID_SIZE_HALF
+               && zgrid < TERRAIN_GRID_SIZE_HALF;
+          xgrid++) {
+          xpos = (xgrid - TERRAIN_GRID_SIZE_QUARTER + x) * size;
+          zpos = (zgrid - TERRAIN_GRID_SIZE_QUARTER + z) * size;
+          x1 = sqrt(fabs(xpos * zpos + 83)) * 213;
+          x1 = (int) (x1 + xpos) % 77;
+          z1 = (int) (x1 + zpos) % 73;
+          xpos += z1;
+          zpos += x1;
+          dist = distance3d(cpos, mv3f(xpos, height[i], zpos));
+          rot  = 180 - vectorstodegree2d(cpos, mv3f(xpos, 0, zpos));
+          cull = fabs((int) (crot.y - rot));
+          while (cull >= 360)
+               cull -= 360;
+          if (cull <= 85 || cull >= 275 || crot.x > 27 || update == 1
+              || dist < tsize * 2) {
+               if (update) {
+                    height[i] = readTerrainHeightPlane
+                         (xpos, zpos, &normal[i], tsize) - 1.2f;
+                    /* h2 = fabs(distance3d(mv3f(0.0f, -1.0f, 0.0f), normal[i])); */
+                    /* height[i] -= h2 > 0.25f ? 1.7f : h2 > 0.4f ? 2.5f : 0; */
+                    type[i] = readTerrainType(xpos, zpos);
+               }
+               x1 = x1 * x1 + z1 * z1;
+               x1 = x1 % SCENERY_DENSITY_GRASS;
+               switch (type[i]) {
+               case T_TYPE_GRASS_1:
+                    density = 710;
+                    break;
+               case T_TYPE_GRASS_2:
+                    density = 747;
+                    break;
+               case T_TYPE_GRASS_3:
+                    density = 701;
+                    break;
+               case T_TYPE_VILLAGE:
+                    density = 880;
+                    break;
+               case T_TYPE_FOREST1:
+                    density = 970;
+                    break;
+               case T_TYPE_FOREST2:
+                    density = 920;
+                    break;
+               case T_TYPE_DIRT:
+                    density = 376;
+                    break;
+               case T_TYPE_DESERT:
+                    density = 261;
+                    break;
+               case T_TYPE_SNOW:
+                    density = 0;
+                    break;
+               default:
+                    density = 670;
+               }
+               if (dist < vdist) {
+                    rot2 = height[i] * 20;
+                    if (height[i] > TERRAIN_WATER_LEVEL + 50) {
+                         if (dist < vdisthalf)
+                              alpha = 255;
+                         else if (dist < vdist)
+                              alpha = (GLubyte) (255 -
+                                  ((dist - vdisthalf) / vdisthalf) * 255);
+                         else
+                              alpha = 0;
+                         if (x1 < density) {
+                              grass[j].p = mv3f(xpos, height[i], zpos);
+                              grass[j].r = rot2;
+                              grass[j].s = 4.3f;
+                              grass[j].d = dist;
+                              grass[j].a = alpha;
+                              if (type[i] == T_TYPE_DIRT ||
+                                  type[i] == T_TYPE_DESERT)
+                                   grass[j].t = GRASS_DEAD;
+                              else if (type[i] == T_TYPE_GRASS_1) {
+                                   a = x1 % 6;
+                                   if (a < 2)
+                                        grass[j].t = GRASS_GRASS1;
+                                   else if (a < 4)
+                                        grass[j].t = GRASS_GRASS2;
+                                   else
+                                        grass[j].t = GRASS_FLOWERS;
+                              }
+                              else
+                                   grass[j].t = x1 % 8;
+                              j++;
+                         }
+                    }
+               }
+          }
+          i++;
+          if (xgrid >= TERRAIN_GRID_SIZE_HALF - 1) {
+               zgrid++;
+               xgrid = -1;
+          }
+     }
+     qsort(grass, j, sizeof(struct grass), compGrass);
+     for (i = 0; i <= j; i++)
+          grassQuad(grass[i].p, grass[i].r, grass[i].s,
+                    grass[i].t, grass[i].a);
+     update = 0;
+     glEnable(GL_CULL_FACE);
+     glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1.0f);
 }
