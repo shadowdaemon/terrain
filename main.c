@@ -676,7 +676,7 @@ int main(int argc, char *argv[])
      struct aiScene *textquads = malloc(sizeof(struct aiScene) * 36);
      struct unit    *airunits  = malloc(sizeof(struct unit) * 1);
      struct unit *groundunits  = malloc(sizeof(struct unit) * 1);
-     nullv3f = (const struct v3f) mv3f(0.0f, 0.0f, 0.0f);
+     nullv3f = mv3f(0.0f, 0.0f, 0.0f);
      createGradient();
      if ((window = startGraphics(textures, shaders)) != NULL &&
          loadModels(scene) && loadTextQuads(textquads)) {

@@ -215,6 +215,8 @@ void drawModel(const struct aiScene*, struct v3f, struct v3f,
                GLfloat, GLuint);
 void drawModel2(const struct aiScene*, struct v3f, struct v3f, GLfloat,
                 const GLuint*, GLuint);
+void renderGroundScenery(struct aiScene *, GLuint *, struct v3f, struct v3f,
+                         int, float);
 void render(GLFWwindow*, struct aiScene*, struct aiScene*, GLuint*, GLuint*,
             struct v3f, struct v3f, struct v2f*, int*, float*,
             struct unit*, struct unit*);
