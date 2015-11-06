@@ -389,10 +389,10 @@ void renderUnits(struct aiScene *scene, GLuint *textures,
                mW = 0;
                break;
           case UNIT_BUILDING_VTOL_FAC:
-               tB = TEX_BUILDING_2;
-               mB = MODEL_BUILDING_VTOL_FAC;
-               tP = 0;
-               mP = 0;
+               tB = TEX_FLOOR_1;
+               mB = MODEL_BUILDING_FAC_FLOOR;
+               tP = TEX_BUILDING_2;
+               mP = MODEL_BUILDING_VTOL_FAC;
                tW = 0;
                mW = 0;
                break;

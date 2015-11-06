@@ -295,8 +295,6 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      createPerlinTexture(PERLIN_SIZE, TEX_CLOUD, bits);
      glBindTexture(GL_TEXTURE_2D, textures[TEX_FONT]);
      loadTexture2D("data/textures/font_alpha.tga");
-     glBindTexture(GL_TEXTURE_2D, textures[TEX_BUILDING_1]);
-     loadTexture2D("data/textures/building1.png");
      glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE_GRASS]);
      loadTexture2D("data/textures/foliage_grass.png");
      glBindTexture(GL_TEXTURE_2D, textures[TEX_BODY_1]);
@@ -305,8 +303,12 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      loadTexture2D("data/textures/warzone/page-16-droid-drives.png");
      glBindTexture(GL_TEXTURE_2D, textures[TEX_BARB_1]);
      loadTexture2D("data/textures/warzone/page-7-barbarians-arizona.png");
+     glBindTexture(GL_TEXTURE_2D, textures[TEX_BUILDING_1]);
+     loadTexture2D("data/textures/building1.png");
      glBindTexture(GL_TEXTURE_2D, textures[TEX_BUILDING_2]);
      loadTexture2D("data/textures/warzone/page-13-player-buildings.png");
+     glBindTexture(GL_TEXTURE_2D, textures[TEX_FLOOR_1]);
+     loadTexture2D("data/textures/warzone/page-9-player-buildings-bases-rockies.png");
      /* Six texture functions may be specified:
         GL_ADD, GL_MODULATE, GL_DECAL, GL_BLEND,
         GL_REPLACE, or GL_COMBINE. */
@@ -612,6 +614,10 @@ char loadModels(struct aiScene *scene)
           return GL_FALSE;
      else
           scene[MODEL_BUILDING_VTOL_FAC] = *stemp;
+     if ((stemp = loadModel("data/models/warzone/blbfact.obj")) == NULL)
+          return GL_FALSE;
+     else
+          scene[MODEL_BUILDING_FAC_FLOOR] = *stemp;
      return GL_TRUE;
 }
 
