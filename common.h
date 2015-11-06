@@ -205,6 +205,12 @@ struct unit {
      } p;
 };
 
+struct team {
+     unsigned char num;
+     struct unit *airunits;
+     struct unit *groundunits;
+};
+
 /* Only used for rendering. */
 struct grass {
      struct v3f p; /* Position. */
@@ -232,7 +238,7 @@ void renderGroundScenery(struct aiScene *, GLuint *, struct v3f, struct v3f,
 void renderGrass(GLuint *, struct v3f, struct v3f, int, float);
 void render(GLFWwindow*, struct aiScene*, struct aiScene*, GLuint*, GLuint*,
             struct v3f, struct v3f, struct v2f*, int*, float*,
-            struct unit*, struct unit*);
+            struct team *);
 void movePitch(struct v3f *, struct v3f);
 void movement(struct v3f *, struct v3f *, char, float, int, int);
 void flyMovement(struct unit *, char, int);

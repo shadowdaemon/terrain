@@ -421,9 +421,10 @@ void render(GLFWwindow *window, struct aiScene *scene,
             struct v3f cpos, /* Camera position. */
             struct v3f crot, /* Camera rotation. */
             struct v2f *sector, int *tsize, float *fps,
-            struct unit *airunits, struct unit *groundunits) {
+            struct team *teams) {
      GLfloat color[4], temp;
      GLint lpos[4], mpos[4];
+     int i;
      struct v3f n;
      float camHeight = fabs(cpos.y - readTerrainHeightPlane
                             (cpos.x, cpos.z, &n, *tsize));
@@ -507,8 +508,11 @@ void render(GLFWwindow *window, struct aiScene *scene,
      if (swapb) {
           glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
           renderWater(cpos, crot, color, *tsize);
-          renderUnits(scene, textures, airunits);
-          renderUnits(scene, textures, groundunits);
+          char numTeams = 2;
+          for (i = 0; i < numTeams; i++) {
+               renderUnits(scene, textures, teams[i].airunits);
+               renderUnits(scene, textures, teams[i].groundunits);
+          }
           if (0) { /* Just disable for now. */
                glEnable(GL_POINT_SPRITE);
                glEnable(GL_PROGRAM_POINT_SIZE);
@@ -571,16 +575,16 @@ void render(GLFWwindow *window, struct aiScene *scene,
                sceneQuad();
           }
           glUseProgramARB(0);
-          glBindTexture(GL_TEXTURE_2D, textures[TEX_FONT]);
-          renderNumber(cpos.x, textquads, mv2f(250, 120));
-          renderNumber(cpos.z, textquads, mv2f(250, 70));
-          renderNumber(fps2, textquads, mv2f(250, 20));
-          renderNumber(airunits[0].p.airv.height, textquads,
-                       mv2f(RESX - 100, 120));
-          renderNumber(airunits[0].p.airv.speed * 10.0f, textquads,
-                       mv2f(RESX - 100, 70));
-          renderNumber(airunits[0].p.airv.thrust * 100, textquads,
-                       mv2f(RESX - 100, 20));
+          /* glBindTexture(GL_TEXTURE_2D, textures[TEX_FONT]); */
+          /* renderNumber(cpos.x, textquads, mv2f(250, 120)); */
+          /* renderNumber(cpos.z, textquads, mv2f(250, 70)); */
+          /* renderNumber(fps2, textquads, mv2f(250, 20)); */
+          /* renderNumber(airunits[0].p.airv.height, textquads, */
+          /*              mv2f(RESX - 100, 120)); */
+          /* renderNumber(airunits[0].p.airv.speed * 10.0f, textquads, */
+          /*              mv2f(RESX - 100, 70)); */
+          /* renderNumber(airunits[0].p.airv.thrust * 100, textquads, */
+          /*              mv2f(RESX - 100, 20)); */
      }
      glMatrixMode(GL_PROJECTION);
      glPopMatrix();

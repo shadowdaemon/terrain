@@ -665,7 +665,7 @@ int main(int argc, char *argv[])
 {
      GLuint textures[MAX_TEXTURES], shaders[5];
      GLFWwindow *window = NULL;
-     int i, tsize = TERRAIN_SQUARE_SIZE, st = 0;
+     int i, tsize = TERRAIN_SQUARE_SIZE, st = 0, numTeams = 2;
      char direction, state = 0;
      float fps = 0.0f;
      struct v2f sector = {0.0f, 0.0f};          /* Terrain update sector. */
@@ -674,24 +674,29 @@ int main(int argc, char *argv[])
                         (0.0f, 0.0f, tsize) + 1.8f, 0.0f};
      struct aiScene *scene     = malloc(sizeof(struct aiScene) * 32);
      struct aiScene *textquads = malloc(sizeof(struct aiScene) * 36);
-     struct unit    *airunits  = malloc(sizeof(struct unit) * 1);
-     struct unit *groundunits  = malloc(sizeof(struct unit) * 1);
+     struct team    *teams     = malloc(sizeof(struct team) * 2);
+     for (i = 0; i < numTeams; i++) {
+          teams[i].airunits  = malloc(sizeof(struct unit) * 1);
+          teams[i].groundunits  = malloc(sizeof(struct unit) * 1);
+     }
      nullv3f = mv3f(0.0f, 0.0f, 0.0f);
      createGradient();
      if ((window = startGraphics(textures, shaders)) != NULL &&
          loadModels(scene) && loadTextQuads(textquads)) {
           /* Position some units around for testing. */
           for (i = 0; i < 1; i++) {
-               airunits[i].type = UNIT_AIR_FIGHTER_1;
-               airunits[i].pos.x = (i - 1) * 50;
-               airunits[i].pos.z = (i - 1) * 23 + 50;
-               airunits[i].pos.y = readTerrainHeightPlane2
-                    (airunits[i].pos.x, airunits[i].pos.z, tsize);
-               groundunits[i].type = UNIT_GROUND_JEEP_1;
-               groundunits[i].pos.x = 0.0f;
-               groundunits[i].pos.z = 0.0f;
-               groundunits[i].pos.y = readTerrainHeightPlane2
-                    (groundunits[i].pos.x, groundunits[i].pos.z, tsize);
+               teams[0].airunits[i].type = UNIT_AIR_FIGHTER_1;
+               teams[0].airunits[i].pos.x = (i - 1) * 50;
+               teams[0].airunits[i].pos.z = (i - 1) * 23 + 50;
+               teams[0].airunits[i].pos.y = readTerrainHeightPlane2
+                    (teams[0].airunits[i].pos.x, teams[0].airunits[i].pos.z,
+                     tsize);
+               teams[0].groundunits[i].type = UNIT_GROUND_JEEP_1;
+               teams[0].groundunits[i].pos.x = 0.0f;
+               teams[0].groundunits[i].pos.z = 0.0f;
+               teams[0].groundunits[i].pos.y = readTerrainHeightPlane2
+                    (teams[0].groundunits[i].pos.x,
+                     teams[0].groundunits[i].pos.z, tsize);
           }
           /* Main loop. */
           while (!glfwWindowShouldClose(window)) {
@@ -701,50 +706,54 @@ int main(int argc, char *argv[])
                     mouseLook(window, &crot);
                     movement(&cpos, &crot, direction, 1.0f, tsize,
                              INPUT_TYPE_PEDESTRIAN);
-                    if (distance3d(cpos, airunits[0].pos) < 10.0f
+                    if (distance3d(cpos, teams[0].airunits[0].pos) < 10.0f
                         && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
                          state = 1;
                          st = 10;
                     }
-                    else if (distance3d(cpos, groundunits[0].pos) < 10.0f
+                    else if (distance3d(cpos, teams[0].groundunits[0].pos)
+                             < 10.0f
                         && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
                          state = 2;
                          st = 10;
                     }
                }
                else if (state == 1) {
-                    if (airunits[0].p.airv.height > 3.0f)
-                         mouseLook(window, &airunits[0].rot);
-                    flyMovement(&airunits[0], direction, tsize);
-                    cameraTrailMovement(&cpos, &crot, airunits[0], tsize);
-                    if (airunits[0].p.airv.thrust == 0 &&
-                        airunits[0].p.airv.height
-                        < 3.0f && airunits[0].p.airv.speed < 2.0f
+                    if (teams[0].airunits[0].p.airv.height > 3.0f)
+                         mouseLook(window, &teams[0].airunits[0].rot);
+                    flyMovement(&teams[0].airunits[0], direction, tsize);
+                    cameraTrailMovement(&cpos, &crot, teams[0].airunits[0],
+                                        tsize);
+                    if (teams[0].airunits[0].p.airv.thrust == 0 &&
+                        teams[0].airunits[0].p.airv.height
+                        < 3.0f && teams[0].airunits[0].p.airv.speed < 2.0f
                         && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS
                         && st < 1) {
                          state = 0;
-                         airunits[0].p.airv.vtolThrust = 0;
+                         teams[0].airunits[0].p.airv.vtolThrust = 0;
                     }
                }
                else if (state == 2) {
-                    movement(&groundunits[0].pos, &groundunits[0].rot,
+                    movement(&teams[0].groundunits[0].pos,
+                             &teams[0].groundunits[0].rot,
                              direction, 17.0f, tsize, INPUT_TYPE_VEHICLE);
-                    cameraTrailMovement(&cpos, &crot, groundunits[0], tsize);
+                    cameraTrailMovement(&cpos, &crot,
+                                        teams[0].groundunits[0], tsize);
                     if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS
                         && st < 1)
                          state = 0;
                }
                st--;
-               updateAirUnits(airunits, tsize);
+               for (i = 0; i < numTeams; i++)
+                    updateAirUnits(teams[i].airunits, tsize);
                // updateGroundUnits(groundunits, tsize);
                updateCamera(crot);
                glTranslatef(-cpos.x, -cpos.y, -cpos.z);
                render(window, scene, textquads, textures, shaders,
-                      cpos, crot, &sector, &tsize, &fps, airunits,
-                      groundunits);
+                      cpos, crot, &sector, &tsize, &fps, teams);
           }
           free(scene);
-          free(airunits);
+          //free(airunits);
           free(textquads);
           glfwDestroyWindow(window);
           glfwTerminate();
