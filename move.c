@@ -70,7 +70,7 @@ void movement(struct v3f *cpos, struct v3f *crot, char direction,
                dir = -45.0f;
           else if (type == INPUT_TYPE_VEHICLE) {
                dir = 0.0f;
-               crot->y += rotSpeed;
+               crot->y -= rotSpeed;
           }
           break;
      case INPUT_DOWN_LEFT:
@@ -79,7 +79,7 @@ void movement(struct v3f *cpos, struct v3f *crot, char direction,
                dir = 45.0f;
           else if (type == INPUT_TYPE_VEHICLE) {
                dir = 0.0f;
-               crot->y -= rotSpeed;
+               crot->y += rotSpeed;
           }
           break;
      default: break;
