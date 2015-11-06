@@ -49,7 +49,7 @@ void gScenery(struct aiScene *scene, GLuint *textures,
                     else if (x1 % 15 == 7 && z1 % 7 == 0) {
                          if (slope < 0.3f) {
                               glBindTexture(GL_TEXTURE_2D,
-                                            textures[TEX_BUILDING]);
+                                            textures[TEX_BUILDING_1]);
                               drawModel((const struct aiScene *)
                                         &scene[MODEL_BUILDING_HOUSE1],
                                         mv3f(xpos, height[i], zpos),
@@ -130,7 +130,7 @@ void gScenery(struct aiScene *scene, GLuint *textures,
                                    mv3f(0, x1, 0), msize, alpha);
                     else if (slope < 0.3f) {
                          glBindTexture(GL_TEXTURE_2D,
-                                       textures[TEX_BUILDING]);
+                                       textures[TEX_BUILDING_1]);
                          if (a < 5)
                               drawModel((const struct aiScene *)
                                         &scene[MODEL_BUILDING_HOUSE2],

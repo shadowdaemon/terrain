@@ -373,28 +373,36 @@ void renderUnits(struct aiScene *scene, GLuint *textures,
      for (i = 0; i < 5; i++) {
           switch (units[i].type) {
           case UNIT_AIR_FIGHTER_1:
-               tB  = TEX_BODY_1;
-               mB  = MODEL_BODY_1;
-               tP  = TEX_PROP_1;
-               mP  = MODEL_PROP_1;
-               tW  = TEX_WEAPON_1;
-               mW  = 0;//MODEL_WEAPON_1;
+               tB = TEX_BODY_1;
+               mB = MODEL_BODY_1;
+               tP = TEX_PROP_1;
+               mP = MODEL_PROP_1;
+               tW = TEX_WEAPON_1;
+               mW = 0;//MODEL_WEAPON_1;
                break;
           case UNIT_GROUND_JEEP_1:
-               tB  = TEX_BARB_1;
-               mB  = MODEL_JEEP_1;
-               tP  = 0;
-               mP  = 0;
-               tW  = 0;
-               mW  = 0;
+               tB = TEX_BARB_1;
+               mB = MODEL_JEEP_1;
+               tP = 0;
+               mP = 0;
+               tW = 0;
+               mW = 0;
+               break;
+          case UNIT_BUILDING_VTOL_FAC:
+               tB = TEX_BUILDING_2;
+               mB = MODEL_BUILDING_VTOL_FAC;
+               tP = 0;
+               mP = 0;
+               tW = 0;
+               mW = 0;
                break;
           default:
-               tB  = 0;
-               mB  = 0;
-               tP  = 0;
-               mP  = 0;
-               tW  = 0;
-               mW  = 0;
+               tB = 0;
+               mB = 0;
+               tP = 0;
+               mP = 0;
+               tW = 0;
+               mW = 0;
           }
           if (mB) {
           glBindTexture(GL_TEXTURE_2D, textures[tB]);
@@ -510,8 +518,9 @@ void render(GLFWwindow *window, struct aiScene *scene,
           renderWater(cpos, crot, color, *tsize);
           char numTeams = 2;
           for (i = 0; i < numTeams; i++) {
-               renderUnits(scene, textures, teams[i].airunits);
-               renderUnits(scene, textures, teams[i].groundunits);
+               renderUnits(scene, textures, teams[i].air);
+               renderUnits(scene, textures, teams[i].ground);
+               renderUnits(scene, textures, teams[i].building);
           }
           if (0) { /* Just disable for now. */
                glEnable(GL_POINT_SPRITE);

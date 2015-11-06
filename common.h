@@ -60,18 +60,20 @@
 #define MAX_TEXTURES                        16
 #define UNIT_AIR_FIGHTER_1                  0
 #define UNIT_GROUND_JEEP_1                  1
+#define UNIT_BUILDING_VTOL_FAC              2
 #define TEX_TERRAIN_1                       0
 #define TEX_TERRAIN_2                       1
 #define TEX_FOLIAGE                         2
 #define TEX_CLOUD                           3
 #define TEX_FONT                            4
 #define TEX_RENDER                          5
-#define TEX_BUILDING                        6
+#define TEX_BUILDING_1                      6
 #define TEX_FOLIAGE_GRASS                   7
 #define TEX_BODY_1                          8
 #define TEX_PROP_1                          9
 #define TEX_WEAPON_1                        10
 #define TEX_BARB_1                          11
+#define TEX_BUILDING_2                      12
 #define MODEL_TREE_POPLAR                   0
 #define MODEL_TREE_OAK                      1
 #define MODEL_TREE_FIR                      2
@@ -88,6 +90,7 @@
 #define MODEL_PROP_1                        15
 #define MODEL_WEAPON_1                      16
 #define MODEL_JEEP_1                        17
+#define MODEL_BUILDING_VTOL_FAC             18
 #define GRASS_GRASS1                        0
 #define GRASS_GRASS2                        1
 #define GRASS_BUSH1                         2
@@ -194,6 +197,11 @@ struct gvar {
      float turret;
 };
 
+/* Extra variables for buildings. */
+struct bvar {
+     int whatever;
+};
+
 struct unit {
      int type;
      struct v3f pos;
@@ -202,13 +210,15 @@ struct unit {
      union {
           struct avar airv;
           struct gvar groundv;
+          struct bvar buildv;
      } p;
 };
 
 struct team {
      unsigned char num;
-     struct unit *airunits;
-     struct unit *groundunits;
+     struct unit *air;
+     struct unit *ground;
+     struct unit *building;
 };
 
 /* Only used for rendering. */
