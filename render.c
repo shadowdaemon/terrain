@@ -575,11 +575,11 @@ void render(GLFWwindow *window, struct aiScene *scene,
           renderNumber(cpos.x, textquads, mv2f(250, 120));
           renderNumber(cpos.z, textquads, mv2f(250, 70));
           renderNumber(fps2, textquads, mv2f(250, 20));
-          renderNumber(airunits[0].p.airp.height, textquads,
+          renderNumber(airunits[0].p.airv.height, textquads,
                        mv2f(RESX - 100, 120));
-          renderNumber(airunits[0].p.airp.speed * 10.0f, textquads,
+          renderNumber(airunits[0].p.airv.speed * 10.0f, textquads,
                        mv2f(RESX - 100, 70));
-          renderNumber(airunits[0].p.airp.thrust * 100, textquads,
+          renderNumber(airunits[0].p.airv.thrust * 100, textquads,
                        mv2f(RESX - 100, 20));
      }
      glMatrixMode(GL_PROJECTION);

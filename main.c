@@ -437,8 +437,8 @@ void cameraTrailMovement(struct v3f *cpos, struct v3f *crot,
      const float dist = 40.0f;
      struct v3f temppos = unit.pos;
      float temp = 0.0f;
-     if (unit.p.airp.speed > 80.0f) {
-          temp = 0.37f + (unit.p.airp.speed - 80.0f) * 0.01f;
+     if (unit.p.airv.speed > 80.0f) {
+          temp = 0.37f + (unit.p.airv.speed - 80.0f) * 0.01f;
           temp = temp > 1.0f ? 1.0f : temp;
      }
      else
@@ -713,17 +713,17 @@ int main(int argc, char *argv[])
                     }
                }
                else if (state == 1) {
-                    if (airunits[0].p.airp.height > 3.0f)
+                    if (airunits[0].p.airv.height > 3.0f)
                          mouseLook(window, &airunits[0].rot);
                     flyMovement(&airunits[0], direction, tsize);
                     cameraTrailMovement(&cpos, &crot, airunits[0], tsize);
-                    if (airunits[0].p.airp.thrust == 0 &&
-                        airunits[0].p.airp.height
-                        < 3.0f && airunits[0].p.airp.speed < 2.0f
+                    if (airunits[0].p.airv.thrust == 0 &&
+                        airunits[0].p.airv.height
+                        < 3.0f && airunits[0].p.airv.speed < 2.0f
                         && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS
                         && st < 1) {
                          state = 0;
-                         airunits[0].p.airp.vtolThrust = 0;
+                         airunits[0].p.airv.vtolThrust = 0;
                     }
                }
                else if (state == 2) {

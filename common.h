@@ -181,14 +181,16 @@ struct fx {
      unsigned char life;
 };
 
-struct airparams {
+/* Extra variables for air units. */
+struct avar {
      float thrust;
      float vtolThrust;
      float speed;
      float height;
 };
 
-struct groundparams {
+/* Extra variables for ground units. */
+struct gvar {
      float turret;
 };
 
@@ -198,8 +200,8 @@ struct unit {
      struct v3f rot;
      struct v3f vec;
      union {
-          struct airparams airp;
-          struct groundparams groundp;
+          struct avar airv;
+          struct gvar groundv;
      } p;
 };
 

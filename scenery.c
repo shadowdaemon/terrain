@@ -207,8 +207,9 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures,
      else if (vdist < VIEW_DISTANCE)
           vdist++;
      vdisthalf = vdist / 2.0f;
-     for (xgrid = 0, zgrid = 0, i = 0; i < SCENERY_SIZE && xgrid
-               < TERRAIN_GRID_SIZE && zgrid < TERRAIN_GRID_SIZE; xgrid++) {
+     for (xgrid = 0, zgrid = 0, i = 0; i < SCENERY_SIZE &&
+               xgrid < TERRAIN_GRID_SIZE &&
+               zgrid < TERRAIN_GRID_SIZE; xgrid++) {
           xpos = (xgrid - TERRAIN_GRID_SIZE_HALF + x) * size;
           zpos = (zgrid - TERRAIN_GRID_SIZE_HALF + z) * size;
           x1 = sqrt(fabs(xpos * zpos + 107)) * 123;
