@@ -6,6 +6,7 @@
 #include "maths.h"
 
 
+struct terrainMod *tMods;
 float pgrad[PERLIN_SIZE][PERLIN_SIZE][2];
 struct v3f nullv3f;
 
@@ -30,9 +31,9 @@ void loadTexture2D(const char *file)
      int i;
      FIBITMAP *img = FreeImage_Load(FreeImage_GetFileType(file, 0), file, 0);
      img = FreeImage_ConvertTo32Bits(img);
-     GLsizei width = FreeImage_GetWidth(img);
+     GLsizei width  = FreeImage_GetWidth(img);
      GLsizei height = FreeImage_GetHeight(img);
-     GLubyte *bits = (GLubyte*) FreeImage_GetBits(img);
+     GLubyte *bits  = (GLubyte*) FreeImage_GetBits(img);
      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
                   GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
      /* Set up mipmapping. */
@@ -152,8 +153,8 @@ void loadGLSL(GLchar *src, long len, const char *file)
 {
      FILE *fp = NULL;
      if ((fp = fopen(file, "r"))) {
-          fread(src, 1, len, fp);
-          src[len++] = '\0';
+          if (fread(src, 1, len, fp))
+               src[len++] = '\0';
           fclose(fp);
      }
 }
@@ -680,6 +681,11 @@ int main(int argc, char *argv[])
      int i, tsize = TERRAIN_SQUARE_SIZE, st = 0, numTeams = 2;
      char direction, state = 0;
      float fps = 0.0f;
+     tMods = (struct terrainMod *) malloc(sizeof(struct terrainMod) * 2);
+     tMods[0].pos.x  = 500;
+     tMods[0].pos.y  = 500;
+     tMods[0].radius = 750;
+     tMods[0].height = 0;
      struct v2f sector = {0.0f, 0.0f};          /* Terrain update sector. */
      struct v3f crot = {0.0f, 0.0f, 0.0f};            /* Camera rotation. */
      struct v3f cpos = {0.0f, readTerrainHeightPlane2 /* Camera position. */

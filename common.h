@@ -180,6 +180,12 @@ struct terrain {
      unsigned char type;
 };
 
+struct terrainMod {
+     struct v2i pos;
+     int radius;
+     int height;
+};
+
 struct fx {
      struct v3f pos;
      unsigned char type;

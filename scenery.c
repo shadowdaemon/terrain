@@ -362,7 +362,7 @@ void renderGrass(GLuint *textures, struct v3f cpos, struct v3f crot,
      static char update = 1;
      static float vdist = VIEW_DISTANCE_HALF * 0.3f;
      const int size = 30;
-     float xpos, zpos, dist, rot, rot2, vdisthalf, h2;
+     float xpos, zpos, dist, rot, rot2, vdisthalf;
      static struct v3f sector;
      static struct v3f normal[SCENERY_SIZE_GRASS];
      static float height[SCENERY_SIZE_GRASS];

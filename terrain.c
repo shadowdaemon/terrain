@@ -392,16 +392,38 @@ struct terrain algorithmicTerrain(float x, float z)
 }
 
 
+struct terrain readTerrain(float x, float z)
+{
+     extern struct terrainMod *tMods;
+     struct terrain t1 = algorithmicTerrain(x, z), t2;
+     unsigned char i;
+     float d, m;
+     for (i = 0; i < 1; i++) {
+          if (tMods[i].height == 0) {
+               t2 = algorithmicTerrain(tMods[i].pos.x, tMods[i].pos.y);
+               tMods[i].height = t2.height;
+          }
+          d = distance2d(mv3f(x, 0.0f, z), mv3f
+                         (tMods[i].pos.x, 0.0f, tMods[i].pos.y));
+          m = 2 - d / tMods[i].radius;
+          clamp(&m, 0.0f, 1.0f);
+          if (d < tMods[i].radius)
+               t1.height += (tMods[i].height - t1.height) * m;
+     }
+     return t1;
+}
+
+
 float readTerrainHeight(float x, float z)
 {
-     struct terrain temp = algorithmicTerrain(x, z);
+     struct terrain temp = readTerrain(x, z);
      return temp.height;
 }
 
 
 unsigned char readTerrainType(float x, float z)
 {
-     struct terrain temp = algorithmicTerrain(x, z);
+     struct terrain temp = readTerrain(x, z);
      return temp.type;
 }
 
@@ -584,8 +606,8 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot,
                if (*swapb == 0) {
                     NEx[xgrid][zgrid] = x1;
                     NEz[xgrid][zgrid] = z2;
-                    temp1 = algorithmicTerrain(NEx[xgrid][zgrid],
-                                               NEz[xgrid][zgrid]);
+                    temp1 = readTerrain(NEx[xgrid][zgrid],
+                                        NEz[xgrid][zgrid]);
                     NEy[xgrid][zgrid] = (int) temp1.height;
                     NWx[xgrid][zgrid] = x2;
                     NWz[xgrid][zgrid] = z2;
@@ -593,8 +615,8 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot,
                          (NWx[xgrid][zgrid], NWz[xgrid][zgrid]);
                     SEx[xgrid][zgrid] = x1;
                     SEz[xgrid][zgrid] = z1;
-                    temp2 = algorithmicTerrain(SEx[xgrid][zgrid],
-                                               SEz[xgrid][zgrid]);
+                    temp2 = readTerrain(SEx[xgrid][zgrid],
+                                        SEz[xgrid][zgrid]);
                     SEy[xgrid][zgrid] = (int) temp2.height;
                     SWx[xgrid][zgrid] = x2;
                     SWz[xgrid][zgrid] = z1;
