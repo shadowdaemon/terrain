@@ -771,8 +771,12 @@ int main(int argc, char *argv[])
                       cpos, crot, &sector, &tsize, &fps, teams);
           }
           free(scene);
-          //free(air);
           free(textquads);
+          for (i = 0; i < numTeams; i++) {
+               freeUnitList(&teams[i].air);
+               freeUnitList(&teams[i].ground);
+               freeUnitList(&teams[i].building);
+          }
           glfwDestroyWindow(window);
           glfwTerminate();
           return EXIT_SUCCESS;

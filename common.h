@@ -243,6 +243,7 @@ struct grass {
 };
 
 void initUnitList(struct unit **);
+void freeUnitList(struct unit **);
 void addUnitAir(struct unit **, int, struct v3f);
 void addUnitGround(struct unit **, int, struct v3f);
 void addUnitBuilding(struct unit **, int, struct v3f);

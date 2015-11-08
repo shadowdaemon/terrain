@@ -13,6 +13,20 @@ void initUnitList(struct unit **list)
 }
 
 
+void freeUnitList(struct unit **list)
+{
+     struct unit *p = NULL;
+     while ((*list)->type != UNIT_END_LIST) {
+          p = *list;
+          (*list) = (*list)->next;
+          free(p);
+     }
+     p = *list;
+     (*list) = (*list)->next;
+     free(p);
+}
+
+
 void addUnit(struct unit **list, int type, struct v3f pos)
 {
      while ((*list)->type != UNIT_END_LIST)
