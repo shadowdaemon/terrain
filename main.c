@@ -694,37 +694,34 @@ int main(int argc, char *argv[])
      struct aiScene *textquads = malloc(sizeof(struct aiScene) * 36);
      struct team    *teams     = malloc(sizeof(struct team) * 2);
      for (i = 0; i < numTeams; i++) {
-          teams[i].air      = malloc(sizeof(struct unit) * 1);
-          teams[i].ground   = malloc(sizeof(struct unit) * 1);
-          teams[i].building = malloc(sizeof(struct unit) * 1);
+          initUnitList(&teams[i].air);
+          initUnitList(&teams[i].ground);
+          initUnitList(&teams[i].building);
      }
      nullv3f = mv3f(0.0f, 0.0f, 0.0f);
      createGradient();
      if ((window = startGraphics(textures, shaders)) != NULL &&
          loadModels(scene) && loadTextQuads(textquads)) {
           /* Position some units around for testing. */
-          for (i = 0; i < 1; i++) {
-               teams[0].air[i].type = UNIT_AIR_FIGHTER_1;
-               teams[0].air[i].pos.x = (i - 1) * 50;
-               teams[0].air[i].pos.z = (i - 1) * 23 + 50;
-               teams[0].air[i].pos.y = readTerrainHeightPlane2
-                    (teams[0].air[i].pos.x, teams[0].air[i].pos.z, tsize);
-               teams[0].ground[i].type = UNIT_GROUND_JEEP_1;
-               teams[0].ground[i].pos.x = 0.0f;
-               teams[0].ground[i].pos.z = 0.0f;
-               teams[0].ground[i].pos.y = readTerrainHeightPlane2
-                 (teams[0].ground[i].pos.x, teams[0].ground[i].pos.z, tsize);
-               teams[0].building[i].type = UNIT_BUILDING_VTOL_FAC;
-               teams[0].building[i].pos.x = 500.0f;
-               teams[0].building[i].pos.z = 500.0f;
-               teams[0].building[i].pos.y = readTerrainHeightPlane2
-                 (teams[0].building[i].pos.x,
-                  teams[0].building[i].pos.z, tsize);
-          }
+          addUnitAir(&teams[0].air, UNIT_AIR_FIGHTER_1, mv3f
+                     (50, readTerrainHeightPlane2(50, 0, tsize), 0));
+          addUnitAir(&teams[0].air, UNIT_AIR_FIGHTER_1, mv3f
+                     (150, readTerrainHeightPlane2(150, 0, tsize), 0));
+          addUnitAir(&teams[0].air, UNIT_AIR_FIGHTER_1, mv3f
+                     (0, readTerrainHeightPlane2(0, 200, tsize), 200));
+          addUnitGround(&teams[0].ground, UNIT_GROUND_JEEP_1, mv3f
+                        (20, readTerrainHeightPlane2(20, 100, tsize), 100));
+          addUnitBuilding(&teams[0].building, UNIT_BUILDING_VTOL_FAC, mv3f
+                        (500, readTerrainHeightPlane2
+                         (500, 500, tsize), 500));
           /* Main loop. */
           while (!glfwWindowShouldClose(window)) {
                keyboardInput(window, &direction);
+               mouseLook(window, &crot);
+               movement(&cpos, &crot, direction, 1.0f, tsize,
+                        INPUT_TYPE_PEDESTRIAN);
                /* This mess is just for testing. */
+               if (0)
                if (state == 0) {
                     mouseLook(window, &crot);
                     movement(&cpos, &crot, direction, 1.0f, tsize,
@@ -765,8 +762,8 @@ int main(int argc, char *argv[])
                          state = 0;
                }
                st--;
-               for (i = 0; i < numTeams; i++)
-                    updateAirUnits(teams[i].air, tsize);
+               /* for (i = 0; i < numTeams; i++) */
+               /*      updateAirUnits(teams[i].air, tsize); */
                // updateGroundUnits(ground, tsize);
                updateCamera(crot);
                glTranslatef(-cpos.x, -cpos.y, -cpos.z);

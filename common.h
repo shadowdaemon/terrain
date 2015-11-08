@@ -58,9 +58,11 @@
 
 /* Textures, models, etc. */
 #define MAX_TEXTURES                        16
-#define UNIT_AIR_FIGHTER_1                  0
-#define UNIT_GROUND_JEEP_1                  1
-#define UNIT_BUILDING_VTOL_FAC              2
+#define UNIT_END_LIST                       -1
+#define UNIT_START_LIST                     0
+#define UNIT_AIR_FIGHTER_1                  1
+#define UNIT_GROUND_JEEP_1                  2
+#define UNIT_BUILDING_VTOL_FAC              3
 #define TEX_TERRAIN_1                       0
 #define TEX_TERRAIN_2                       1
 #define TEX_FOLIAGE                         2
@@ -207,10 +209,11 @@ struct gvar {
 
 /* Extra variables for buildings. */
 struct bvar {
-     int whatever;
+     int state;
 };
 
 struct unit {
+     struct unit *next;
      int type;
      struct v3f pos;
      struct v3f rot;
@@ -239,6 +242,10 @@ struct grass {
      GLubyte a;    /* Alpha. */
 };
 
+void initUnitList(struct unit **);
+void addUnitAir(struct unit **, int, struct v3f);
+void addUnitGround(struct unit **, int, struct v3f);
+void addUnitBuilding(struct unit **, int, struct v3f);
 struct terrain algorithmicTerrain(float, float);
 float readTerrainHeight(float, float);
 float readTerrainHeightPlane(float, float, struct v3f*, int);

@@ -271,65 +271,6 @@ void renderMoon(struct v3f cpos, GLint pos[4], float size)
 }
 
 
-void renderExhaust(struct v3f pos, struct v3f rot, float scale, float size)
-{
-     int i;
-     float r, x, y;
-     glMateriali(GL_FRONT, GL_SHININESS, 110);
-     /* glMateriali(GL_FRONT, GL_EMISSION, 78); */
-     glPushMatrix();
-     glTranslatef(pos.x, pos.y, pos.z);
-     glScalef(scale, scale, scale);
-     glRotatef(-rot.y, 0.0f, 1.0f, 0.0f);
-     glRotatef(rot.x, 1.0f, 0.0f, 0.0f);
-     glRotatef(rot.z, 0.0f, 0.0f, 1.0f);
-     glBegin(GL_TRIANGLE_FAN);
-     glColor4ub(195, 110, 30, 185);
-     glVertex3f(1.4286f, 1.4286f, -powf(size, 1.5f)
-                * 5.0f - 14.857f * size);
-     glColor4ub(255, 225, 90, 30);
-     for (i = 0; i <= 360; i += 60) {
-          r = i / PIx180;
-          x = -size * sinf(r);
-          y = size * cosf(r);
-          glVertex3f(x + 1.4286f, y + 1.428f, -4.857f);
-     }
-     glEnd();
-     glBegin(GL_POLYGON);
-     glColor4ub(255, 225, 90, 70);
-     for (i = 360; i >= 0; i -= 60) {
-          r = i / PIx180;
-          x = -size * sinf(r);
-          y = size * cosf(r);
-          glVertex3f(x + 1.428f, y + 1.428f, -4.857f);
-     }
-     glEnd();
-     glBegin(GL_TRIANGLE_FAN);
-     glColor4ub(195, 110, 30, 185);
-     glVertex3f(-1.4286f, 1.4286f, -powf(size, 1.5f) *
-                5.0f - 14.857f * size);
-     glColor4ub(255, 225, 90, 30);
-     for (i = 0; i <= 360; i += 60) {
-          r = i / PIx180;
-          x = -size * sinf(r);
-          y = size * cosf(r);
-          glVertex3f(x - 1.4286f, y + 1.428f, -4.857f);
-     }
-     glEnd();
-     glBegin(GL_POLYGON);
-     glColor4ub(255, 225, 90, 70);
-     for (i = 360; i >= 0; i -= 60) {
-          r = i / PIx180;
-          x = -size * sinf(r);
-          y = size * cosf(r);
-          glVertex3f(x - 1.428f, y + 1.428f, -4.857f);
-     }
-     glEnd();
-     glPopMatrix();
-     /* glMateriali(GL_FRONT, GL_EMISSION, 0); */
-}
-
-
 void renderNumber(int num, struct aiScene *textquads, struct v2f pos)
 {
      int i = 0, j = num;
@@ -369,9 +310,9 @@ void renderFX(void)
 void renderUnits(struct aiScene *scene, GLuint *textures,
                  struct unit *units)
 {
-     int i, tB, tP, tW, mB, mP, mW;
-     for (i = 0; i < 5; i++) {
-          switch (units[i].type) {
+     int tB, tP, tW, mB, mP, mW;
+     while (units->type != UNIT_END_LIST) {
+          switch (units->type) {
           case UNIT_AIR_FIGHTER_1:
                tB = TEX_BODY_1;
                mB = MODEL_BODY_1;
@@ -406,19 +347,20 @@ void renderUnits(struct aiScene *scene, GLuint *textures,
           }
           if (mB) {
           glBindTexture(GL_TEXTURE_2D, textures[tB]);
-          drawModel((const struct aiScene *) &scene[mB], units[i].pos,
-                    units[i].rot, 0.25f, 255);
+          drawModel((const struct aiScene *) &scene[mB], units->pos,
+                    units->rot, 0.25f, 255);
           }
           if (mP) {
           glBindTexture(GL_TEXTURE_2D, textures[tP]);
-          drawModel((const struct aiScene *) &scene[mP], units[i].pos,
-                    units[i].rot, 0.25f, 255);
+          drawModel((const struct aiScene *) &scene[mP], units->pos,
+                    units->rot, 0.25f, 255);
           }
           if (mW) {
           glBindTexture(GL_TEXTURE_2D, textures[tW]);
-          drawModel((const struct aiScene *) &scene[mW], units[i].pos,
-                    units[i].rot, 0.25f, 255);
+          drawModel((const struct aiScene *) &scene[mW], units->pos,
+                    units->rot, 0.25f, 255);
           }
+          units = units->next;
      }
 }
 
@@ -432,7 +374,6 @@ void render(GLFWwindow *window, struct aiScene *scene,
             struct team *teams) {
      GLfloat color[4], temp;
      GLint lpos[4], mpos[4];
-     int i;
      struct v3f n;
      float camHeight = fabs(cpos.y - readTerrainHeightPlane
                             (cpos.x, cpos.z, &n, *tsize));
@@ -516,6 +457,7 @@ void render(GLFWwindow *window, struct aiScene *scene,
      if (swapb) {
           glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
           renderWater(cpos, crot, color, *tsize);
+          int i;
           char numTeams = 2;
           for (i = 0; i < numTeams; i++) {
                renderUnits(scene, textures, teams[i].air);
