@@ -215,6 +215,7 @@ struct bvar {
 struct unit {
      struct unit *next;
      int type;
+     unsigned int health;
      struct v3f pos;
      struct v3f rot;
      struct v3f vec;
@@ -223,6 +224,11 @@ struct unit {
           struct gvar groundv;
           struct bvar buildv;
      } p;
+};
+
+struct unitA {
+     struct unit *p;
+     float a;
 };
 
 struct team {
@@ -247,6 +253,7 @@ void freeUnitList(struct unit **);
 void addUnitAir(struct unit **, int, struct v3f);
 void addUnitGround(struct unit **, int, struct v3f);
 void addUnitBuilding(struct unit **, int, struct v3f);
+struct unitA closestUnit(struct unit *, int, struct v3f);
 struct terrain algorithmicTerrain(float, float);
 float readTerrainHeight(float, float);
 float readTerrainHeightPlane(float, float, struct v3f*);

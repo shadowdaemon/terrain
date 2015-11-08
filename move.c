@@ -313,21 +313,21 @@ void airUnitMove(struct unit *unit, struct v3f pos)
 void airUnitMoveVTOL(struct unit *unit, struct v3f pos)
 {
      float dist = distance2d(unit->pos, pos);
-     float pitch = unit->p.airv.speed > 20.0f ? -5.0f : 7.5f;
+     float pitch = unit->p.airv.speed > 7.0f ? -5.0f : 7.5f;
      int thrust = unit->p.airv.thrust > 0.0f ? INPUT_DOWN : INPUT_NONE;
      if (dist > 200.0f)
           unit->rot.y += (vectorstodegree2d
                           (unit->pos, pos) - unit->rot.y) * 0.1f;
      else
           unit->rot.y += 2.0f;
-     if (unit->p.airv.height > 150.0f) {
-          if (unit->vec.y < -WORLD_GRAVITY - 7.0f)
+     /*if (unit->p.airv.height > 150.0f) {
+          if (unit->vec.y < -WORLD_GRAVITY - 0.0f)
                flyMovement(unit, INPUT_SPACE + thrust);
           else
                flyMovement(unit, INPUT_NONE + thrust);
           unit->rot.x += (pitch - unit->rot.x) * 0.1f;
      }
-     else if (unit->vec.y < -WORLD_GRAVITY || unit->p.airv.height < 70.0f) {
+     else*/ if (unit->vec.y < -WORLD_GRAVITY || unit->p.airv.height < 70.0f) {
           flyMovement(unit, INPUT_SPACE + thrust);
           unit->rot.x += (pitch - unit->rot.x) * 0.1f;
      }

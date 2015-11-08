@@ -533,17 +533,18 @@ void keyboardInput(GLFWwindow *window, char *direction)
 }
 
 
-void updateAirUnits(struct unit *units)
+void updateAirUnits(struct unit **units, struct v3f cpos)
 {
-     int i;
-     struct v3f pos = units[0].pos;
-     /* struct v3f pos = mv3f(110000.0f, 0.0f, 55000.0f); */
-     for (i = 1; i < 1; i++) {
-          if (distance2d(units[i].pos, pos) < 2500.0f)
-               airUnitMoveVTOL(&units[i], pos);
+     struct unit *p = *units;
+     struct v3f pos = cpos;// mv3f(11000.0f, 0.0f, 5500.0f); /* Destination. */
+     while ((*units)->type != UNIT_END_LIST) {
+       if (distance2d((*units)->pos, pos) < 2500.0f)
+               airUnitMoveVTOL(*units, pos);
           else
-               airUnitMove(&units[i], pos);
+               airUnitMoveVTOL(*units, pos);
+       *units = (*units)->next;
      }
+     *units = p;
 }
 
 
@@ -694,6 +695,7 @@ int main(int argc, char *argv[])
      struct aiScene *scene     = malloc(sizeof(struct aiScene) * 32);
      struct aiScene *textquads = malloc(sizeof(struct aiScene) * 36);
      struct team    *teams     = malloc(sizeof(struct team) * 2);
+     struct unitA tUnit;
      for (i = 0; i < numTeams; i++) {
           initUnitList(&teams[i].air);
           initUnitList(&teams[i].ground);
@@ -712,6 +714,8 @@ int main(int argc, char *argv[])
                      (0, readTerrainHeightPlane2(0, 200), 200));
           addUnitGround(&teams[0].ground, UNIT_GROUND_JEEP_1, mv3f
                         (20, readTerrainHeightPlane2(20, 100), 100));
+          addUnitGround(&teams[0].ground, UNIT_GROUND_JEEP_1, mv3f
+                        (520, readTerrainHeightPlane2(520, 500), 500));
           addUnitBuilding(&teams[0].building, UNIT_BUILDING_VTOL_FAC, mv3f
                           (500, readTerrainHeightPlane2
                            (500, 500), 500));
@@ -722,49 +726,44 @@ int main(int argc, char *argv[])
                movement(&cpos, &crot, direction, 1.0f,
                         INPUT_TYPE_PEDESTRIAN);
                /* This mess is just for testing. */
-               if (0)
-                    if (state == 0) {
-                         mouseLook(window, &crot);
-                         movement(&cpos, &crot, direction, 1.0f,
-                                  INPUT_TYPE_PEDESTRIAN);
-                         if (distance3d(cpos, teams[0].air[0].pos) < 10.0f
-                             && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
-                              state = 1;
-                              st = 10;
-                         }
-                         else if (distance3d(cpos, teams[0].ground[0].pos) < 10.0f
-                                  && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
-                              state = 2;
-                              st = 10;
-                         }
+               if (state == 0) {
+                    mouseLook(window, &crot);
+                    movement(&cpos, &crot, direction, 1.0f,
+                             INPUT_TYPE_PEDESTRIAN);
+                    tUnit = closestUnit(teams[0].ground, 0, cpos);
+                    if (tUnit.a < 10.0f
+                        && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
+                         state = 1;
+                         st = 10;
                     }
-                    else if (state == 1) {
-                         if (teams[0].air[0].p.airv.height > 3.0f)
-                              mouseLook(window, &teams[0].air[0].rot);
-                         flyMovement(&teams[0].air[0], direction);
-                         cameraTrailMovement(&cpos, &crot, teams[0].air[0]);
-                         if (teams[0].air[0].p.airv.thrust == 0 &&
-                             teams[0].air[0].p.airv.height
-                             < 3.0f && teams[0].air[0].p.airv.speed < 2.0f
-                             && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS
-                             && st < 1) {
-                              state = 0;
-                              teams[0].air[0].p.airv.vtolThrust = 0;
-                         }
-                    }
-                    else if (state == 2) {
-                         movement(&teams[0].ground[0].pos,
-                                  &teams[0].ground[0].rot,
-                                  direction, 17.0f, INPUT_TYPE_VEHICLE);
-                         cameraTrailMovement(&cpos, &crot, teams[0].ground[0]);
-                         if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS
-                             && st < 1)
-                              state = 0;
-                    }
+               }
+               /* else if (state == 1) { */
+               /*      if (teams[0].air[0].p.airv.height > 3.0f) */
+               /*           mouseLook(window, &teams[0].air[0].rot); */
+               /*      flyMovement(&teams[0].air[0], direction); */
+               /*      cameraTrailMovement(&cpos, &crot, teams[0].air[0]); */
+               /*      if (teams[0].air[0].p.airv.thrust == 0 && */
+               /*          teams[0].air[0].p.airv.height */
+               /*          < 3.0f && teams[0].air[0].p.airv.speed < 2.0f */
+               /*          && glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS */
+               /*          && st < 1) { */
+               /*           state = 0; */
+               /*           teams[0].air[0].p.airv.vtolThrust = 0; */
+               /*      } */
+               /* } */
+               else if (state == 1) {
+                    movement(&tUnit.p->pos, &tUnit.p->rot,
+                             direction, 17.0f, INPUT_TYPE_VEHICLE);
+                    cameraTrailMovement(&cpos, &crot, *(tUnit.p));
+                    if (glfwGetKey(window, GLFW_KEY_TAB)
+                        == GLFW_PRESS && st < 1)
+                         state = 0;
+               }
                st--;
-               /* for (i = 0; i < numTeams; i++) */
-               /*      updateAirUnits(teams[i].air); */
+               for (i = 0; i < numTeams; i++) {
+                    updateAirUnits(&teams[i].air, cpos);
                // updateGroundUnits(ground);
+               }
                updateCamera(crot);
                glTranslatef(-cpos.x, -cpos.y, -cpos.z);
                render(window, scene, textquads, textures, shaders,
