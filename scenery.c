@@ -3,6 +3,8 @@
 #include "maths.h"
 
 
+extern int tSize;
+
 void gScenery(struct aiScene *scene, GLuint *textures,
               float *height, unsigned char *type, struct v3f *normal,
               float dist, float vdist, float vdisthalf, int density,
@@ -179,8 +181,7 @@ void gScenery(struct aiScene *scene, GLuint *textures,
 
 
 void renderGroundScenery(struct aiScene *scene, GLuint *textures,
-                         struct v3f cpos, struct v3f crot,
-                         int tsize, float fps)
+                         struct v3f cpos, struct v3f crot, float fps)
 {
      int xgrid, zgrid, x, z, x1, z1, cull, density, i;
      static char update = 1;
@@ -192,7 +193,7 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures,
      static float height[SCENERY_SIZE];
      static unsigned char type[SCENERY_SIZE];
      glMateriali(GL_FRONT, GL_SHININESS, 92);
-     if (distance2d(cpos, sector) > 2 * tsize) {
+     if (distance2d(cpos, sector) > 2 * tSize) {
           sector = cpos;
           update = 1;
      }
@@ -223,10 +224,10 @@ void renderGroundScenery(struct aiScene *scene, GLuint *textures,
           while (cull >= 360)
                cull -= 360;
           if (cull <= 85 || cull >= 275 || crot.x > 27
-              || update == 1 || dist < tsize * 2) {
+              || update == 1 || dist < tSize * 2) {
                if (update) {
                     height[i] = readTerrainHeightPlane
-                         (xpos, zpos, &normal[i], tsize) - 0.5f;
+                         (xpos, zpos, &normal[i]) - 0.5f;
                     type[i]   = readTerrainType(xpos, zpos);
                }
                x1 = x1 * x1 + z1 * z1;
@@ -356,7 +357,7 @@ int compGrass(const void *b, const void *a)
 
 
 void renderGrass(GLuint *textures, struct v3f cpos, struct v3f crot,
-                 int tsize, float fps)
+                 float fps)
 {
      int xgrid, zgrid, x, z, x1, z1, cull, density, i = 0, j = 0, a;
      static char update = 1;
@@ -373,7 +374,7 @@ void renderGrass(GLuint *textures, struct v3f cpos, struct v3f crot,
      glBindTexture(GL_TEXTURE_2D, textures[TEX_FOLIAGE_GRASS]);
      glDisable(GL_CULL_FACE);
      glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 0.0f);
-     if (distance2d(cpos, sector) > 0.5f * tsize) {
+     if (distance2d(cpos, sector) > 0.5f * tSize) {
           sector = cpos;
           update = 1;
      }
@@ -405,10 +406,10 @@ void renderGrass(GLuint *textures, struct v3f cpos, struct v3f crot,
           while (cull >= 360)
                cull -= 360;
           if (cull <= 85 || cull >= 275 || crot.x > 27 || update == 1
-              || dist < tsize * 2) {
+              || dist < tSize * 2) {
                if (update) {
                     height[i] = readTerrainHeightPlane
-                         (xpos, zpos, &normal[i], tsize) - 1.2f;
+                         (xpos, zpos, &normal[i]) - 1.2f;
                     /* h2 = fabs(distance3d(mv3f(0.0f, -1.0f, 0.0f), normal[i])); */
                     /* height[i] -= h2 > 0.25f ? 1.7f : h2 > 0.4f ? 2.5f : 0; */
                     type[i] = readTerrainType(xpos, zpos);

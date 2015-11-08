@@ -2,13 +2,14 @@
 #include "maths.h"
 
 
-void renderClear(GLfloat *color, struct v3f cpos, int tsize)
+extern int tSize;
+
+void renderClear(GLfloat *color, struct v3f cpos)
 {
      struct v3f pos;
-     float fog_end = tsize * TERRAIN_GRID_SIZE * 0.95f;
+     float fog_end = tSize * TERRAIN_GRID_SIZE * 0.95f;
      static float fog_start = 0.0f;
-     float ground = readTerrainHeightPlane
-          (cpos.x, cpos.z, &pos, tsize);
+     float ground = readTerrainHeightPlane(cpos.x, cpos.z, &pos);
      float fstart;
      float temp = cpos.y - TERRAIN_SCALE_HEIGHT;
      if (temp < 1250.0f && cpos.y > TERRAIN_SCALE_HEIGHT)
@@ -61,9 +62,9 @@ void sceneQuad(void)
 }
 
 
-void renderSky(struct v3f cpos, struct v3f crot, GLfloat *clear, int tsize)
+void renderSky(struct v3f cpos, struct v3f crot, GLfloat *clear)
 {
-     float fog_end = tsize * TERRAIN_GRID_SIZE * 0.45f;
+     float fog_end = tSize * TERRAIN_GRID_SIZE * 0.45f;
      glPushMatrix();
      glDisable(GL_DEPTH_TEST);
      glDisable(GL_FOG);
@@ -94,10 +95,9 @@ void renderSky(struct v3f cpos, struct v3f crot, GLfloat *clear, int tsize)
 }
 
 
-void renderWater(struct v3f cpos, struct v3f crot, GLfloat color[4],
-                 int tsize)
+void renderWater(struct v3f cpos, struct v3f crot, GLfloat color[4])
 {
-     int xshift, zshift, xgrid, zgrid, size = tsize * 8;
+     int xshift, zshift, xgrid, zgrid, size = tSize * 8;
      float xpos, zpos;
      const float scale = 0.0001f;
      glMateriali(GL_FRONT, GL_SHININESS, 97);
@@ -140,12 +140,12 @@ void renderWater(struct v3f cpos, struct v3f crot, GLfloat color[4],
 
 
 void renderCloud(struct v3f cpos, struct v3f crot, GLubyte alpha,
-                 float height, float scale, int tsize)
+                 float height, float scale)
 {
      int i, size;
      float rot, x, z;
      int temp;
-     size = TERRAIN_GRID_SIZE * tsize * 0.5f;
+     size = TERRAIN_GRID_SIZE * tSize * 0.5f;
      temp = fabs(height - cpos.y) * 0.1f;
      temp = temp > alpha ? alpha : temp;
      glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 0.0f);
@@ -370,13 +370,13 @@ void render(GLFWwindow *window, struct aiScene *scene,
             GLuint *textures, GLuint *shaders,
             struct v3f cpos, /* Camera position. */
             struct v3f crot, /* Camera rotation. */
-            struct v2f *sector, int *tsize, float *fps,
+            struct v2f *sector, float *fps,
             struct team *teams) {
      GLfloat color[4], temp;
      GLint lpos[4], mpos[4];
      struct v3f n;
      float camHeight = fabs(cpos.y - readTerrainHeightPlane
-                            (cpos.x, cpos.z, &n, *tsize));
+                            (cpos.x, cpos.z, &n));
      static double time = 0;
      static float fps2 = 0;
      static char swapb = 1;
@@ -447,16 +447,16 @@ void render(GLFWwindow *window, struct aiScene *scene,
           (lpos[1] > -400 ? (lpos[1] + 400) / 1400.0f : 0);
      color[2] = 0.8431372549019608f *
           (lpos[1] > -200 ? 0.05f + (lpos[1] + 200) / 1200.0f : 0.05f);
-     renderClear(color, cpos, *tsize);
-     renderSky(cpos, crot, color, *tsize);
+     renderClear(color, cpos);
+     renderSky(cpos, crot, color);
      renderSun(shaders, textures, cpos, lpos);
      renderMoon(cpos, mpos, 60);
-     drawTerrain(textures, cpos, crot, sector, tsize, &swapb);
+     drawTerrain(textures, cpos, crot, sector, &swapb);
      if (cpos.y < TERRAIN_SCALE_HEIGHT && camHeight < VIEW_DISTANCE)
-          renderGroundScenery(scene, textures, cpos, crot, *tsize, fps2);
+          renderGroundScenery(scene, textures, cpos, crot, fps2);
      if (swapb) {
           glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
-          renderWater(cpos, crot, color, *tsize);
+          renderWater(cpos, crot, color);
           int i;
           char numTeams = 2;
           for (i = 0; i < numTeams; i++) {
@@ -482,17 +482,17 @@ void render(GLFWwindow *window, struct aiScene *scene,
           glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
           if (cpos.y < TERRAIN_SCALE_HEIGHT) {
                renderCloud(cpos, crot, 180 * CLOUD_DENSITY,
-                           TERRAIN_SCALE_HEIGHT, 0.00005f, *tsize);
+                           TERRAIN_SCALE_HEIGHT, 0.00005f);
                renderCloud(cpos, crot, 100 * CLOUD_DENSITY,
-                           LOWER_CLOUD_HEIGHT, 0.00001f, *tsize);
+                           LOWER_CLOUD_HEIGHT, 0.00001f);
                if (camHeight < VIEW_DISTANCE_HALF)
-                    renderGrass(textures, cpos, crot, *tsize, fps2);
+                    renderGrass(textures, cpos, crot, fps2);
           }
           else {
                renderCloud(cpos, crot, 65 * CLOUD_DENSITY,
-                           LOWER_CLOUD_HEIGHT, 0.00001f, *tsize);
+                           LOWER_CLOUD_HEIGHT, 0.00001f);
                renderCloud(cpos, crot, 120 * CLOUD_DENSITY,
-                           TERRAIN_SCALE_HEIGHT, 0.00005f, *tsize);
+                           TERRAIN_SCALE_HEIGHT, 0.00005f);
           }
           glMatrixMode(GL_PROJECTION);
           glPushMatrix();

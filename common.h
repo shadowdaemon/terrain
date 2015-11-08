@@ -249,24 +249,24 @@ void addUnitGround(struct unit **, int, struct v3f);
 void addUnitBuilding(struct unit **, int, struct v3f);
 struct terrain algorithmicTerrain(float, float);
 float readTerrainHeight(float, float);
-float readTerrainHeightPlane(float, float, struct v3f*, int);
-float readTerrainHeightPlane2(float, float, int);
+float readTerrainHeightPlane(float, float, struct v3f*);
+float readTerrainHeightPlane2(float, float);
 unsigned char readTerrainType(float, float);
-void drawTerrain(GLuint*, struct v3f, struct v3f, struct v2f*, int*, char*);
+void drawTerrain(GLuint*, struct v3f, struct v3f, struct v2f*, char*);
 const struct aiScene *loadModel(const char*);
 const struct aiScene *loadTextQuad(const char*);
 void drawModel(const struct aiScene*, struct v3f, struct v3f,
                GLfloat, GLuint);
 void drawModel2(const struct aiScene*, struct v3f, struct v3f, GLfloat,
                 const GLuint*, GLuint);
-void renderGroundScenery(struct aiScene *, GLuint *, struct v3f, struct v3f,
-                         int, float);
-void renderGrass(GLuint *, struct v3f, struct v3f, int, float);
-void render(GLFWwindow*, struct aiScene*, struct aiScene*, GLuint*, GLuint*,
-            struct v3f, struct v3f, struct v2f*, int*, float*,
-            struct team *);
+void renderGroundScenery(struct aiScene *, GLuint *, struct v3f,
+                         struct v3f, float);
+void renderGrass(GLuint *, struct v3f, struct v3f, float);
+void render(GLFWwindow*, struct aiScene*, struct aiScene*, GLuint*,
+            GLuint*, struct v3f, struct v3f, struct v2f*,
+            float*, struct team *);
 void movePitch(struct v3f *, struct v3f);
-void movement(struct v3f *, struct v3f *, char, float, int, int);
-void flyMovement(struct unit *, char, int);
-void airUnitMove(struct unit *, struct v3f, int);
-void airUnitMoveVTOL(struct unit *, struct v3f, int);
+void movement(struct v3f *, struct v3f *, char, float, int);
+void flyMovement(struct unit *, char);
+void airUnitMove(struct unit *, struct v3f);
+void airUnitMoveVTOL(struct unit *, struct v3f);

@@ -2,6 +2,8 @@
 #include "maths.h"
 
 
+extern int tSize;
+
 float algorithmicTerrainHeight1(float x, float z)
 {
      float height, x1, z1, a1, a2, h1, h2, g1, g2;
@@ -428,13 +430,13 @@ unsigned char readTerrainType(float x, float z)
 }
 
 
-float readTerrainHeightPlane(float x, float z, struct v3f *normal, int tsize)
+float readTerrainHeightPlane(float x, float z, struct v3f *normal)
 {
      int xgrid, zgrid;
      float x1, z1, x2, z2, x3 = 0, z3 = 0;
      float height, p[2] = {x, z}, v1[3], v2[3], v3[3];
      for (xgrid = 0, x2 = 5000000; xgrid < 4; xgrid++) {
-          x1 = (xgrid - 2) * tsize + x - (int) x % tsize;
+          x1 = (xgrid - 2) * tSize + x - (int) x % tSize;
           x2 = fabs(x - x1) < x2 ? fabs(x - x1) : x2;
           if (fabs(x - x1) > x2)
                break;
@@ -442,17 +444,17 @@ float readTerrainHeightPlane(float x, float z, struct v3f *normal, int tsize)
                x3 = x1;
      }
      for (zgrid = 0, z2 = 5000000; zgrid < 4; zgrid++) {
-          z1 = (zgrid - 2) * tsize + z - (int) z % tsize;
+          z1 = (zgrid - 2) * tSize + z - (int) z % tSize;
           z2 = fabs(z - z1) < z2 ? fabs(z - z1) : z2;
           if (fabs(z - z1) > z2)
                break;
           else
                z3 = z1;
      }
-     x1 = x3 + tsize / 2;
-     x2 = x3 - tsize / 2;
-     z1 = z3 - tsize / 2;
-     z2 = z3 + tsize / 2;
+     x1 = x3 + tSize / 2;
+     x2 = x3 - tSize / 2;
+     z1 = z3 - tSize / 2;
+     z2 = z3 + tSize / 2;
      if (distance2d(mv3f(x, 0, z), mv3f(x1, 0, z1)) <
          distance2d(mv3f(x, 0, z), mv3f(x2, 0, z2))) {
           v1[0] = x2; v1[1] = readTerrainHeight(x2, z1); v1[2] = z1;
@@ -470,18 +472,18 @@ float readTerrainHeightPlane(float x, float z, struct v3f *normal, int tsize)
 }
 
 
-float readTerrainHeightPlane2(float x, float z, int tsize)
+float readTerrainHeightPlane2(float x, float z)
 {
      struct v3f normal;
-     return readTerrainHeightPlane(x, z, &normal, tsize);
+     return readTerrainHeightPlane(x, z, &normal);
 }
 
 
 void moveTerrain(struct v3f cpos, struct v3f crot,
-                 struct v2f *sector, int tsize, char *swapb)
+                 struct v2f *sector, char *swapb)
 {
      if (distance2d(cpos, mv3f(sector->x, 0.0f, sector->y)) >
-         TERRAIN_STEP_SIZE * tsize) {
+         TERRAIN_STEP_SIZE * tSize) {
           sector->x = cpos.x;
           sector->y = cpos.z;
           *swapb = 0;
@@ -490,7 +492,7 @@ void moveTerrain(struct v3f cpos, struct v3f crot,
 
 
 void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot,
-                 struct v2f *sector, int *tsize, char *swapb)
+                 struct v2f *sector, char *swapb)
 {
      struct terrain temp1, temp2;
      struct v3f temp3f;
@@ -551,16 +553,16 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot,
      glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_MODULATE);
      glMateriali(GL_FRONT, GL_SHININESS, 11);
      if (cpos.y < TERRAIN_SCALE_HEIGHT)
-          *tsize = TERRAIN_SQUARE_SIZE;
+          tSize = TERRAIN_SQUARE_SIZE;
      else
-          *tsize = TERRAIN_SQUARE_SIZE * 3;
-     if (size != *tsize) {
-          size = *tsize;
+          tSize = TERRAIN_SQUARE_SIZE * 3;
+     if (size != tSize) {
+          size = tSize;
           *swapb = 0;
      }
-     moveTerrain(cpos, crot, sector, *tsize, swapb);
-     x = (int) (sector->x / *tsize);
-     z = (int) (sector->y / *tsize);
+     moveTerrain(cpos, crot, sector, swapb);
+     x = (int) (sector->x / tSize);
+     z = (int) (sector->y / tSize);
      const char ext = 1;
      for (xgrid = 0, zgrid = 0; xgrid < TERRAIN_GRID_SIZE &&
                                 zgrid < TERRAIN_GRID_SIZE; xgrid++) {
@@ -569,40 +571,40 @@ void drawTerrain(GLuint *textures, struct v3f cpos, struct v3f crot,
           z3 = fabs(TERRAIN_GRID_SIZE_HALF - zgrid) - 20;
           z3 = z3 < 0 || ext == 0 ? 0 : (z3 + 20) * 8;
           xpos = (xgrid - TERRAIN_GRID_SIZE_HALF) *
-               (x3 + *tsize) + x * *tsize;
+               (x3 + tSize) + x * tSize;
           zpos = (zgrid - TERRAIN_GRID_SIZE_HALF) *
-               (z3 + *tsize) + z * *tsize;
+               (z3 + tSize) + z * tSize;
           dist = distance2d(cpos, mv3f(xpos, 0.0f, zpos));
           if (xgrid > TERRAIN_GRID_SIZE_HALF + 19 && ext) {
-               x1 = xpos + x3 - 3040.0f + *tsize / 2;
-               x2 = xpos - x3 - 3040.0f - *tsize / 2;
+               x1 = xpos + x3 - 3040.0f + tSize / 2;
+               x2 = xpos - x3 - 3040.0f - tSize / 2;
           }
           else if (xgrid < TERRAIN_GRID_SIZE_HALF - 19 && ext) {
-               x1 = xpos + x3 + 3040.0f + *tsize / 2;
-               x2 = xpos - x3 + 3040.0f - *tsize / 2;
+               x1 = xpos + x3 + 3040.0f + tSize / 2;
+               x2 = xpos - x3 + 3040.0f - tSize / 2;
           }
           else {
-               x1 = xpos + x3 + *tsize / 2;
-               x2 = xpos - x3 - *tsize / 2;
+               x1 = xpos + x3 + tSize / 2;
+               x2 = xpos - x3 - tSize / 2;
           }
           if (zgrid > TERRAIN_GRID_SIZE_HALF + 19 && ext) {
-               z1 = zpos + z3 - 3040.0f + *tsize / 2;
-               z2 = zpos - z3 - 3040.0f - *tsize / 2;
+               z1 = zpos + z3 - 3040.0f + tSize / 2;
+               z2 = zpos - z3 - 3040.0f - tSize / 2;
           }
           else if (zgrid < TERRAIN_GRID_SIZE_HALF - 19 && ext) {
-               z1 = zpos + z3 + 3040.0f + *tsize / 2;
-               z2 = zpos - z3 + 3040.0f - *tsize / 2;
+               z1 = zpos + z3 + 3040.0f + tSize / 2;
+               z2 = zpos - z3 + 3040.0f - tSize / 2;
           }
           else {
-               z1 = zpos + z3 + *tsize / 2;
-               z2 = zpos - z3 - *tsize / 2;
+               z1 = zpos + z3 + tSize / 2;
+               z2 = zpos - z3 - tSize / 2;
           }
           cull = fabs((int) (crot.y - 180 - vectorstodegree2d
                              (cpos, mv3f(xpos, 0, zpos))));
           while (cull >= 360)
                cull -= 360;
           if (crot.x > 47.0f || cull <= 75 || cull >= 285
-              || dist < *tsize * 3.5f || *swapb == 0) {
+              || dist < tSize * 3.5f || *swapb == 0) {
                if (*swapb == 0) {
                     NEx[xgrid][zgrid] = x1;
                     NEz[xgrid][zgrid] = z2;
