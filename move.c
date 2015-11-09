@@ -94,9 +94,9 @@ void movement(struct v3f *cpos, struct v3f *crot, char direction,
      cpos->y = readTerrainHeightPlane(cpos->x, cpos->z, &norm);
      cpos->y = cpos->y < TERRAIN_WATER_LEVEL ? TERRAIN_WATER_LEVEL : cpos->y;
      if (type == INPUT_TYPE_VEHICLE)
-          cpos->y += 0.6f;
+          cpos->y += 0.5f;
      else
-          cpos->y += 1.8f;
+          cpos->y += 1.7f;
 }
 
 
@@ -257,82 +257,54 @@ void flyMovement(struct unit *unit, char input)
 
 void airUnitMove(struct unit *unit, struct v3f pos)
 {
-     struct v3f temp1 = unit->pos;
-     struct v3f temp2 = unit->pos;
-     struct v3f temp3 = unit->pos;
-     struct v3f temp4 = unit->pos;
-     struct v3f temp5 = unit->pos;
+     struct v3f tPos = unit->pos;
      float dist = distance2d(unit->pos, pos);
-     float speed = dist < 7000.0f ? 35.0f : 55.0f;
-     int thrust;
-     unit->rot.y += (vectorstodegree2d(unit->pos, pos) - unit->rot.y) * 0.1f;
-     degreestovector3d(&temp1, unit->rot, nullv3f, 7500.0f);
-     degreestovector3d(&temp2, unit->rot, nullv3f, 6000.0f);
-     degreestovector3d(&temp3, unit->rot, nullv3f, 4500.0f);
-     degreestovector3d(&temp4, unit->rot, nullv3f, 3000.0f);
-     degreestovector3d(&temp5, unit->rot, nullv3f, 1500.0f);
-     if (unit->p.airv.speed > speed + 20.0f)
+     float fHeight, t1;
+     int speed, thrust;
+     /* Terrain look-ahead. */
+     degreestovector3d(&tPos, unit->rot, nullv3f,
+                       unit->p.airv.speed * 50);
+     fHeight = readTerrainHeightPlane2(tPos.x, tPos.z);
+     /* Heading (y rotation). */
+     if (dist < 750.0f)
+          unit->rot.y += 1.1f;
+     else {
+          t1 = vectorstodegree2d(unit->pos, pos) - unit->rot.y;
+          clamp(&t1, -85.0f, 85.0f);
+          unit->rot.y += t1 * 0.05f;
+     }
+     /* Desired speed. */
+     if (unit->p.airv.height < 410.0f || dist < 1000.0f)
+          speed = 5;
+     else if (unit->p.airv.height < 750.0f || dist < 2000.0f)
+          speed = 10;
+     else if (unit->p.airv.height < 1250.0f || dist < 5000.0f)
+          speed = 15;
+     else if (unit->p.airv.height > 1500.0f && dist < 10000.0f)
+          speed = 25;
+     else
+          speed = 250;
+     /* Thrust. */
+     if (unit->p.airv.speed > speed + 5.0f)
           thrust = INPUT_DOWN;
      else if (unit->p.airv.speed > speed)
           thrust = INPUT_NONE;
      else
           thrust = INPUT_UP;
-     if (readTerrainHeight(temp1.x, temp1.z) > unit->pos.y ||
-         readTerrainHeight(temp2.x, temp2.z) > unit->pos.y ||
-         readTerrainHeight(temp3.x, temp3.z) > unit->pos.y ||
-         readTerrainHeight(temp4.x, temp4.z) > unit->pos.y ||
-         readTerrainHeight(temp5.x, temp5.z) > unit->pos.y) {
-          flyMovement(unit, thrust);
-          unit->rot.x += (-40.0f - unit->rot.x) * 0.1f;
-          unit->rot.y += 2.5f;
-     }
-     else if (unit->vec.y < -WORLD_GRAVITY * 2.5f
-              && unit->p.airv.height < 2500.0f) {
-          flyMovement(unit, INPUT_SPACE + thrust);
-          unit->rot.x += (-25.0f - unit->rot.x) * 0.05f;
-     }
-     else if (dist < 5000.0f) {
-          flyMovement(unit, INPUT_NONE);
-          unit->rot.x += (-15.0f - unit->rot.x) * 0.1f;
-     }
-     else if (unit->p.airv.height < 1200.0f) {
-          flyMovement(unit, thrust);
-          unit->rot.x += (-10.0f - unit->rot.x) * 0.1f;
-     }
-     else if (unit->p.airv.height > 10000.0f) {
-          flyMovement(unit, thrust);
-          unit->rot.x += (3.5f - unit->rot.x) * 0.02f;
-     }
-     else {
-          flyMovement(unit, thrust);
-          unit->rot.x += (0.0f - unit->rot.x) * 0.03f;
-     }
-}
-
-
-void airUnitMoveVTOL(struct unit *unit, struct v3f pos)
-{
-     float dist = distance2d(unit->pos, pos);
-     float pitch = unit->p.airv.speed > 7.0f ? -5.0f : 7.5f;
-     int thrust = unit->p.airv.thrust > 0.0f ? INPUT_DOWN : INPUT_NONE;
-     if (dist > 200.0f)
-          unit->rot.y += (vectorstodegree2d
-                          (unit->pos, pos) - unit->rot.y) * 0.1f;
+     thrust += unit->p.airv.height < 250.0f ||
+          unit->pos.y < fHeight ? INPUT_SPACE : 0;
+     /* Pitch. */
+     if (unit->pos.y < fHeight && unit->p.airv.speed > 5)
+          t1 = -25.0f;
+     else if (unit->pos.y + 200.0f < fHeight
+              && unit->p.airv.speed > 10)
+          t1 = -12.0f;
+     else if (unit->p.airv.height > 1000.0f && unit->p.airv.speed < 6)
+          t1 = 7.0f;
+     else if (unit->p.airv.height > 5000.0f && unit->p.airv.speed > 13)
+          t1 = 1.0f;
      else
-          unit->rot.y += 2.0f;
-     /*if (unit->p.airv.height > 150.0f) {
-          if (unit->vec.y < -WORLD_GRAVITY - 0.0f)
-               flyMovement(unit, INPUT_SPACE + thrust);
-          else
-               flyMovement(unit, INPUT_NONE + thrust);
-          unit->rot.x += (pitch - unit->rot.x) * 0.1f;
-     }
-     else*/ if (unit->vec.y < -WORLD_GRAVITY || unit->p.airv.height < 70.0f) {
-          flyMovement(unit, INPUT_SPACE + thrust);
-          unit->rot.x += (pitch - unit->rot.x) * 0.1f;
-     }
-     else {
-          flyMovement(unit, INPUT_NONE + thrust);
-          unit->rot.x += (0.0f - unit->rot.x) * 0.05f;
-     }
+          t1 = 0.0f;
+     unit->rot.x += (t1 - unit->rot.x) * 0.05f;
+     flyMovement(unit, thrust);
 }

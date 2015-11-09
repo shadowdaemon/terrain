@@ -538,11 +538,8 @@ void updateAirUnits(struct unit **units, struct v3f cpos)
      struct unit *p = *units;
      struct v3f pos = cpos;// mv3f(11000.0f, 0.0f, 5500.0f); /* Destination. */
      while ((*units)->type != UNIT_END_LIST) {
-       if (distance2d((*units)->pos, pos) < 2500.0f)
-               airUnitMoveVTOL(*units, pos);
-          else
-               airUnitMoveVTOL(*units, pos);
-       *units = (*units)->next;
+          airUnitMove(*units, pos);
+          *units = (*units)->next;
      }
      *units = p;
 }
@@ -728,7 +725,7 @@ int main(int argc, char *argv[])
                /* This mess is just for testing. */
                if (state == 0) {
                     mouseLook(window, &crot);
-                    movement(&cpos, &crot, direction, 1.0f,
+                    movement(&cpos, &crot, direction, 0.7f,
                              INPUT_TYPE_PEDESTRIAN);
                     tUnit = closestUnit(teams[0].ground, 0, cpos);
                     if (tUnit.a < 10.0f
@@ -753,7 +750,7 @@ int main(int argc, char *argv[])
                /* } */
                else if (state == 1) {
                     movement(&tUnit.p->pos, &tUnit.p->rot,
-                             direction, 17.0f, INPUT_TYPE_VEHICLE);
+                             direction, 10.0f, INPUT_TYPE_VEHICLE);
                     cameraTrailMovement(&cpos, &crot, *(tUnit.p));
                     if (glfwGetKey(window, GLFW_KEY_TAB)
                         == GLFW_PRESS && st < 1)

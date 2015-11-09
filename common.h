@@ -276,4 +276,3 @@ void movePitch(struct v3f *, struct v3f);
 void movement(struct v3f *, struct v3f *, char, float, int);
 void flyMovement(struct unit *, char);
 void airUnitMove(struct unit *, struct v3f);
-void airUnitMoveVTOL(struct unit *, struct v3f);
