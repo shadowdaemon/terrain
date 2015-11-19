@@ -53,6 +53,34 @@ void loadTexture2D(const char *file)
 }
 
 
+void loadTexSub(int left, int top, int right, int bottom, const char *file)
+{
+     int i;
+     FIBITMAP *imgN = FreeImage_Load(FreeImage_GetFileType(file, 0), file, 0);
+     FIBITMAP *img  = FreeImage_Copy(imgN, left, top, right, bottom);
+     img = FreeImage_ConvertTo32Bits(img);
+     GLsizei width  = FreeImage_GetWidth(img);
+     GLsizei height = FreeImage_GetHeight(img);
+     GLubyte *bits  = (GLubyte*) FreeImage_GetBits(img);
+     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+                  GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
+     /* Set up mipmapping. */
+     for (i = 1; i < 40; i++) {
+          width /= 2;
+          height /= 2;
+          bits = (GLubyte*) FreeImage_GetBits
+               (FreeImage_Rescale(img, width, height, FILTER_BICUBIC));
+          glTexImage2D(GL_TEXTURE_2D, i, GL_RGBA, width, height,
+                       0, GL_BGRA, GL_UNSIGNED_BYTE, (GLvoid *) bits);
+          if (width == 1 || height == 1)
+               break;
+     }
+     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, i);
+     FreeImage_Unload(imgN);
+     FreeImage_Unload(img);
+}
+
+
 void createPerlinTexture(int size, int tex, GLubyte *bits)
 {
      typedef struct {
@@ -311,6 +339,9 @@ GLFWwindow *startGraphics(GLuint *textures, GLuint *shaders)
      loadTexture2D("data/textures/warzone/page-13-player-buildings.png");
      glBindTexture(GL_TEXTURE_2D, textures[TEX_FLOOR_1]);
      loadTexture2D("data/textures/warzone/page-9-player-buildings-bases-rockies.png");
+     glBindTexture(GL_TEXTURE_2D, textures[TEX_FX_1]);
+     //loadTexSub(40, 104, 59, 97, "data/textures/warzone/page-18-fx.png");
+     loadTexSub(40, 256-104, 59, 256-97, "data/textures/warzone/page-18-fx.png");
      /* Six texture functions may be specified:
         GL_ADD, GL_MODULATE, GL_DECAL, GL_BLEND,
         GL_REPLACE, or GL_COMBINE. */
@@ -692,7 +723,21 @@ int main(int argc, char *argv[])
      struct aiScene *scene     = malloc(sizeof(struct aiScene) * 32);
      struct aiScene *textquads = malloc(sizeof(struct aiScene) * 36);
      struct team    *teams     = malloc(sizeof(struct team) * 2);
+     struct spriteA sprites;
+     struct projA projectiles;
      struct unitA tUnit;
+     projectiles.p = malloc(sizeof(struct proj) * MAX_PROJ);
+     projectiles.a = 0;
+     for (i = 0; i < MAX_PROJ; i++) {
+          projectiles.p[i].type = PROJ_NULL;
+          projectiles.p[i].life = 0;
+     }
+     sprites.p = malloc(sizeof(struct sprite) * MAX_SPRITE);
+     sprites.a = 0;
+     for (i = 0; i < MAX_SPRITE; i++) {
+          sprites.p[i].type = SPRITE_NULL;
+          sprites.p[i].life = 0;
+     }
      for (i = 0; i < numTeams; i++) {
           initUnitList(&teams[i].air);
           initUnitList(&teams[i].ground);
@@ -752,19 +797,26 @@ int main(int argc, char *argv[])
                     movement(&tUnit.p->pos, &tUnit.p->rot,
                              direction, 10.0f, INPUT_TYPE_VEHICLE);
                     cameraTrailMovement(&cpos, &crot, *(tUnit.p));
+                    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT))
+                         addProjectile(&projectiles, &sprites, PROJ_BULLET,
+                                       tUnit.p->pos, tUnit.p->rot);
                     if (glfwGetKey(window, GLFW_KEY_TAB)
                         == GLFW_PRESS && st < 1)
                          state = 0;
                }
                st--;
+               st = st > 0 ? st : 0;
+               /* Update various things, order is important. */
                for (i = 0; i < numTeams; i++) {
                     updateAirUnits(&teams[i].air, cpos);
                // updateGroundUnits(ground);
                }
+               updateProjectiles(&projectiles);
+               updateSprites(&sprites);
                updateCamera(crot);
                glTranslatef(-cpos.x, -cpos.y, -cpos.z);
                render(window, scene, textquads, textures, shaders,
-                      cpos, crot, &sector, &fps, teams);
+                      cpos, crot, &sector, &fps, &sprites, teams);
           }
           free(scene);
           free(textquads);

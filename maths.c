@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <stdio.h>
 #include "maths.h"
 
 
@@ -78,14 +77,12 @@ struct v3f degreestovector2d(struct v3f pos_self, float rot_self, float rot, flo
 {
      float temp1;
      float temp2;
-
      rot = (rot_self + rot) / PIx180;
      temp1 = pos_self.x - dist * sinf(rot);
      temp2 = pos_self.z + dist * cosf(rot);
      pos_self.x = temp1;
      pos_self.y = 0.0f;
      pos_self.z = temp2;
-
      return pos_self;
 }
 
@@ -113,7 +110,6 @@ float vectorstodegree2d(struct v3f a, struct v3f b)
           temp -= 360.0f;
      while (temp < 0.0f)
           temp += 360.0f;
-
      return temp;
 }
 

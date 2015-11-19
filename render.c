@@ -291,19 +291,29 @@ void renderNumber(int num, struct aiScene *textquads, struct v2f pos)
 }
 
 
-void renderFX(void)
+void renderSprites(GLuint *textures, GLuint *shaders, struct spriteA *sprites)
 {
-     int xgrid, zgrid;
+     int i = 0;
+     glEnable(GL_POINT_SPRITE);
+     glEnable(GL_PROGRAM_POINT_SIZE);
+     glEnable(GL_TEXTURE_2D);
+     glBindTexture(GL_TEXTURE_2D, textures[TEX_FX_1]);
+     glUseProgramARB(shaders[2]);
+     glUniform1iARB(glGetUniformLocationARB
+                    (shaders[2], "texture"), GL_TEXTURE0_ARB);
+     glUniform1fARB(glGetUniformLocationARB
+                    (shaders[2], "size"), 1.0f);
+     glUniform2fARB(glGetUniformLocationARB
+                    (shaders[2], "screensize"), RESX, RESY);
      glColor3ub(255, 255, 255);
-     for (xgrid = 0, zgrid = 0; xgrid < 10 && zgrid < 10; xgrid++) {
-          glBegin(GL_POINTS);
-          glVertex3f(xgrid * 50, 5000, zgrid * 50);
-          glEnd();
-          if (xgrid >= 9) {
-               zgrid++;
-               xgrid = -1;
-          }
+     glBegin(GL_POINTS);
+     for (i = 0; i < sprites->a; i++) {
+          if (sprites->p[i].type != SPRITE_NULL)
+          glVertex3f(sprites->p[i].pos->x, sprites->p[i].pos->y,
+                     sprites->p[i].pos->z);
      }
+     glEnd();
+     glUseProgramARB(0);
 }
 
 
@@ -371,6 +381,7 @@ void render(GLFWwindow *window, struct aiScene *scene,
             struct v3f cpos, /* Camera position. */
             struct v3f crot, /* Camera rotation. */
             struct v2f *sector, float *fps,
+            struct spriteA *sprites,
             struct team *teams) {
      GLfloat color[4], temp;
      GLint lpos[4], mpos[4];
@@ -464,21 +475,9 @@ void render(GLFWwindow *window, struct aiScene *scene,
                renderUnits(scene, textures, teams[i].ground);
                renderUnits(scene, textures, teams[i].building);
           }
-          if (0) { /* Just disable for now. */
-               glEnable(GL_POINT_SPRITE);
-               glEnable(GL_PROGRAM_POINT_SIZE);
-               glUseProgramARB(shaders[2]);
-               glUniform1iARB(glGetUniformLocationARB
-                              (shaders[2], "texture"), 1);
-               glUniform1fARB(glGetUniformLocationARB
-                              (shaders[2], "size"), 10.0f);
-               glUniform2fARB(glGetUniformLocationARB
-                              (shaders[2], "screensize"), RESX, RESY);
-               renderFX();
-               glUseProgramARB(0);
-          }
-          glEnable(GL_LIGHTING);
-          glEnable(GL_TEXTURE_2D);
+          renderSprites(textures, shaders, sprites);
+          /* glEnable(GL_LIGHTING); */
+          /* glEnable(GL_TEXTURE_2D); */
           glBindTexture(GL_TEXTURE_2D, textures[TEX_CLOUD]);
           if (cpos.y < TERRAIN_SCALE_HEIGHT) {
                renderCloud(cpos, crot, 180 * CLOUD_DENSITY,
@@ -514,7 +513,7 @@ void render(GLFWwindow *window, struct aiScene *scene,
                                 RESX, RESY, 0);
                glUseProgramARB(shaders[0]);
                glUniform1iARB(glGetUniformLocationARB
-                              (shaders[0], "scene"), 4);
+                              (shaders[0], "scene"), GL_TEXTURE4_ARB);
                glUniform1fARB(glGetUniformLocationARB
                               (shaders[0], "gamma"), 0.6f);
                glUniform1fARB(glGetUniformLocationARB

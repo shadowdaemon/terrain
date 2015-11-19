@@ -6,6 +6,8 @@
 #define PI                                  3.14159265358979323846f
 #define PIx180                              180.0f*PI
 #define WORLD_GRAVITY                       0.4f
+#define MAX_PROJ                            1000
+#define MAX_SPRITE                          1000
 
 /* Terrain defines. */
 #define TERRAIN_GRID_SIZE                   100
@@ -56,13 +58,21 @@
 #define INPUT_SPACE                         16
 #define INPUT_LEFT_SHIFT                    32
 
-/* Textures, models, etc. */
-#define MAX_TEXTURES                        16
+/* Unit types, projectiles, sprites. */
 #define UNIT_END_LIST                       -1
 #define UNIT_START_LIST                     0
 #define UNIT_AIR_FIGHTER_1                  1
 #define UNIT_GROUND_JEEP_1                  2
 #define UNIT_BUILDING_VTOL_FAC              3
+#define PROJ_NULL                           -1
+#define PROJ_COL                            0
+#define PROJ_BULLET                         1
+#define PROJ_PLASMA                         2
+#define SPRITE_NULL                         -1
+#define SPRITE_BULLET                       1
+
+/* Textures, models, etc. */
+#define MAX_TEXTURES                        16
 #define TEX_TERRAIN_1                       0
 #define TEX_TERRAIN_2                       1
 #define TEX_FOLIAGE                         2
@@ -77,6 +87,7 @@
 #define TEX_BUILDING_1                      11
 #define TEX_BUILDING_2                      12
 #define TEX_FLOOR_1                         13
+#define TEX_FX_1                            14
 #define MODEL_TREE_POPLAR                   0
 #define MODEL_TREE_OAK                      1
 #define MODEL_TREE_FIR                      2
@@ -188,10 +199,29 @@ struct terrainMod {
      int height;
 };
 
-struct fx {
+/* Particle effects. */
+struct sprite {
+     int type;
+     unsigned int life;
+     struct v3f *pos;
+};
+
+struct spriteA {
+     struct sprite *p;
+     unsigned int a;
+};
+
+/* Projectiles. */
+struct proj {
+     int type;
+     unsigned int life;
      struct v3f pos;
-     unsigned char type;
-     unsigned char life;
+     struct v3f vec;
+};
+
+struct projA {
+     struct proj *p;
+     unsigned int a;
 };
 
 /* Extra variables for air units. */
@@ -271,8 +301,13 @@ void renderGroundScenery(struct aiScene *, GLuint *, struct v3f,
 void renderGrass(GLuint *, struct v3f, struct v3f, float);
 void render(GLFWwindow*, struct aiScene*, struct aiScene*, GLuint*,
             GLuint*, struct v3f, struct v3f, struct v2f*,
-            float*, struct team *);
+            float*, struct spriteA *, struct team *);
 void movePitch(struct v3f *, struct v3f);
 void movement(struct v3f *, struct v3f *, char, float, int);
 void flyMovement(struct unit *, char);
 void airUnitMove(struct unit *, struct v3f);
+void addProjectile(struct projA *, struct spriteA *, int, struct v3f,
+                   struct v3f);
+void updateProjectiles(struct projA *);
+void addSprite(struct spriteA *, int, struct v3f *);
+void updateSprites(struct spriteA *);
